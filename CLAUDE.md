@@ -29,7 +29,9 @@ User reports progress in natural language → create `StudyProgress/DailyLogs/YY
 
 ### 2. Textbook lookup
 
-**Trigger**: Whenever the user's intent is to find or verify information from a textbook — this includes any natural phrasing such as "XX在哪一页", "书上有没有XX", "XX属于哪个知识点", "帮我查一下XX", "数据结构里怎么讲XX的", "XX在第几章", etc. If the user is asking about factual content that could reasonably be in a textbook, check the cache.
+**Trigger**: The user is asking a **content question** about a textbook — they want to know what the book says, where something is, or whether a specific concept exists in the book. Any natural phrasing counts: "XX在哪一页", "书上有没有XX", "XX属于哪个知识点", "帮我查一下XX", "数据结构里怎么讲XX的", "XX在第几章", etc.
+
+**Do NOT trigger** for mere mentions of subject names during progress reporting. If the user says "今天复习了组成原理第2章" or "做完了高数第三章习题", that's a study log, not a content question. The user would be asking you to *record* progress, not to *look up* content. Judge by intent: "我学了X" → study log. "X是什么/Y在哪" → textbook lookup.
 
 **Cache system**: `DigitalBooks/Cache/` contains `.docling.json` files — one per book.
 - **408 textbooks** (数据结构/组成原理/操作系统/计算机网络): page-OCR format — `{"pages": [{"page_no": N, "text": "..."}]}` — each page has been OCR'd from the PDF. Supports keyword search.
