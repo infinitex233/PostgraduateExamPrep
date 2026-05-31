@@ -1,0 +1,6 @@
+# Local textbook PDFs are kept on the machine, not in Git.
+DigitalBooks/**/*.pdf
+
+# Common local clutter
+Thumbs.db
+.DS_Store
