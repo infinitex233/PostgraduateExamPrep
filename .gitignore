@@ -4,6 +4,9 @@ DigitalBooks/**/*.pdf
 # Cache files are derived from PDFs — rebuild locally.
 DigitalBooks/Cache/
 
+# Claude Code internal files
+.claude/
+
 # Common local clutter
 Thumbs.db
 .DS_Store
