@@ -153,7 +153,7 @@ def format_output(matches: list[dict], page_only: bool = False) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Search cached textbooks by keyword")
-    parser.add_argument("query", help="Keyword or phrase to search for")
+    parser.add_argument("query", nargs="?", default="", help="Keyword or phrase to search for")
     parser.add_argument("--book", default=None, help="Filter by book name (partial match)")
     parser.add_argument("--page-only", action="store_true", help="Only show page numbers, not text")
     parser.add_argument("--context", type=int, default=1, help="Number of surrounding text items")
