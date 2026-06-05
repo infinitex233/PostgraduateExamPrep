@@ -97,7 +97,7 @@ def search_book(json_path: Path, query: str, context: int = 1) -> list[dict]:
     data = load_book(json_path)
     book_name = data.get("book") or data.get("name") or json_path.stem.replace(".docling", "")
 
-    if "pages" in data:
+    if isinstance(data.get("pages"), list):
         return _search_pageocr(data, query, book_name, context)
     else:
         return _search_docling(data, query, book_name, context)
