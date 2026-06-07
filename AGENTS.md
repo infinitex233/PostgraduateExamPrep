@@ -9,6 +9,7 @@ These instructions apply to the entire `D:\Documents\PostgraduateExamPrep` works
 - If present, read root `README.md` for a quick project overview.
 - Treat `StudyProgress/README.md` as the operational guide for study-progress logging.
 - Treat `DigitalBooks/README.md` as the operational guide for textbook lookup and book-note generation.
+- For textbook lookup, use `scripts/query.py` and the OCR cache under `DigitalBooks/Cache/` first. Fall back to direct PDF inspection when cache evidence is missing, ambiguous, exact wording is needed, or printed page numbers must be confirmed.
 - If the user reports daily study progress in natural language, handle it as a logging task unless they explicitly say they are only discussing or asking a question.
 - Keep all study-progress records under `StudyProgress/`.
 - Keep textbook PDFs and textbook-derived chapter notes under `DigitalBooks/`.
@@ -29,9 +30,16 @@ For a new conversation or another agent taking over this folder:
 
 ## Project Context
 
-This workspace is for postgraduate exam preparation materials.
+This workspace is for **11408 postgraduate entrance exam (考研)** preparation.
 
-- `DigitalBooks/`: digital textbooks, references, and source study materials.
+**11408 exam subjects:**
+- **408 计算机学科专业基础综合**: 数据结构、计算机组成原理、操作系统、计算机网络
+- **数学一**: 高等数学、线性代数、概率论与数理统计
+- **英语一**
+- **政治**
+
+**Directory overview:**
+- `DigitalBooks/`: digital textbooks, references, and source study materials (408 + math PDFs, BookNotes).
 - `StudyProgress/`: study notes, progress records, plans, summaries, and review logs.
 
 ## Working Guidelines
@@ -62,8 +70,10 @@ When the user reports daily study progress in natural language:
 
 When the user asks what a textbook says about a knowledge point or asks for a page location:
 
-- Inspect the relevant PDF content before answering.
-- Cite the source with book name and page location. If available, distinguish book page numbers from PDF page numbers.
+- First search the local OCR cache with `python scripts/query.py "关键词" --book "书名关键词"` unless the user explicitly asks not to use cache.
+- The current cache for the 408 four books and math three books is a page-level OCR cache under `DigitalBooks/Cache/`, using JSON files named `*.docling.json`.
+- Treat cache hits as the primary route for locating candidate PDF pages. If the answer needs exact textbook wording, book-internal page numbers, diagrams, formulas, or ambiguous OCR text, inspect the relevant PDF page before answering.
+- Cite the source with book name and page location. For any answer about knowledge-point page locations, provide both `书内印刷页码` and `PDF 页码` and label them clearly. If one cannot be confirmed, say so explicitly instead of omitting it.
 - If the content cannot be confirmed in the available PDFs, say so clearly. Do not fabricate textbook wording, page numbers, examples, or conclusions.
 - Do not rely only on memory for textbook-specific claims.
 
