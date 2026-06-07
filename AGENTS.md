@@ -49,6 +49,7 @@ This workspace is for **11408 postgraduate entrance exam (考研)** preparation.
 - Preserve existing folder structure when adding new files.
 - Prefer clear, dated filenames for study plans, summaries, and progress records.
 - Use Markdown for notes and planning documents unless another format is requested.
+- Automatically delete unnecessary temporary files created during work, such as PDF page screenshots, rendered page images, OCR/debug intermediates, or other one-off inspection artifacts, unless the user explicitly asks to keep them.
 
 ## StudyProgress Workflow
 
