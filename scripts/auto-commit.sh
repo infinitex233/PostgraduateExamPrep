@@ -3,6 +3,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# 提交前尽力刷新学习看板（失败不阻断提交，例如缺少 python/pyyaml 环境时）
+if command -v python >/dev/null 2>&1; then
+  python scripts/build_dashboard.py >/dev/null 2>&1 || echo "提示：看板刷新失败，使用现有 dashboard.html。"
+fi
+
 # 检查是否有未提交的变更
 if git diff-index --quiet HEAD -- && [ -z "$(git ls-files --others --exclude-standard)" ]; then
   echo "没有新的变更，跳过提交。"

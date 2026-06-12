@@ -123,8 +123,8 @@ DigitalBooks/BookNotes/对应书名.md
 这个仓库已经具备基础结构，可以直接用于：
 
 - 每日自然语言学习汇报
-- 自动生成每日学习记录
+- 自动生成每日学习记录（带结构化 frontmatter）
+- 一键生成可视化学习看板（`scripts/build_dashboard.py` → `dashboard.html`）
 - 维护备考总览和路线规划
 - 周复盘与阶段复盘
-- 教材 PDF 查阅
-- 强化阶段逐章整理教材笔记
+- 教材 OCR 缓存检索与逐章整理教材笔记

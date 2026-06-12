@@ -15,6 +15,22 @@ Always read these files first when entering the repo:
 3. `StudyProgress/README.md` — before any study-progress task
 4. `DigitalBooks/README.md` — before any textbook lookup or book-note task
 
+## Scripts (`scripts/`)
+
+| Script | Purpose |
+|---|---|
+| `query.py` | Search the textbook OCR cache by keyword (`--book`, `--page-only`, `--context`, `--list-books`). Primary entry for textbook lookup. |
+| `page_ocr.py` | Build the page-OCR cache for ALL books (math + 408). Run after adding/re-scanning PDFs. Produces the live `{book, total_pages, pages}` caches. |
+| `docling_cache.py` | Legacy alt cache builder — emits a different docling `texts` structure that the current tooling does NOT use. Don't run unless intentionally switching formats. |
+| `build_dashboard.py` | Scan daily-log frontmatter → regenerate the zero-dependency `StudyProgress/dashboard.html`. Run after every log change. |
+| `auto-commit.sh` | Weekly auto-commit: stages everything, writes a Chinese summary message, pushes to `main`. It does NOT rebuild the dashboard — regenerate it when you write the log, not at commit time. |
+
+## Repo state & git
+
+- This is a tracked git repo pushed to GitHub. PDFs (`DigitalBooks/**/*.pdf`), the OCR cache (`DigitalBooks/Cache/`), and `.claude/` are gitignored — never try to commit them.
+- `dashboard.html` is a generated artifact but IS committed (small, single-file, viewable on GitHub). Always regenerate it after changing logs so the committed copy stays current.
+- Do not commit anything that identifies the user's real target school. Roadmap uses a generic placeholder ("目标院校") on purpose — keep it that way.
+
 ## Key boundaries
 
 - **StudyProgress/** — daily logs, ProgressIndex, Roadmap, weekly/stage reviews. Never write study progress here to DigitalBooks.
