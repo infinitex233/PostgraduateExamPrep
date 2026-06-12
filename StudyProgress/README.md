@@ -10,9 +10,10 @@
 
 - 先读取根目录 `AGENTS.md` 和本文件。
 - 用户用自然语言汇报当天学习情况时，默认视为“记录今日进度”。
-- 每日记录统一写入 `DailyLogs/YYYY-MM/YYYY-MM-DD.md`。
+- 每日记录统一写入 `DailyLogs/YYYY-MM/YYYY-MM-DD.md`，并按 `DailyLogs/_template.md` 在文件顶部写好 YAML frontmatter。
+- frontmatter 是看板的数据源：科目名用统一命名，时长一律用分钟，用户没给的写 `null`，不臆造。
 - 如果月份目录不存在，先创建 `DailyLogs/YYYY-MM/`。
-- 每次记录后，同步更新 `ProgressIndex.md`。
+- 每次记录后，同步更新 `ProgressIndex.md`，并运行 `python scripts/build_dashboard.py` 刷新 `dashboard.html`。
 - 原始汇报必须保留，整理内容必须基于用户实际提供的信息。
 - 对用户未提供的时长、数量、状态，不要自行推断，写 `未说明`。
 - `ProgressIndex.md` 是总览路线图，应该能帮助用户考后回看整段备考过程。
@@ -29,10 +30,11 @@
 
 agent 应该自动完成：
 
-- 在 `DailyLogs/YYYY-MM/YYYY-MM-DD.md` 新建或更新当天记录。
+- 在 `DailyLogs/YYYY-MM/YYYY-MM-DD.md` 新建或更新当天记录，写好顶部 frontmatter。
 - 保留原始汇报。
 - 整理成今日概览、分科记录、问题与调整、明日优先级。
 - 同步更新 `ProgressIndex.md` 的总览表。
+- 运行 `python scripts/build_dashboard.py` 刷新 `dashboard.html` 看板。
 
 ## 目录结构
 
@@ -41,8 +43,9 @@ StudyProgress/
   README.md
   ProgressIndex.md
   Roadmap.md
+  dashboard.html          # 学习看板，由 scripts/build_dashboard.py 生成
   DailyLogs/
-    _template.md
+    _template.md          # 含 frontmatter 字段说明
     YYYY-MM/
       YYYY-MM-DD.md
   Reviews/

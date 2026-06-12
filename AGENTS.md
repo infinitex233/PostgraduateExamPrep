@@ -56,10 +56,12 @@ This workspace is for **11408 postgraduate entrance exam (考研)** preparation.
 When the user reports daily study progress in natural language:
 
 - Create or update that day's log under `StudyProgress/DailyLogs/YYYY-MM/YYYY-MM-DD.md`.
+- Start each daily log with a YAML frontmatter block per `DailyLogs/_template.md` (date, total_minutes, per-subject minutes, chapter progress, tags). This frontmatter is the data source for the dashboard — use the canonical subject names, minutes as integers, and `null` for anything the user didn't provide.
 - Keep the original user report in the daily log.
 - Extract the daily overview, subject-level progress, approximate time or quantity, current state, problems, and next actions when possible.
 - Do not invent precise time, task counts, or completion status if the user did not provide them.
 - Update `StudyProgress/ProgressIndex.md` with a short row for that day.
+- After updating logs, regenerate the dashboard: `python scripts/build_dashboard.py` (rebuilds `StudyProgress/dashboard.html` from log frontmatter).
 - Keep daily entries concise and easy to review.
 - Treat `StudyProgress/ProgressIndex.md` as the route-level summary of the preparation process.
 - Use `StudyProgress/Reviews/Weekly/` and `StudyProgress/Reviews/Stage/` for periodic summaries when the user asks for review.

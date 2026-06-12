@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研备考 · 学习看板</title>
+<style>
+
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+@media print{html,body{width:1920px;height:auto;overflow:visible;background:#fff;}.deck-viewport{position:static;overflow:visible;}.deck-stage{position:static;width:auto;height:auto;transform:none!important;}.slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;width:1920px;height:1080px;break-after:page;page-break-after:always;}.slide:last-child{break-after:auto;}.deck-controls{display:none!important;}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important;}}
+
+
+:root {
+  --stage-bg: #0a0e14;
+  --ink: #1a1d24;
+  --paper: #f5f1e8;
+  --paper-2: #ebe4d6;
+  --accent: #e8590c;
+  --muted: #6b7280;
+  --line: #d8cfbe;
+}
+
+* { box-sizing: border-box; }
+
+.deck-stage, .slide { --slide-bg: var(--paper); }
+
+.slide {
+  font-family: "Georgia", "Songti SC", "STSong", "SimSun", serif;
+  color: var(--ink);
+  padding: 90px 110px;
+}
+
+/* Grain / paper texture via layered gradients */
+.slide::before {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(232,89,12,.05), transparent 40%),
+    radial-gradient(circle at 88% 82%, rgba(16,152,173,.05), transparent 42%);
+  pointer-events: none;
+}
+
+.kicker {
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 22px; letter-spacing: .5em;
+  color: var(--accent); text-transform: uppercase;
+  margin-bottom: 14px; font-weight: 700;
+}
+h1.title { font-size: 96px; line-height: 1.05; margin: 0 0 8px; letter-spacing: -.01em; }
+h2.head {
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 52px; font-weight: 800; margin: 0 0 36px;
+  display: flex; align-items: center; gap: 20px;
+}
+h2.head::before {
+  content: ""; width: 14px; height: 52px; background: var(--accent);
+  border-radius: 3px; display: inline-block;
+}
+.sub { font-family: "PingFang SC","Microsoft YaHei",sans-serif; color: var(--muted); font-size: 26px; }
+
+/* Cover */
+.cover { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+.cover .meta { margin-top: 60px; display: flex; gap: 70px; font-family: "PingFang SC",sans-serif; }
+.cover .meta .num { font-size: 84px; font-weight: 800; color: var(--accent); line-height: 1; }
+.cover .meta .lbl { font-size: 24px; color: var(--muted); margin-top: 10px; }
+
+/* Stat cards row */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin-bottom: 50px; }
+.stat {
+  background: var(--paper-2); border: 1px solid var(--line);
+  border-radius: 16px; padding: 32px 34px;
+  font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+}
+.stat .v { font-size: 64px; font-weight: 800; color: var(--ink); line-height: 1; }
+.stat .v small { font-size: 28px; color: var(--muted); font-weight: 600; }
+.stat .k { font-size: 24px; color: var(--muted); margin-top: 14px; }
+
+/* Bar chart (daily minutes) */
+.chart { display: flex; align-items: flex-end; gap: 26px; height: 400px; padding: 0 10px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+.bar-stack { width: 78%; display: flex; flex-direction: column-reverse; border-radius: 8px 8px 0 0; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+.bar-seg { width: 100%; }
+.bar-total {
+  font-family: "PingFang SC",sans-serif; font-size: 22px; font-weight: 700;
+  margin-bottom: 12px; color: var(--ink);
+}
+.bar-date { font-family: "PingFang SC",sans-serif; font-size: 20px; color: var(--muted); margin-top: 16px; }
+.bar-tag { font-size: 18px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 18px 32px; margin-top: 40px; font-family: "PingFang SC",sans-serif; font-size: 24px; }
+.legend .item { display: flex; align-items: center; gap: 10px; color: var(--ink); }
+.legend .dot { width: 18px; height: 18px; border-radius: 4px; }
+
+/* Subject progress list */
+.prog { display: flex; flex-direction: column; gap: 26px; font-family: "PingFang SC","Microsoft YaHei",sans-serif; }
+.prow { display: grid; grid-template-columns: 360px 1fr 200px; align-items: center; gap: 30px; }
+.prow .name { font-size: 34px; font-weight: 700; display: flex; align-items: center; gap: 16px; }
+.prow .name .dot { width: 22px; height: 22px; border-radius: 6px; }
+.prow .chap { font-size: 30px; color: var(--ink); }
+.prow .time { font-size: 28px; color: var(--muted); text-align: right; }
+.track { height: 22px; background: var(--paper-2); border-radius: 11px; overflow: hidden; border: 1px solid var(--line); }
+.track > div { height: 100%; border-radius: 11px; }
+
+.badge { font-size: 22px; padding: 4px 16px; border-radius: 999px; font-weight: 700; }
+.badge.完结 { background: #2f9e4422; color: #2f9e44; }
+.badge.进行中 { background: #f08c0022; color: #e8590c; }
+.badge.起步 { background: #1971c222; color: #1971c2; }
+
+/* Timeline */
+.tl { font-family: "PingFang SC","Microsoft YaHei",sans-serif; display: flex; flex-direction: column; gap: 28px; }
+.tl .ev { display: flex; align-items: baseline; gap: 28px; border-left: 4px solid var(--line); padding: 6px 0 6px 32px; position: relative; }
+.tl .ev::before { content: ""; position: absolute; left: -11px; top: 14px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); }
+.tl .ev .d { font-size: 30px; font-weight: 800; color: var(--ink); min-width: 200px; }
+.tl .ev .body { font-size: 28px; color: var(--ink); }
+.tl .chip { display: inline-block; font-size: 22px; padding: 3px 14px; border-radius: 999px; background: var(--paper-2); border: 1px solid var(--line); margin-right: 10px; color: var(--ink); }
+
+.foot { position: absolute; bottom: 46px; right: 110px; font-family: "PingFang SC",sans-serif; font-size: 20px; color: var(--muted); }
+.foot-l { position: absolute; bottom: 46px; left: 110px; font-family: "PingFang SC",sans-serif; font-size: 20px; color: var(--muted); letter-spacing: .2em; }
+
+.controls {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  z-index: 1000; display: flex; gap: 8px; align-items: center;
+  background: rgba(10,14,20,.82); padding: 8px 14px; border-radius: 999px;
+  font-family: "PingFang SC",sans-serif; color: #fff; font-size: 16px; backdrop-filter: blur(8px);
+}
+.controls button { background: rgba(255,255,255,.12); color: #fff; border: 0; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+.controls button:hover { background: rgba(255,255,255,.25); }
+.controls .pg { min-width: 56px; text-align: center; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <div class="deck-stage" id="stage"></div>
+</div>
+<div class="controls">
+  <button id="prev">‹</button>
+  <span class="pg"><span id="cur">1</span> / <span id="tot">1</span></span>
+  <button id="next">›</button>
+</div>
+
+<script id="data" type="application/json">{"generated": "2026-06-12", "daily": [{"date": "2026-06-02", "total": 409, "subjects": {"数学-高数": 140, "数学-线代": 150, "专业课-组成原理": 119}, "mood": "未说明", "tags": ["章节完结"]}, {"date": "2026-06-05", "total": 307, "subjects": {"数学-高数": 143, "数学-线代": 50, "专业课-组成原理": 114}, "mood": "受干扰", "tags": ["受干扰"]}, {"date": "2026-06-07", "total": 0, "subjects": {"数学-线代": 0, "专业课-组成原理": 0}, "mood": "未说明", "tags": []}, {"date": "2026-06-08", "total": 266, "subjects": {"数学-线代": 146, "专业课-组成原理": 120}, "mood": "未说明", "tags": []}, {"date": "2026-06-09", "total": 316, "subjects": {"数学-线代": 225, "专业课-组成原理": 91}, "mood": "未说明", "tags": []}, {"date": "2026-06-10", "total": 416, "subjects": {"数学-高数": 181, "数学-线代": 88, "专业课-组成原理": 147}, "mood": "未说明", "tags": ["章节完结"]}, {"date": "2026-06-11", "total": 370, "subjects": {"数学-高数": 170, "数学-线代": 72, "专业课-组成原理": 128}, "mood": "受干扰", "tags": ["受伤", "章节完结"]}], "subject_totals": {"数学-高数": 634, "数学-线代": 731, "专业课-组成原理": 719}, "subject_days": {"数学-高数": 4, "数学-线代": 7, "专业课-组成原理": 7}, "progress_rows": [{"date": "2026-06-02", "subject": "数学-线代", "chapter": "第一讲", "status": "完结"}, {"date": "2026-06-05", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-07", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-08", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-09", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-10", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}, {"date": "2026-06-11", "subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"date": "2026-06-11", "subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}], "latest_chapter": {"数学-线代": {"date": "2026-06-11", "subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, "专业课-组成原理": {"date": "2026-06-11", "subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}}, "timeline": [{"date": "2026-06-02", "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-05", "tags": ["受干扰"], "mood": "受干扰"}, {"date": "2026-06-10", "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "tags": ["受伤", "章节完结"], "mood": "受干扰"}], "summary": {"total_minutes": 2084, "studied_days": 6, "log_count": 7, "first_date": "2026-06-02", "last_date": "2026-06-11", "avg_minutes": 347}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const COLORS = {"数学-高数": "#e8590c", "数学-线代": "#f08c00", "数学-概率": "#f4b400", "专业课-数据结构": "#1971c2", "专业课-组成原理": "#1098ad", "专业课-操作系统": "#0c8599", "专业课-计算机网络": "#3b5bdb", "英语": "#2f9e44", "政治": "#c2255c"};
+const DEFAULT_COLOR = "#868e96";
+const colorFor = s => COLORS[s] || DEFAULT_COLOR;
+const fmtH = m => {
+  if (!m) return '0';
+  const h = Math.floor(m/60), mm = m%60;
+  return h ? (mm ? `${h}h${mm}m` : `${h}h`) : `${mm}m`;
+};
+const mmdd = d => (d||'').slice(5);
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html != null) e.innerHTML = html;
+  return e;
+}
+
+// ---- Slide builders ----
+function coverSlide() {
+  const s = DATA.summary;
+  const sl = el('section', 'slide cover');
+  sl.innerHTML = `
+    <div class="kicker">11408 · 考研备考</div>
+    <h1 class="title">学习看板</h1>
+    <div class="sub">${s.first_date || ''} — ${s.last_date || ''} · 持续记录中</div>
+    <div class="meta">
+      <div><div class="num">${s.log_count}</div><div class="lbl">记录天数</div></div>
+      <div><div class="num">${(s.total_minutes/60).toFixed(1)}</div><div class="lbl">累计学时</div></div>
+      <div><div class="num">${fmtH(s.avg_minutes)}</div><div class="lbl">日均学时</div></div>
+    </div>
+    <div class="foot-l">STUDY DASHBOARD</div>`;
+  return sl;
+}
+
+function trendSlide() {
+  const sl = el('section', 'slide');
+  sl.appendChild(el('div', 'kicker', '投入趋势'));
+  sl.appendChild(el('h2', 'head', '每日学习时长'));
+
+  // stat cards
+  const s = DATA.summary;
+  const maxDay = DATA.daily.reduce((a,b)=>b.total>a.total?b:a, {total:0,date:''});
+  const stats = el('div', 'stats');
+  stats.innerHTML = `
+    <div class="stat"><div class="v">${(s.total_minutes/60).toFixed(1)}<small> h</small></div><div class="k">累计学时</div></div>
+    <div class="stat"><div class="v">${fmtH(s.avg_minutes)}</div><div class="k">日均（学习日）</div></div>
+    <div class="stat"><div class="v">${fmtH(maxDay.total)}</div><div class="k">单日最高 · ${mmdd(maxDay.date)}</div></div>
+    <div class="stat"><div class="v">${s.studied_days}<small> 天</small></div><div class="k">有效学习日</div></div>`;
+  sl.appendChild(stats);
+
+  // chart
+  const allSubs = Object.keys(DATA.subject_totals);
+  const maxT = Math.max(...DATA.daily.map(d=>d.total), 1);
+  const chart = el('div', 'chart');
+  DATA.daily.forEach(day => {
+    const col = el('div', 'bar-col');
+    col.appendChild(el('div', 'bar-total', day.total ? fmtH(day.total) : '·'));
+    const stack = el('div', 'bar-stack');
+    stack.style.height = `${Math.max(day.total/maxT*100, day.total?3:0)}%`;
+    allSubs.forEach(sub => {
+      const v = day.subjects[sub] || 0;
+      if (!v) return;
+      const seg = el('div', 'bar-seg');
+      seg.style.height = `${v/day.total*100}%`;
+      seg.style.background = colorFor(sub);
+      seg.title = `${sub} ${fmtH(v)}`;
+      stack.appendChild(seg);
+    });
+    col.appendChild(stack);
+    const tag = day.tags && day.tags.length ? ` <span class="bar-tag">${day.tags.includes('受伤')?'🩹':(day.tags.includes('章节完结')?'✓':'')}</span>` : '';
+    col.appendChild(el('div', 'bar-date', mmdd(day.date) + tag));
+    chart.appendChild(col);
+  });
+  sl.appendChild(chart);
+
+  const legend = el('div', 'legend');
+  allSubs.forEach(sub => {
+    const i = el('div', 'item');
+    i.innerHTML = `<span class="dot" style="background:${colorFor(sub)}"></span>${sub} · ${fmtH(DATA.subject_totals[sub])}`;
+    legend.appendChild(i);
+  });
+  sl.appendChild(legend);
+  return sl;
+}
+
+function progressSlide() {
+  const sl = el('section', 'slide');
+  sl.appendChild(el('div', 'kicker', '各科进度'));
+  sl.appendChild(el('h2', 'head', '科目投入与章节推进'));
+
+  const subs = Object.keys(DATA.subject_totals).sort((a,b)=>DATA.subject_totals[b]-DATA.subject_totals[a]);
+  const maxT = Math.max(...subs.map(s=>DATA.subject_totals[s]), 1);
+  const prog = el('div', 'prog');
+  subs.forEach(sub => {
+    const t = DATA.subject_totals[sub];
+    const lc = DATA.latest_chapter[sub];
+    const row = el('div', 'prow');
+    const badge = lc && lc.status ? `<span class="badge ${lc.status}">${lc.status}</span>` : '';
+    const chap = lc && lc.chapter ? `${lc.chapter} ${badge}` : '<span style="color:var(--muted)">—</span>';
+    row.innerHTML = `
+      <div class="name"><span class="dot" style="background:${colorFor(sub)}"></span>${sub}</div>
+      <div>
+        <div class="chap" style="margin-bottom:10px">${chap}</div>
+        <div class="track"><div style="width:${t/maxT*100}%;background:${colorFor(sub)}"></div></div>
+      </div>
+      <div class="time">${fmtH(t)} · ${DATA.subject_days[sub]}天</div>`;
+    prog.appendChild(row);
+  });
+  sl.appendChild(prog);
+  sl.appendChild(el('div', 'foot', '条形长度 = 累计学时占比'));
+  return sl;
+}
+
+function timelineSlide() {
+  const sl = el('section', 'slide');
+  sl.appendChild(el('div', 'kicker', '复盘 · 杂谈'));
+  sl.appendChild(el('h2', 'head', '关键节点与状态'));
+  const tl = el('div', 'tl');
+  // progress milestones + tagged days, merged & sorted
+  const evs = [];
+  DATA.progress_rows.filter(p=>p.status==='完结'||p.status==='起步').forEach(p=>{
+    evs.push({date:p.date, body:`${p.subject} · ${p.chapter} <span class="badge ${p.status}">${p.status}</span>`});
+  });
+  DATA.timeline.forEach(t=>{
+    const chips = t.tags.map(x=>`<span class="chip">${x}</span>`).join('');
+    if (t.tags.some(x=>x!=='章节完结')) evs.push({date:t.date, body:`${chips}${t.mood?' '+t.mood:''}`});
+  });
+  evs.sort((a,b)=>a.date.localeCompare(b.date));
+  evs.forEach(e=>{
+    const ev = el('div', 'ev');
+    ev.innerHTML = `<div class="d">${e.date}</div><div class="body">${e.body}</div>`;
+    tl.appendChild(ev);
+  });
+  if (!evs.length) tl.appendChild(el('div', 'body', '暂无标记事件'));
+  sl.appendChild(tl);
+  sl.appendChild(el('div', 'foot', '事件来自日志 tags / 章节进度'));
+  return sl;
+}
+
+// ---- Assemble deck ----
+const stage = document.getElementById('stage');
+[coverSlide(), trendSlide(), progressSlide(), timelineSlide()].forEach(s => stage.appendChild(s));
+const slides = Array.from(stage.children);
+let idx = 0;
+document.getElementById('tot').textContent = slides.length;
+
+function fit() {
+  const s = Math.min(innerWidth/1920, innerHeight/1080);
+  stage.style.transform = `translate(${(innerWidth-1920*s)/2}px,${(innerHeight-1080*s)/2}px) scale(${s})`;
+}
+function show(i) {
+  idx = Math.max(0, Math.min(slides.length-1, i));
+  slides.forEach((s,n)=>s.classList.toggle('active', n===idx));
+  document.getElementById('cur').textContent = idx+1;
+}
+addEventListener('resize', fit);
+document.getElementById('prev').onclick = ()=>show(idx-1);
+document.getElementById('next').onclick = ()=>show(idx+1);
+addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight'||e.key===' ') show(idx+1);
+  else if (e.key==='ArrowLeft') show(idx-1);
+  else if (e.key==='Home') show(0);
+  else if (e.key==='End') show(slides.length-1);
+});
+fit(); show(0);
+</script>
+</body>
+</html>

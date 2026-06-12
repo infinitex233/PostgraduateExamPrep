@@ -4,9 +4,9 @@
 
 考试科目：政治、英语一、数学一、408 计算机学科专业基础综合（数据结构、组成原理、操作系统、计算机网络）。
 
-仓库的目标很简单：把备考过程留下来。每天可以用自然语言简单汇报学习情况，由 agent 整理成结构化记录；复习到教材某一章时，再把这一章的知识点整理进对应书籍的 Markdown 笔记。考后如果需要复盘整段路线，或者整理经验帖，可以直接从这些记录里回看。
+仓库的目标很简单：把备考过程留下来。每天用自然语言汇报学习情况，由 agent 整理成结构化记录；复习到某一章时，再把这一章的知识点整理进对应书籍的 Markdown 笔记。考后复盘路线或整理经验帖，都可以从这些记录回看。
 
-说明：教材 PDF 体积较大，且可能涉及版权问题，本仓库默认不把 PDF 提交到 GitHub。PDF 可以放在本地 `DigitalBooks/` 对应目录中，agent 在本地工作时再读取。
+教材 PDF 体积大、且涉及版权，默认不提交到 GitHub。PDF 放在本地 `DigitalBooks/` 对应目录，agent 本地工作时再读取。
 
 ## 目录结构
 
@@ -14,11 +14,13 @@
 PostgraduateExamPrep/
   AGENTS.md                 # 给 agent 的全局规则
   README.md                 # 仓库说明
+  scripts/                  # 工具脚本（教材检索、看板生成等）
   StudyProgress/            # 学习进度、路线规划、复盘
     README.md
     ProgressIndex.md        # 备考路线总览
     Roadmap.md              # 阶段规划和策略调整
-    DailyLogs/              # 每日学习记录
+    dashboard.html          # 学习看板（由 build_dashboard.py 生成）
+    DailyLogs/              # 每日学习记录（带 frontmatter）
     Reviews/                # 周复盘和阶段复盘
   DigitalBooks/             # 本地教材目录和教材笔记
     README.md
@@ -49,13 +51,23 @@ StudyProgress/DailyLogs/YYYY-MM/YYYY-MM-DD.md
 StudyProgress/ProgressIndex.md
 ```
 
-每日记录保留原始汇报，也会整理出今日概览、分科记录、问题与调整、明日优先级。用户没有提供的数据写 `未说明`，不自行补全。
+每日记录保留原始汇报，也会整理出今日概览、分科记录、问题与调整、明日优先级。每篇日志顶部带一段 YAML frontmatter，记录日期、各科时长（分钟）、章节进度等结构化字段，供看板解析。用户没有提供的数据写 `未说明`（frontmatter 里写 `null`），不自行补全。
+
+### 学习看板
+
+每日数据可以一键生成可视化看板：
+
+```bash
+python scripts/build_dashboard.py
+```
+
+它扫描所有日志的 frontmatter，生成 `StudyProgress/dashboard.html`——零依赖单文件，双击即可在浏览器打开，含每日时长趋势、各科进度追踪和关键节点时间线。新增或修改日志后重新运行即可刷新。
 
 ### 备考路线复盘
 
-`StudyProgress/ProgressIndex.md` 是总览入口，用来回看整段备考过程。  
-`StudyProgress/Roadmap.md` 记录阶段规划、目标、节点和策略调整。  
-`StudyProgress/Reviews/` 用来放周复盘和阶段复盘，不需要每天维护。
+- `StudyProgress/ProgressIndex.md`：总览入口，回看整段备考过程。
+- `StudyProgress/Roadmap.md`：阶段规划、目标、节点和策略调整。
+- `StudyProgress/Reviews/`：周复盘和阶段复盘，不必每天维护。
 
 ### 教材查阅
 
@@ -63,12 +75,12 @@ StudyProgress/ProgressIndex.md
 
 当前 408 四本书和数学三本书都已在 `DigitalBooks/Cache/` 中建立逐页 OCR 缓存。查教材时优先用缓存定位候选 PDF 页：
 
-```powershell
+```bash
 python scripts/query.py "关键词"
 python scripts/query.py "关键词" --book "线代" --page-only
 ```
 
-当用户问“书上怎么说”“这个知识点在哪一页”“教材如何定义”时，agent 必须先查本地 OCR 缓存，再按需要核对对应 PDF 页面后回答。回答要标明书名、章节或小节，并且页码必须同时给出并标注 `书内印刷页码` 和 `PDF 页码`。如果某一类页码暂时不能确认，要明确说明；如果没有在当前教材中确认，就直接说明，不能编页码、编原文、编结论。
+当用户问“书上怎么说”“这个知识点在哪一页”“教材如何定义”时，agent 先查本地 OCR 缓存，再按需核对对应 PDF 页后回答。回答须标明书名和章节，页码须同时给出 `书内印刷页码` 和 `PDF 页码` 并清楚标注。某项暂不能确认就明说，不在当前教材中确认就直说——不编页码、不编原文、不编结论。
 
 ### 强化阶段教材笔记
 
@@ -84,7 +96,7 @@ python scripts/query.py "关键词" --book "线代" --page-only
 DigitalBooks/BookNotes/对应书名.md
 ```
 
-每本书只建一个 Markdown 文件，按章节逐步更新。这个文件不是一次性全书总结，而是复习到哪章就更新哪章。用户会自己删改、添加和重排笔记，agent 必须保留这些人工修改，只做增量整理。
+每本书只建一个 Markdown 文件，按章节逐步更新——复习到哪章就更新哪章，不是一次性全书总结。用户会自己删改、添加、重排笔记，agent 必须保留这些人工修改，只做增量整理。
 
 ## Agent 接手规则
 
