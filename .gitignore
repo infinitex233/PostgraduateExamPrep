@@ -10,3 +10,7 @@ StudyMaterials/Cache/
 # Common local clutter
 Thumbs.db
 .DS_Store
+
+# Python cache
+__pycache__/
+*.pyc

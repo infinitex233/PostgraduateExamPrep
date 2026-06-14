@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a personal postgraduate exam preparation (考研) workspace — not a software project. There is no build, lint, or test system. The repo tracks study progress, textbook notes, and review cycles through structured Markdown files.
+This is a personal postgraduate exam preparation (考研) workspace — not a software project. There is no build or lint system. The only automated check is `scripts/test_build_dashboard.py` (run with `python -m unittest scripts.test_build_dashboard`), which covers the dashboard aggregation logic. The repo tracks study progress, textbook notes, and review cycles through structured Markdown files.
 
 ## Startup
 
@@ -22,7 +22,8 @@ Always read these files first when entering the repo:
 | `query.py` | Search the textbook OCR cache by keyword (`--book`, `--page-only`, `--context`, `--list-books`). Primary entry for textbook lookup. |
 | `page_ocr.py` | Build the page-OCR cache for ALL books (math + 408). Run after adding/re-scanning PDFs. Produces the live `{book, total_pages, pages}` caches. |
 | `docling_cache.py` | Legacy alt cache builder — emits a different docling `texts` structure that the current tooling does NOT use. Don't run unless intentionally switching formats. |
-| `build_dashboard.py` | Scan daily-log frontmatter → regenerate the zero-dependency `StudyProgress/dashboard.html`. Run after every log change. |
+| `build_dashboard.py` | Scan daily-log frontmatter → regenerate the zero-dependency `StudyProgress/dashboard.html`. Holds the visual theme, `SUBJECT_COLORS`, and aggregation logic. Run after every log change. |
+| `test_build_dashboard.py` | Unit tests for `build_dashboard.py`'s aggregation (`python -m unittest scripts.test_build_dashboard`). Run after editing dashboard logic. |
 | `auto-commit.sh` | Weekly auto-commit: stages everything, writes a Chinese summary message, pushes to `main`. It does NOT rebuild the dashboard — regenerate it when you write the log, not at commit time. |
 
 ## Repo state & git
@@ -49,19 +50,29 @@ User reports progress in natural language → create `StudyProgress/DailyLogs/YY
 ```yaml
 ---
 date: 2026-06-11          # YYYY-MM-DD
+phase: null               # 阶段，如 "基础阶段（一轮）" / "强化阶段"；未说明 null
 total_minutes: 370        # 当日总学习时长（分钟）；用户给了总时长或可由各科相加得出时填，否则 null
 mood: 受干扰              # 状态简述；无则 null
+focus: null               # 今日主线，一句话概括；未说明 null
 subjects:                 # 每个学到的科目一项
   - name: 数学-线代       # 必须用统一科目名（见下表）
     time_min: 72          # 该科时长（分钟）；未说明则 null
     detail: 开始学第三章   # 一句话完成内容
+    result: ""            # 可选：完成度/产出，如 "完结"、"差 3 题"
+    next: ""              # 可选：该科后续动作
 progress:                 # 章节推进，可选
   - subject: 数学-线代
     chapter: 第三章 向量组
     status: 起步          # 起步 / 进行中 / 完结
+review:                   # 可选：今日复盘，dashboard 会优先展示 next_actions
+  wins: []                # 今日有效做法或完成点
+  issues: []              # 卡点、干扰、身体状态等
+  next_actions: []        # 次日优先动作
 tags: ["受伤", "章节完结"] # 关键事件标签；无则 []
 ---
 ```
+
+完整字段清单以 `StudyProgress/DailyLogs/_template.md` 为准；模板新增字段时以模板为准。
 
 **统一科目命名**（frontmatter 的 `name` 字段必须从这里取，否则看板无法归并）：
 `数学-高数`、`数学-线代`、`数学-概率`、`专业课-数据结构`、`专业课-组成原理`、`专业课-操作系统`、`专业课-计算机网络`、`英语`、`政治`。
@@ -76,7 +87,16 @@ tags: ["受伤", "章节完结"] # 关键事件标签；无则 []
 python scripts/build_dashboard.py    # 扫描所有日志 frontmatter → StudyProgress/dashboard.html
 ```
 
-`dashboard.html` 是零依赖单文件（数据/CSS/JS 全内联，遵循 frontend-slides 的 16:9 stage 规范），双击即可在浏览器打开，含四屏：封面汇总、每日时长趋势（堆叠柱状图）、各科进度追踪、关键节点时间线。`←/→/空格` 翻页。生成器只读 frontmatter，不读正文，所以 frontmatter 字段必须准确。
+`dashboard.html` 是零依赖单文件（数据/CSS/JS 全内联，遵循 frontend-slides 的 16:9 stage 规范），双击即可在浏览器打开。`←/→/空格` 翻页。生成器只读 frontmatter，不读正文，所以 frontmatter 字段必须准确。
+
+**看板是生成产物，样式与配色统一在 `scripts/build_dashboard.py` 里维护**——不要只手改 `dashboard.html`。改主题、`SUBJECT_COLORS`（具体科目色）、`group_colors`（大类汇总色）、强调文字或图表细节时，先改生成脚本再重新运行。同一科目在柱状图、图例、科目投入、当前推进中必须保持同色。当前视觉方向：纸感浅底、深色正文、低饱和柔和图表色、堆叠柱有轻微透明度和白色分隔线、克制的学术风。改样式时保持布局、frontmatter schema、交互逻辑不变，除非用户明确要求结构性改动。
+
+**改动看板后的验证**（涉及聚合或样式时）：
+
+```bash
+python -m unittest scripts.test_build_dashboard   # 聚合逻辑单元测试（scripts/test_build_dashboard.py）
+python scripts/build_dashboard.py                  # 重新生成 dashboard.html
+```
 
 ### 2. Textbook lookup
 

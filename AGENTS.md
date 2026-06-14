@@ -67,6 +67,18 @@ When the user reports daily study progress in natural language:
 - Use `StudyProgress/Reviews/Weekly/` and `StudyProgress/Reviews/Stage/` for periodic summaries when the user asks for review.
 - Experience-post material is optional and should be derived later from the records, not forced into every daily log.
 
+## Dashboard Maintenance
+
+- `StudyProgress/dashboard.html` is generated output. Do not hand-edit it as the only source of truth.
+- Dashboard data, layout, visual theme, subject color mapping, group color mapping, and accent text styles are maintained in `scripts/build_dashboard.py`.
+- After changing any dashboard-related source data, style, color, or rendering logic, run `python scripts/build_dashboard.py` to regenerate `StudyProgress/dashboard.html`.
+- Keep canonical subject names stable because they are used for aggregation and `subject_colors`: `数学-高数`, `数学-线代`, `数学-概率`, `专业课-数据结构`, `专业课-组成原理`, `专业课-操作系统`, `专业课-计算机网络`, `英语`, `政治`.
+- The same concrete subject must use the same color across stacked bars, legend swatches, subject totals, and current-progress bars.
+- `subject_colors` is for concrete subjects. `group_colors` is for aggregate groups (`数学`, `专业课`, `英语`, `政治`, `其他`) and should be updated consistently when aggregate color semantics change.
+- The current dashboard visual direction is a warm paper-like background, dark readable text, muted low-saturation chart colors, subtle stacked-bar separators, and restrained academic/professional styling.
+- When changing dashboard visuals, keep layout, frontmatter schema, and existing interaction logic unchanged unless the user explicitly asks for structural changes.
+- For dashboard changes, verify with `python -m unittest scripts.test_build_dashboard` when tests are available, run `python scripts/build_dashboard.py`, and visually or programmatically check the generated HTML when layout or CSS changed.
+
 ## StudyMaterials Workflow
 
 `StudyMaterials/` contains important postgraduate exam textbook PDFs and English resources for repeated lookup and review. These materials are reference sources, not a complete list of all materials used.

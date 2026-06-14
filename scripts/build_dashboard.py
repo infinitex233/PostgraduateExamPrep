@@ -31,26 +31,26 @@ OUT_PATH = ROOT / "StudyProgress" / "dashboard.html"
 # Subject -> display group / color. Keeps the dashboard palette stable across
 # trend bars, legends, totals and progress lanes.
 SUBJECT_COLORS = {
-    "数学-高数": "#c77966",
-    "数学-线代": "#d7a05f",
-    "数学-概率": "#b7a66b",
-    "专业课-数据结构": "#76a08f",
-    "专业课-组成原理": "#9f8665",
-    "专业课-操作系统": "#8f93b8",
-    "专业课-计算机网络": "#79a8b3",
-    "英语": "#d98872",
-    "政治": "#b7849f",
+    "数学-高数": "#6F90C9",
+    "数学-线代": "#7DB7B0",
+    "数学-概率": "#A8B7D8",
+    "专业课-数据结构": "#9CB59A",
+    "专业课-组成原理": "#E1D2BC",
+    "专业课-操作系统": "#A79BBF",
+    "专业课-计算机网络": "#96B8C5",
+    "英语": "#C98279",
+    "政治": "#C09AA7",
 }
-DEFAULT_COLOR = "#868e96"
+DEFAULT_COLOR = "#9A948D"
 DEFERRED_SUBJECTS = {"政治"}
 WATCH_SUBJECTS = {"英语"}
 GROUP_ORDER = ["数学", "专业课", "英语", "政治", "其他"]
 GROUP_COLORS = {
-    "数学": "#c88454",
-    "专业课": "#9a8f5f",
-    "英语": "#d77855",
-    "政治": "#b77b8f",
-    "其他": "#6B7280",
+    "数学": "#7398C6",
+    "专业课": "#AFA188",
+    "英语": "#C98279",
+    "政治": "#C09AA7",
+    "其他": "#9A948D",
 }
 
 # 初试首日（思想政治理论），用于封面倒计时。11408 初试固定在 12 月，2026 年为 12/20-21。
@@ -388,18 +388,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --paper: #f0ebde;
-  --paper-deep: #e4dcc9;
-  --ink: #111111;
-  --ink-soft: #3f3f3f;
-  --ink-faint: rgba(17, 17, 17, .16);
-  --grid: rgba(17, 17, 17, .08);
-  --text: #111111;
-  --muted: #5c6477;
-  --rule: rgba(17, 17, 17, .38);
-  --warm: #d77855;
-  --teal: #9a8f5f;
-  --violet: #b77b8f;
+  --paper: #F5F0E6;
+  --paper-soft: #F8F4EC;
+  --paper-deep: #E8DFD1;
+  --ink: #2E2A25;
+  --ink-soft: #49433B;
+  --ink-faint: rgba(109, 103, 95, .22);
+  --grid: rgba(109, 103, 95, .09);
+  --text: #2E2A25;
+  --muted: #6D675F;
+  --border: #6D675F;
+  --rule: rgba(109, 103, 95, .48);
+  --warm: #D97757;
+  --sage: #8E9F8A;
+  --steel: #8DA5B8;
   --font-display: "Newsreader", "Noto Serif SC", Georgia, serif;
   --font-body: "Hanken Grotesk", "Noto Serif SC", "Microsoft YaHei", sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
@@ -427,8 +429,8 @@ button, input { font: inherit; }
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1.5px solid var(--ink);
-  background: rgba(240, 235, 222, .92);
+  border-bottom: 1.5px solid var(--border);
+  background: rgba(245, 240, 230, .94);
   backdrop-filter: blur(10px);
 }
 .topbar .shell {
@@ -465,8 +467,8 @@ button, input { font: inherit; }
   padding: 32px 0 22px;
 }
 .hero-copy {
-  border-top: 1.5px solid var(--ink);
-  border-bottom: 1.5px solid var(--ink);
+  border-top: 1.5px solid var(--border);
+  border-bottom: 1.5px solid var(--border);
   padding: 26px 0 24px;
   display: flex;
   flex-direction: column;
@@ -502,9 +504,9 @@ h1 {
   gap: 16px;
 }
 .countdown {
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid var(--border);
   padding: 20px 26px;
-  background: rgba(240, 235, 222, .72);
+  background: rgba(248, 244, 236, .78);
 }
 .countdown .smallcap {
   display: block;
@@ -522,9 +524,9 @@ h1 {
   font-size: 16px;
 }
 .latest {
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid var(--border);
   padding: 22px 26px;
-  background: var(--paper);
+  background: var(--paper-soft);
 }
 .latest h2, .panel h2 {
   margin: 0;
@@ -576,6 +578,12 @@ h1 {
 .subject-name { color: var(--ink); }
 .minutes { color: var(--muted); }
 .latest-item .subject-name, .status, .date-pill { color: var(--warm); }
+.latest-item .subject-name {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
 .detail { line-height: 1.55; }
 
 .metrics {
@@ -585,8 +593,8 @@ h1 {
   margin: 0 0 22px;
 }
 .metric {
-  border: 1.5px solid var(--ink);
-  background: rgba(240, 235, 222, .78);
+  border: 1.5px solid var(--border);
+  background: rgba(248, 244, 236, .78);
   padding: 22px;
   min-height: 132px;
 }
@@ -608,8 +616,8 @@ h1 {
   padding-bottom: 58px;
 }
 .panel {
-  border: 1.5px solid var(--ink);
-  background: rgba(240, 235, 222, .86);
+  border: 1.5px solid var(--border);
+  background: rgba(248, 244, 236, .84);
   padding: 26px;
   min-width: 0;
 }
@@ -619,7 +627,7 @@ h1 {
   justify-content: space-between;
   align-items: end;
   gap: 20px;
-  border-bottom: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--border);
   padding-bottom: 14px;
   margin-bottom: 20px;
 }
@@ -652,12 +660,17 @@ h1 {
 .bar {
   align-self: end;
   min-height: 3px;
-  border: 1px solid var(--ink);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column-reverse;
-  background: rgba(17, 17, 17, .06);
+  background: rgba(109, 103, 95, .08);
 }
-.segment { width: 100%; }
+.segment {
+  width: 100%;
+  opacity: .94;
+  border-top: 1px solid rgba(255, 255, 255, .46);
+}
+.segment:first-child { border-top: 0; }
 .bar-date {
   color: var(--muted);
   font-family: var(--font-mono);
@@ -677,7 +690,7 @@ h1 {
   color: var(--muted);
   font-size: 13px;
 }
-.swatch { width: 12px; height: 12px; border: 1px solid var(--text); }
+.swatch { width: 12px; height: 12px; border: 1px solid var(--border); }
 
 .group-bars { display: grid; gap: 16px; }
 .group-row {
@@ -688,8 +701,8 @@ h1 {
 }
 .lane {
   height: 18px;
-  border: 1px solid var(--ink);
-  background: rgba(17, 17, 17, .05);
+  border: 1px solid var(--border);
+  background: rgba(109, 103, 95, .08);
 }
 .lane-fill { height: 100%; }
 
@@ -872,7 +885,7 @@ function fmtMinutes(value) {
   return `${m}m`;
 }
 function colorForSubject(subject) {
-  return SUBJECT_COLORS[subject] || "#6B7280";
+  return SUBJECT_COLORS[subject] || "#9A948D";
 }
 
 function renderHero() {

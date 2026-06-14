@@ -9,18 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --paper: #f0ebde;
-  --paper-deep: #e4dcc9;
-  --ink: #111111;
-  --ink-soft: #3f3f3f;
-  --ink-faint: rgba(17, 17, 17, .16);
-  --grid: rgba(17, 17, 17, .08);
-  --text: #111111;
-  --muted: #5c6477;
-  --rule: rgba(17, 17, 17, .38);
-  --warm: #d77855;
-  --teal: #9a8f5f;
-  --violet: #b77b8f;
+  --paper: #F5F0E6;
+  --paper-soft: #F8F4EC;
+  --paper-deep: #E8DFD1;
+  --ink: #2E2A25;
+  --ink-soft: #49433B;
+  --ink-faint: rgba(109, 103, 95, .22);
+  --grid: rgba(109, 103, 95, .09);
+  --text: #2E2A25;
+  --muted: #6D675F;
+  --border: #6D675F;
+  --rule: rgba(109, 103, 95, .48);
+  --warm: #D97757;
+  --sage: #8E9F8A;
+  --steel: #8DA5B8;
   --font-display: "Newsreader", "Noto Serif SC", Georgia, serif;
   --font-body: "Hanken Grotesk", "Noto Serif SC", "Microsoft YaHei", sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
@@ -48,8 +50,8 @@ button, input { font: inherit; }
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1.5px solid var(--ink);
-  background: rgba(240, 235, 222, .92);
+  border-bottom: 1.5px solid var(--border);
+  background: rgba(245, 240, 230, .94);
   backdrop-filter: blur(10px);
 }
 .topbar .shell {
@@ -86,8 +88,8 @@ button, input { font: inherit; }
   padding: 32px 0 22px;
 }
 .hero-copy {
-  border-top: 1.5px solid var(--ink);
-  border-bottom: 1.5px solid var(--ink);
+  border-top: 1.5px solid var(--border);
+  border-bottom: 1.5px solid var(--border);
   padding: 26px 0 24px;
   display: flex;
   flex-direction: column;
@@ -123,9 +125,9 @@ h1 {
   gap: 16px;
 }
 .countdown {
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid var(--border);
   padding: 20px 26px;
-  background: rgba(240, 235, 222, .72);
+  background: rgba(248, 244, 236, .78);
 }
 .countdown .smallcap {
   display: block;
@@ -143,9 +145,9 @@ h1 {
   font-size: 16px;
 }
 .latest {
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid var(--border);
   padding: 22px 26px;
-  background: var(--paper);
+  background: var(--paper-soft);
 }
 .latest h2, .panel h2 {
   margin: 0;
@@ -197,6 +199,12 @@ h1 {
 .subject-name { color: var(--ink); }
 .minutes { color: var(--muted); }
 .latest-item .subject-name, .status, .date-pill { color: var(--warm); }
+.latest-item .subject-name {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
 .detail { line-height: 1.55; }
 
 .metrics {
@@ -206,8 +214,8 @@ h1 {
   margin: 0 0 22px;
 }
 .metric {
-  border: 1.5px solid var(--ink);
-  background: rgba(240, 235, 222, .78);
+  border: 1.5px solid var(--border);
+  background: rgba(248, 244, 236, .78);
   padding: 22px;
   min-height: 132px;
 }
@@ -229,8 +237,8 @@ h1 {
   padding-bottom: 58px;
 }
 .panel {
-  border: 1.5px solid var(--ink);
-  background: rgba(240, 235, 222, .86);
+  border: 1.5px solid var(--border);
+  background: rgba(248, 244, 236, .84);
   padding: 26px;
   min-width: 0;
 }
@@ -240,7 +248,7 @@ h1 {
   justify-content: space-between;
   align-items: end;
   gap: 20px;
-  border-bottom: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--border);
   padding-bottom: 14px;
   margin-bottom: 20px;
 }
@@ -273,12 +281,17 @@ h1 {
 .bar {
   align-self: end;
   min-height: 3px;
-  border: 1px solid var(--ink);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column-reverse;
-  background: rgba(17, 17, 17, .06);
+  background: rgba(109, 103, 95, .08);
 }
-.segment { width: 100%; }
+.segment {
+  width: 100%;
+  opacity: .94;
+  border-top: 1px solid rgba(255, 255, 255, .46);
+}
+.segment:first-child { border-top: 0; }
 .bar-date {
   color: var(--muted);
   font-family: var(--font-mono);
@@ -298,7 +311,7 @@ h1 {
   color: var(--muted);
   font-size: 13px;
 }
-.swatch { width: 12px; height: 12px; border: 1px solid var(--text); }
+.swatch { width: 12px; height: 12px; border: 1px solid var(--border); }
 
 .group-bars { display: grid; gap: 16px; }
 .group-row {
@@ -309,8 +322,8 @@ h1 {
 }
 .lane {
   height: 18px;
-  border: 1px solid var(--ink);
-  background: rgba(17, 17, 17, .05);
+  border: 1px solid var(--border);
+  background: rgba(109, 103, 95, .08);
 }
 .lane-fill { height: 100%; }
 
@@ -475,7 +488,7 @@ h1 {
   </section>
 </main>
 
-<script id="dashboard-data" type="application/json">{"generated": "2026-06-14", "daily": [{"date": "2026-06-02", "total": 409, "subjects": {"数学-高数": 140, "数学-线代": 150, "专业课-组成原理": 119}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 140, "detail": "《数学基础过关660题》高数部分", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 150, "detail": "张宇30讲线代第一讲完成，并完成张宇1000题对应部分", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 119, "detail": "王道计组，学到印刷 p.42 无符号整数除法运算原理", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": ["章节完结"]}, {"date": "2026-06-05", "total": 307, "subjects": {"数学-高数": 143, "数学-线代": 50, "专业课-组成原理": 114}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 143, "detail": "660 高数练习", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "第二章矩阵，学到第 52 页（本章未学完）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 114, "detail": "学完王道计组 2.24 节，习题做到 p.45 第 19 题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "受干扰", "tags": ["受干扰"]}, {"date": "2026-06-07", "total": null, "subjects": {}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": null, "detail": "继续学习第二章矩阵", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": null, "detail": "写完 2.2.5 习题并看完解析", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-08", "total": 266, "subjects": {"数学-线代": 146, "专业课-组成原理": 120}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 146, "detail": "学习第二章矩阵", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 120, "detail": "学习浮点数乘除法运算", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-09", "total": 316, "subjects": {"数学-线代": 225, "专业课-组成原理": 91}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 225, "detail": "第二章矩阵，并完成张宇基础 1000 题对应部分习题", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 91, "detail": "做浮点数运算课后题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-10", "total": 416, "subjects": {"数学-高数": 181, "数学-线代": 88, "专业课-组成原理": 147}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 181, "detail": "做 660 题", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 88, "detail": "完结第二章矩阵并完成对应习题", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 147, "detail": "做 2.3.5 习题，差几题做完", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": ["章节完结"]}, {"date": "2026-06-11", "total": 370, "subjects": {"数学-高数": 170, "数学-线代": 72, "专业课-组成原理": 128}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 170, "detail": "做 660 题", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 72, "detail": "开始学第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 128, "detail": "完结第二章", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "受干扰", "tags": ["受伤", "章节完结"]}, {"date": "2026-06-12", "total": 352, "subjects": {"数学-高数": 152, "数学-线代": 100, "专业课-组成原理": 100}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 152, "detail": "刷660题，保持手感防止遗忘", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 100, "detail": "学习第三章向量", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 100, "detail": "完成习题2.3.5解析，学完3.1节并完成选择题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "", "tags": []}, {"date": "2026-06-13", "total": 248, "subjects": {"英语": 100, "数学-线代": 50, "专业课-组成原理": 98}, "subject_details": [{"name": "英语", "group": "英语", "time_min": 100, "detail": "看作文模板", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "继续学习第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 98, "detail": "看完3.2节，习题未做（明天补）", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "时间偏少", "tags": ["CET6考试"]}], "subject_totals": {"数学-高数": 786, "数学-线代": 881, "专业课-组成原理": 917, "英语": 100}, "subject_days": {"数学-高数": 5, "数学-线代": 8, "专业课-组成原理": 8, "英语": 1}, "subject_colors": {"数学-高数": "#c77966", "数学-线代": "#d7a05f", "数学-概率": "#b7a66b", "专业课-数据结构": "#76a08f", "专业课-组成原理": "#9f8665", "专业课-操作系统": "#8f93b8", "专业课-计算机网络": "#79a8b3", "英语": "#d98872", "政治": "#b7849f"}, "group_totals": {"数学": 1667, "专业课": 917, "英语": 100, "政治": 0, "其他": 0}, "group_days": {"数学": 8, "专业课": 8, "英语": 1, "政治": 0, "其他": 0}, "group_colors": {"数学": "#c88454", "专业课": "#9a8f5f", "英语": "#d77855", "政治": "#b77b8f", "其他": "#6B7280"}, "subject_chapters_done": {"数学-线代": 2, "专业课-组成原理": 1}, "progress_rows": [{"date": "2026-06-02", "subject": "数学-线代", "chapter": "第一讲", "status": "完结"}, {"date": "2026-06-05", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-07", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-08", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-09", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-10", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}, {"date": "2026-06-11", "subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"date": "2026-06-11", "subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}, {"date": "2026-06-12", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, {"date": "2026-06-12", "subject": "专业课-组成原理", "chapter": "第三章", "status": "起步"}, {"date": "2026-06-13", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, {"date": "2026-06-13", "subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}], "latest_chapter": {"数学-线代": {"date": "2026-06-13", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, "专业课-组成原理": {"date": "2026-06-13", "subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}}, "latest_log": {"date": "2026-06-13", "phase": "", "focus": "看作文模板 + 继续学习第三章 + 看完3.2节，习题未做（明天补）", "mood": "时间偏少", "tags": ["CET6考试"], "subjects": [{"name": "英语", "group": "英语", "time_min": 100, "detail": "看作文模板", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "继续学习第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 98, "detail": "看完3.2节，习题未做（明天补）", "result": "", "next": ""}], "next_actions": [], "issues": []}, "timeline": [{"date": "2026-06-02", "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-05", "tags": ["受干扰"], "mood": "受干扰"}, {"date": "2026-06-10", "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "tags": ["受伤", "章节完结"], "mood": "受干扰"}, {"date": "2026-06-13", "tags": ["CET6考试"], "mood": "时间偏少"}], "timeline_events": [{"date": "2026-06-02", "milestones": [{"subject": "数学-线代", "chapter": "第一讲", "status": "完结"}], "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-05", "milestones": [], "tags": ["受干扰"], "mood": "受干扰"}, {"date": "2026-06-10", "milestones": [{"subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}], "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "milestones": [{"subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}], "tags": ["受伤", "章节完结"], "mood": "受干扰"}, {"date": "2026-06-12", "milestones": [{"subject": "专业课-组成原理", "chapter": "第三章", "status": "起步"}], "tags": [], "mood": ""}, {"date": "2026-06-13", "milestones": [], "tags": ["CET6考试"], "mood": "时间偏少"}], "recent": {"days": 7, "start_date": "2026-06-07", "end_date": "2026-06-13", "total_minutes": 1968, "studied_days": 6, "avg_minutes": 328, "subject_totals": {"数学-线代": 681, "专业课-组成原理": 684, "数学-高数": 503, "英语": 100}, "top_day": {"date": "2026-06-10", "total": 416}}, "alerts": [], "summary": {"total_minutes": 2684, "studied_days": 8, "log_count": 9, "first_date": "2026-06-02", "last_date": "2026-06-13", "avg_minutes": 336, "current_phase": "未说明", "latest_focus": "看作文模板 + 继续学习第三章 + 看完3.2节，习题未做（明天补）", "exam_date": "2026-12-20", "days_to_exam": 189}}</script>
+<script id="dashboard-data" type="application/json">{"generated": "2026-06-14", "daily": [{"date": "2026-06-02", "total": 409, "subjects": {"数学-高数": 140, "数学-线代": 150, "专业课-组成原理": 119}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 140, "detail": "《数学基础过关660题》高数部分", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 150, "detail": "张宇30讲线代第一讲完成，并完成张宇1000题对应部分", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 119, "detail": "王道计组，学到印刷 p.42 无符号整数除法运算原理", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": ["章节完结"]}, {"date": "2026-06-05", "total": 307, "subjects": {"数学-高数": 143, "数学-线代": 50, "专业课-组成原理": 114}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 143, "detail": "660 高数练习", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "第二章矩阵，学到第 52 页（本章未学完）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 114, "detail": "学完王道计组 2.24 节，习题做到 p.45 第 19 题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "受干扰", "tags": ["受干扰"]}, {"date": "2026-06-07", "total": null, "subjects": {}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": null, "detail": "继续学习第二章矩阵", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": null, "detail": "写完 2.2.5 习题并看完解析", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-08", "total": 266, "subjects": {"数学-线代": 146, "专业课-组成原理": 120}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 146, "detail": "学习第二章矩阵", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 120, "detail": "学习浮点数乘除法运算", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-09", "total": 316, "subjects": {"数学-线代": 225, "专业课-组成原理": 91}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 225, "detail": "第二章矩阵，并完成张宇基础 1000 题对应部分习题", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 91, "detail": "做浮点数运算课后题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-10", "total": 416, "subjects": {"数学-高数": 181, "数学-线代": 88, "专业课-组成原理": 147}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 181, "detail": "做 660 题", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 88, "detail": "完结第二章矩阵并完成对应习题", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 147, "detail": "做 2.3.5 习题，差几题做完", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": ["章节完结"]}, {"date": "2026-06-11", "total": 370, "subjects": {"数学-高数": 170, "数学-线代": 72, "专业课-组成原理": 128}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 170, "detail": "做 660 题", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 72, "detail": "开始学第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 128, "detail": "完结第二章", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "受干扰", "tags": ["受伤", "章节完结"]}, {"date": "2026-06-12", "total": 352, "subjects": {"数学-高数": 152, "数学-线代": 100, "专业课-组成原理": 100}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 152, "detail": "刷660题，保持手感防止遗忘", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 100, "detail": "学习第三章向量", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 100, "detail": "完成习题2.3.5解析，学完3.1节并完成选择题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "", "tags": []}, {"date": "2026-06-13", "total": 248, "subjects": {"英语": 100, "数学-线代": 50, "专业课-组成原理": 98}, "subject_details": [{"name": "英语", "group": "英语", "time_min": 100, "detail": "看作文模板", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "继续学习第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 98, "detail": "看完3.2节，习题未做（明天补）", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "时间偏少", "tags": ["CET6考试"]}], "subject_totals": {"数学-高数": 786, "数学-线代": 881, "专业课-组成原理": 917, "英语": 100}, "subject_days": {"数学-高数": 5, "数学-线代": 8, "专业课-组成原理": 8, "英语": 1}, "subject_colors": {"数学-高数": "#6F90C9", "数学-线代": "#7DB7B0", "数学-概率": "#A8B7D8", "专业课-数据结构": "#9CB59A", "专业课-组成原理": "#E1D2BC", "专业课-操作系统": "#A79BBF", "专业课-计算机网络": "#96B8C5", "英语": "#C98279", "政治": "#C09AA7"}, "group_totals": {"数学": 1667, "专业课": 917, "英语": 100, "政治": 0, "其他": 0}, "group_days": {"数学": 8, "专业课": 8, "英语": 1, "政治": 0, "其他": 0}, "group_colors": {"数学": "#7398C6", "专业课": "#AFA188", "英语": "#C98279", "政治": "#C09AA7", "其他": "#9A948D"}, "subject_chapters_done": {"数学-线代": 2, "专业课-组成原理": 1}, "progress_rows": [{"date": "2026-06-02", "subject": "数学-线代", "chapter": "第一讲", "status": "完结"}, {"date": "2026-06-05", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-07", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-08", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-09", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-10", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}, {"date": "2026-06-11", "subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"date": "2026-06-11", "subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}, {"date": "2026-06-12", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, {"date": "2026-06-12", "subject": "专业课-组成原理", "chapter": "第三章", "status": "起步"}, {"date": "2026-06-13", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, {"date": "2026-06-13", "subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}], "latest_chapter": {"数学-线代": {"date": "2026-06-13", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, "专业课-组成原理": {"date": "2026-06-13", "subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}}, "latest_log": {"date": "2026-06-13", "phase": "", "focus": "看作文模板 + 继续学习第三章 + 看完3.2节，习题未做（明天补）", "mood": "时间偏少", "tags": ["CET6考试"], "subjects": [{"name": "英语", "group": "英语", "time_min": 100, "detail": "看作文模板", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "继续学习第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 98, "detail": "看完3.2节，习题未做（明天补）", "result": "", "next": ""}], "next_actions": [], "issues": []}, "timeline": [{"date": "2026-06-02", "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-05", "tags": ["受干扰"], "mood": "受干扰"}, {"date": "2026-06-10", "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "tags": ["受伤", "章节完结"], "mood": "受干扰"}, {"date": "2026-06-13", "tags": ["CET6考试"], "mood": "时间偏少"}], "timeline_events": [{"date": "2026-06-02", "milestones": [{"subject": "数学-线代", "chapter": "第一讲", "status": "完结"}], "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-05", "milestones": [], "tags": ["受干扰"], "mood": "受干扰"}, {"date": "2026-06-10", "milestones": [{"subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}], "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "milestones": [{"subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}], "tags": ["受伤", "章节完结"], "mood": "受干扰"}, {"date": "2026-06-12", "milestones": [{"subject": "专业课-组成原理", "chapter": "第三章", "status": "起步"}], "tags": [], "mood": ""}, {"date": "2026-06-13", "milestones": [], "tags": ["CET6考试"], "mood": "时间偏少"}], "recent": {"days": 7, "start_date": "2026-06-07", "end_date": "2026-06-13", "total_minutes": 1968, "studied_days": 6, "avg_minutes": 328, "subject_totals": {"数学-线代": 681, "专业课-组成原理": 684, "数学-高数": 503, "英语": 100}, "top_day": {"date": "2026-06-10", "total": 416}}, "alerts": [], "summary": {"total_minutes": 2684, "studied_days": 8, "log_count": 9, "first_date": "2026-06-02", "last_date": "2026-06-13", "avg_minutes": 336, "current_phase": "未说明", "latest_focus": "看作文模板 + 继续学习第三章 + 看完3.2节，习题未做（明天补）", "exam_date": "2026-12-20", "days_to_exam": 189}}</script>
 <script>
 const DATA = JSON.parse(document.getElementById("dashboard-data").textContent);
 const SUBJECT_COLORS = DATA.subject_colors || {};
@@ -493,7 +506,7 @@ function fmtMinutes(value) {
   return `${m}m`;
 }
 function colorForSubject(subject) {
-  return SUBJECT_COLORS[subject] || "#6B7280";
+  return SUBJECT_COLORS[subject] || "#9A948D";
 }
 
 function renderHero() {

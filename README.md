@@ -72,6 +72,10 @@ python scripts/build_dashboard.py
 
 它扫描所有日志的 frontmatter，生成 `StudyProgress/dashboard.html`——零依赖单文件，双击即可在浏览器打开，含每日时长趋势、各科进度追踪和关键节点时间线。新增或修改日志后重新运行即可刷新。
 
+看板的视觉样式和科目配色统一维护在 `scripts/build_dashboard.py` 中，`StudyProgress/dashboard.html` 是生成结果。调整主题、`subject_colors`、`group_colors`、强调文字颜色或图表细节时，优先修改生成脚本，再运行 `python scripts/build_dashboard.py`，不要只手改 HTML。当前看板使用纸感浅底、深色正文、柔和低饱和图表色；同一科目在柱状图、图例、科目投入和当前推进中必须保持同色。
+
+看板生成逻辑的轻量回归测试放在 `scripts/test_build_dashboard.py`，可用 `python -m unittest scripts.test_build_dashboard` 运行。
+
 ### 备考路线复盘
 
 - `StudyProgress/ProgressIndex.md`：总览入口，回看整段备考过程。
