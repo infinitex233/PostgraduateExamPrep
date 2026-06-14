@@ -1,15 +1,33 @@
-# DigitalBooks
+# StudyMaterials
 
-这里存放考研重点教材的电子版。它们不是全部备考资料，只是需要反复查阅、适合被 agent 引用和整理的重点资料。
+这里存放考研重点教材、教材 OCR 缓存、教材派生笔记和英语资料。它们不是全部备考资料，只是需要反复查阅、适合被 agent 引用和整理的重点材料。
 
-说明：教材 PDF 体积较大，且可能涉及版权问题，默认不提交到 GitHub。请把 PDF 保留在本地对应目录中，agent 在本地查书或整理章节笔记时再读取。
+说明：教材 PDF 体积较大，且可能涉及版权问题，默认不提交到 GitHub。请把 PDF 保留在本地对应目录中，agent 在本地查书、整理章节笔记或更新学习资料时再读取。
 
 ## 目录用途
 
 - `408/`：计算机专业基础综合相关教材。
-- `math/`：数学相关教材。
+- `Math/`：数学相关教材。
+- `English/`：英语资料与派生复习材料。
+  - `WritingTemplates/`：英语作文模板成品，当前包含 `index.html` 和 `index.pdf`。
 - `BookNotes/`：由教材 PDF 派生出的逐章复习笔记，每本书一个 Markdown 文件。
 - `Cache/`：教材 OCR 检索缓存。当前 408 四本书和数学三本书均使用逐页 OCR JSON 缓存，文件名形如 `书名.docling.json`，格式为 `{"book": "...", "total_pages": N, "pages": [{"page_no": 1, "text": "..."}]}`。
+
+当前结构：
+
+```text
+StudyMaterials/
+  README.md
+  408/                    # 408 专业课教材 PDF
+  Math/                   # 数学一教材 PDF
+  Cache/                  # 408 + 数学教材逐页 OCR 缓存
+  BookNotes/              # 教材派生笔记，每本书一个 Markdown 文件
+    _template.md
+  English/                # 英语一资料与整理成品
+    WritingTemplates/
+      index.html          # 英语作文模板 16:9 浏览器版
+      index.pdf           # 英语作文模板 PDF 版
+```
 
 ## 缓存查询规则
 
@@ -24,7 +42,7 @@ python scripts/query.py "关键词" --book "高数" --context 2
 
 使用要求：
 
-- `scripts/query.py` 自动读取 `DigitalBooks/Cache/*.docling.json`，兼容逐页 OCR 缓存和旧 Docling 结构缓存。
+- `scripts/query.py` 自动读取 `StudyMaterials/Cache/*.docling.json`，兼容逐页 OCR 缓存和旧 Docling 结构缓存。
 - 408 四本与数学三本现都采用逐页 OCR 缓存，是查找候选 PDF 页的第一入口。
 - 缓存里的 `page_no` 是 PDF 页码，不一定等于书内印刷页码。回答页码时须同时标注 `书内印刷页码` 和 `PDF 页码`；某项暂不能确认，须明说“书内印刷页码未确认”或“PDF 页码未确认”，并优先核对 PDF 补齐。
 - 缓存命中只用于定位候选页。需要精确原文、公式、图表、例题细节或书内页码时，必须再打开对应 PDF 页核对。
@@ -66,3 +84,21 @@ agent 应该：
 - 笔记是滚动更新的个人复习资料，服务于复习，不追求完整复刻教材。
 - 优先整理知识框架、关键定义、常考点、易错点、题型入口。
 - 未核实的信息不要写成确定结论。
+
+## 英语资料整理规则
+
+`English/` 用于存放英语一相关资料和由资料整理出的复习成品。当前作文模板成品目录为：
+
+```text
+English/WritingTemplates/
+  index.html  # 16:9 浏览器翻页版作文模板
+  index.pdf   # 同内容 PDF 版
+```
+
+整理或更新英语作文模板时：
+
+- 原始图片、PDF、截图等源材料应保存在 `English/` 下的明确子目录中，不要混入 `StudyProgress/`。
+- 从图片或 PDF 中转写内容时，按源文件顺序整理，保留题目、范文、译文、解析和模板句等有效学习内容。
+- 不要把水印、平台标识、批改界面装饰、截图噪声或 OCR 调试痕迹写进正文。
+- 如果更新了 `WritingTemplates/index.html`，并且用户需要 PDF 版，应同步重新生成 `WritingTemplates/index.pdf`。
+- 临时 OCR 中间文件、截图 contact sheet、PDF 渲染图、临时本地服务 PID 文件等用完后删除。

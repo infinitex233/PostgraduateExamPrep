@@ -4,9 +4,9 @@ Usage:
     python scripts/docling_cache.py          # convert all uncached PDFs
     python scripts/docling_cache.py --force  # re-convert all PDFs
 
-Reads PDFs from DigitalBooks/math/ and DigitalBooks/408/.
-Writes cache to DigitalBooks/Cache/{book_name}.docling.json
-                          DigitalBooks/Cache/{book_name}.docling.md
+Reads PDFs from StudyMaterials/Math/ and StudyMaterials/408/.
+Writes cache to StudyMaterials/Cache/{book_name}.docling.json
+                          StudyMaterials/Cache/{book_name}.docling.md
 """
 
 import argparse
@@ -29,7 +29,7 @@ from docling.document_converter import DocumentConverter, PdfFormatOption
 
 def find_pdfs(books_dir: Path) -> list[Path]:
     pdfs = []
-    for subdir in ["math", "408"]:
+    for subdir in ["Math", "408"]:
         d = books_dir / subdir
         if d.is_dir():
             pdfs.extend(sorted(d.glob("*.pdf")))
@@ -89,13 +89,13 @@ def main():
     args = parser.parse_args()
 
     repo = Path(__file__).resolve().parent.parent
-    books_dir = repo / "DigitalBooks"
+    books_dir = repo / "StudyMaterials"
     cache_dir = books_dir / "Cache"
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     pdfs = find_pdfs(books_dir)
     if not pdfs:
-        print("No PDFs found in DigitalBooks/{math,408}/")
+        print("No PDFs found in StudyMaterials/{Math,408}/")
         return
 
     print(f"Found {len(pdfs)} PDF(s)\n")

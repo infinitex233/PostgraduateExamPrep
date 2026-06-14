@@ -18,7 +18,7 @@ from pathlib import Path
 import fitz  # PyMuPDF
 from rapidocr import RapidOCR
 
-CACHE_DIR = Path(__file__).resolve().parent.parent / "DigitalBooks" / "Cache"
+CACHE_DIR = Path(__file__).resolve().parent.parent / "StudyMaterials" / "Cache"
 ENGINE_REFRESH_INTERVAL = 20  # recreate OCR engine every N pages to avoid memory issues
 IMAGE_DPI = 144  # balance between OCR quality and memory usage
 
@@ -97,7 +97,7 @@ def process_pdf(pdf_path: Path, cache_dir: Path, resume_from: int = 0) -> Path |
 
 def find_pdfs(books_dir: Path) -> list[Path]:
     pdfs = []
-    for subdir in ["math", "408"]:
+    for subdir in ["Math", "408"]:
         d = books_dir / subdir
         if d.is_dir():
             pdfs.extend(sorted(d.glob("*.pdf")))
@@ -110,7 +110,7 @@ def main():
     parser.add_argument("--all", action="store_true", help="Process all PDFs")
     args = parser.parse_args()
 
-    books_dir = Path(__file__).resolve().parent.parent / "DigitalBooks"
+    books_dir = Path(__file__).resolve().parent.parent / "StudyMaterials"
 
     if args.pdf:
         pdfs = [Path(args.pdf)]

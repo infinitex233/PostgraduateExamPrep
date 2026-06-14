@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考研英语作文模板</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           THEME
+           =========================================== */
+        :root {
+            --ink: #17201d;
+            --muted: #5b6762;
+            --soft: #f5f7f4;
+            --paper: #fffdf8;
+            --line: #dfe6df;
+            --green: #2f6f5e;
+            --green-deep: #1f4f43;
+            --rose: #a23b4c;
+            --amber: #b77a2b;
+            --blue: #315f86;
+            --stage-bg: #202724;
+            --slide-bg: #fffdf8;
+            --font-serif-cn: 'Noto Serif SC', serif;
+            --font-sans-cn: 'Noto Sans SC', sans-serif;
+            --font-en: 'Source Serif 4', Georgia, serif;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* ===========================================
+           FIXED 16:9 STAGE
+           =========================================== */
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        .deck-stage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            transform-origin: 0 0;
+            background: var(--slide-bg, #fff);
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--slide-bg, #fff);
+        }
+
+        .slide.active,
+        .slide.visible {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+
+        img,
+        video,
+        canvas,
+        svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .deck-controls {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        @media print {
+            @page {
+                size: 16in 9in;
+                margin: 0;
+            }
+
+            html,
+            body {
+                width: 1920px;
+                height: auto;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-viewport {
+                position: static;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-stage {
+                position: static;
+                width: auto;
+                height: auto;
+                transform: none !important;
+                background: none;
+            }
+
+            .slide {
+                position: relative;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                width: 1920px;
+                height: 1080px;
+                break-after: page;
+                page-break-after: always;
+            }
+
+            .slide:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+
+            .deck-controls,
+            .nav-controls,
+            .slide-counter {
+                display: none !important;
+            }
+
+            .reveal {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+        }
+
+        /* ===========================================
+           SHARED SLIDE DESIGN
+           =========================================== */
+        .slide {
+            font-family: var(--font-sans-cn);
+            color: var(--ink);
+        }
+
+        .slide::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(47, 111, 94, 0.07) 1px, transparent 1px),
+                linear-gradient(rgba(47, 111, 94, 0.05) 1px, transparent 1px);
+            background-size: 56px 56px;
+            opacity: 0.42;
+            pointer-events: none;
+        }
+
+        .slide::after {
+            content: "";
+            position: absolute;
+            left: 70px;
+            right: 70px;
+            bottom: 50px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(47, 111, 94, 0.35), transparent);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.48s var(--ease-out-expo), transform 0.48s var(--ease-out-expo);
+        }
+
+        .visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .visible .reveal:nth-child(2) { transition-delay: 0.06s; }
+        .visible .reveal:nth-child(3) { transition-delay: 0.12s; }
+        .visible .reveal:nth-child(4) { transition-delay: 0.18s; }
+
+        /* ===========================================
+           COVER AND CONTENTS
+           =========================================== */
+        .cover-slide {
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(183, 122, 43, 0.18), transparent 28%),
+                radial-gradient(circle at 82% 78%, rgba(49, 95, 134, 0.14), transparent 32%),
+                var(--paper);
+        }
+
+        .cover-panel {
+            width: 1240px;
+            text-align: center;
+            position: relative;
+            padding: 62px 80px 76px;
+            border-top: 8px solid var(--green);
+            border-bottom: 8px solid var(--green);
+        }
+
+        .cover-kicker {
+            margin: 0 0 34px;
+            font-size: 30px;
+            letter-spacing: 8px;
+            color: var(--green-deep);
+            font-weight: 700;
+        }
+
+        .cover-title {
+            margin: 0;
+            font-family: var(--font-serif-cn);
+            font-size: 118px;
+            line-height: 1.12;
+            letter-spacing: 0;
+        }
+
+        .cover-subtitle {
+            margin: 42px auto 0;
+            color: var(--muted);
+            font-size: 32px;
+            line-height: 1.7;
+            max-width: 900px;
+        }
+
+        .toc-slide {
+            padding: 86px 110px;
+        }
+
+        .toc-title {
+            margin: 0 0 52px;
+            font-family: var(--font-serif-cn);
+            font-size: 76px;
+            color: var(--green-deep);
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 34px;
+        }
+
+        .toc-card {
+            min-height: 310px;
+            padding: 42px 44px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid var(--line);
+            border-top: 7px solid var(--green);
+            box-shadow: 0 18px 45px rgba(31, 79, 67, 0.10);
+        }
+
+        .toc-card:nth-child(2),
+        .toc-card:nth-child(4) {
+            border-top-color: var(--rose);
+        }
+
+        .toc-week {
+            display: inline-flex;
+            align-items: center;
+            height: 46px;
+            padding: 0 18px;
+            color: #fff;
+            background: var(--green);
+            font-size: 25px;
+            font-weight: 700;
+            border-radius: 4px;
+        }
+
+        .toc-card:nth-child(2) .toc-week,
+        .toc-card:nth-child(4) .toc-week {
+            background: var(--rose);
+        }
+
+        .toc-card h3 {
+            margin: 24px 0 14px;
+            font-family: var(--font-serif-cn);
+            font-size: 43px;
+        }
+
+        .toc-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 26px;
+            line-height: 1.65;
+        }
+
+        /* ===========================================
+           CONTENT SLIDES
+           =========================================== */
+        .content-slide {
+            padding: 54px 78px 76px;
+        }
+
+        .slide-head {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            height: 48px;
+            padding: 0 20px;
+            border-radius: 5px;
+            background: var(--green);
+            color: white;
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        .tag.large {
+            background: var(--rose);
+        }
+
+        .slide-title {
+            margin: 0;
+            font-family: var(--font-serif-cn);
+            font-size: 47px;
+            line-height: 1.25;
+            color: var(--green-deep);
+        }
+
+        .content-slide.large .slide-title {
+            color: #7b2634;
+        }
+
+        .slide-meta {
+            color: var(--muted);
+            font-size: 23px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .card-grid {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 28px;
+            height: 884px;
+        }
+
+        .card-grid.equal {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .card-grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 26px 31px;
+            box-shadow: 0 14px 34px rgba(23, 32, 29, 0.08);
+            overflow: hidden;
+        }
+
+        .card.prompt {
+            background: rgba(245, 247, 244, 0.88);
+            border-left: 7px solid var(--blue);
+        }
+
+        .card.essay {
+            border-left: 7px solid var(--green);
+        }
+
+        .card.translation {
+            border-left: 7px solid var(--amber);
+        }
+
+        .card.analysis {
+            border-left: 7px solid var(--rose);
+        }
+
+        .card h3 {
+            margin: 0 0 18px;
+            font-size: 27px;
+            line-height: 1.3;
+            color: var(--green-deep);
+        }
+
+        .card.analysis h3 {
+            color: #7b2634;
+        }
+
+        .prompt-text,
+        .zh-text,
+        .analysis-list {
+            font-size: 24px;
+            line-height: 1.62;
+            color: var(--ink);
+        }
+
+        .prompt-text p,
+        .zh-text p {
+            margin: 0 0 15px;
+        }
+
+        .prompt-text p:last-child,
+        .zh-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .en-text {
+            font-family: var(--font-en);
+            font-size: 23px;
+            line-height: 1.48;
+            color: #17201d;
+        }
+
+        .en-text.compact {
+            font-size: 21.5px;
+            line-height: 1.45;
+        }
+
+        .en-text p {
+            margin: 0 0 12px;
+        }
+
+        .en-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .essay-title-line {
+            font-weight: 650;
+            color: var(--green-deep);
+        }
+
+        .analysis-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .analysis-list li {
+            position: relative;
+            padding: 0 0 14px 24px;
+            margin-bottom: 13px;
+            border-bottom: 1px dashed rgba(47, 111, 94, 0.25);
+        }
+
+        .analysis-list li:last-child {
+            border-bottom: 0;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .analysis-list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 15px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--rose);
+        }
+
+        .en-frag {
+            font-family: var(--font-en);
+            font-weight: 650;
+            color: var(--green-deep);
+        }
+
+        .note {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 13px;
+            border-radius: 4px;
+            background: rgba(47, 111, 94, 0.09);
+            color: var(--green-deep);
+            font-weight: 700;
+        }
+
+        .source-line {
+            margin-top: 16px;
+            color: var(--muted);
+            font-size: 21px;
+            line-height: 1.5;
+        }
+
+        .split-stack {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+        }
+
+        .small-card {
+            padding: 22px 28px;
+        }
+
+        .small-card .prompt-text,
+        .small-card .zh-text,
+        .small-card .analysis-list {
+            font-size: 22px;
+            line-height: 1.55;
+        }
+
+        /* ===========================================
+           NAVIGATION
+           =========================================== */
+        .nav-controls {
+            position: fixed;
+            right: 44px;
+            bottom: 36px;
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            width: 48px;
+            height: 48px;
+            border: 0;
+            border-radius: 50%;
+            background: var(--green-deep);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+        }
+
+        .nav-button:hover {
+            background: var(--rose);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 34px;
+            right: 44px;
+            z-index: 1000;
+            padding: 10px 18px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--muted);
+            font-size: 20px;
+            font-weight: 700;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+    </style>
+</head>
+<body>
+    <div class="deck-viewport">
+        <main class="deck-stage" id="stage" aria-live="polite">
+            <section class="slide active cover-slide">
+                <div class="cover-panel">
+                    <p class="cover-kicker reveal">WRITING TEMPLATES</p>
+                    <h1 class="cover-title reveal">考研英语作文模板</h1>
+                    <p class="cover-subtitle reveal">按本地图片内容整理：题目、范文、参考译文与可迁移句型。</p>
+                </div>
+            </section>
+
+            <section class="slide toc-slide">
+                <h2 class="toc-title reveal">目录 Contents</h2>
+                <div class="toc-grid">
+                    <article class="toc-card reveal">
+                        <span class="toc-week">Week 1 · 小作文</span>
+                        <h3>手写书信回信</h3>
+                        <p>2026 英一小作文。向 Paul 介绍中国家庭手写信件及展览信息。</p>
+                    </article>
+                    <article class="toc-card reveal">
+                        <span class="toc-week">Week 2 · 小作文</span>
+                        <h3>创新大赛邀请信</h3>
+                        <p>2022 英一小作文。邀请英国大学教授组织团队参加国际创新竞赛。</p>
+                    </article>
+                    <article class="toc-card reveal">
+                        <span class="toc-week">Week 1 · 大作文</span>
+                        <h3>人生选择图画作文</h3>
+                        <p>2013 英一大作文。毕业生在就业、考研、出国、创业之间作选择。</p>
+                    </article>
+                    <article class="toc-card reveal">
+                        <span class="toc-week">Week 2 · 大作文</span>
+                        <h3>老年人休闲活动图表</h3>
+                        <p>2025 英二大作文。某社区老年人主要日常休闲活动调查。</p>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="nav-controls" aria-label="幻灯片导航">
+        <button class="nav-button" id="prevBtn" title="上一页">‹</button>
+        <button class="nav-button" id="nextBtn" title="下一页">›</button>
+    </div>
+    <div class="slide-counter" id="counter">1 / 1</div>
+
+    <script>
+        /* ===========================================
+           SOURCE CONTENT
+           =========================================== */
+        const contentSlides = [
+            {
+                tag: "小作文",
+                title: "Week 1 · 手写书信回信",
+                meta: "2026 英一小作文 · 题目与范文",
+                tone: "small",
+                grid: "",
+                cards: [
+                    {
+                        type: "prompt",
+                        title: "题目 Directions",
+                        body: `<div class="prompt-text">
+                            <p>Read the following email from your friend Paul and write him a reply.</p>
+                            <p><b>Hi Li Ming,</b><br>I was very moved by the Chinese families' handwritten letters you posted yesterday. They are priceless! Could you please tell me a bit more about them? And are they currently on public display somewhere? I am very keen to see them in person. Thank you.</p>
+                            <p><b>Best,<br>Paul.</b></p>
+                            <p>Write your answer in about 100 words on the ANSWER SHEET. Do not use your own name in the email; use “Li Ming” instead.</p>
+                            <p class="source-line">图片顺序来源：Week1小作文 p1-p5；评分参考：9/10，第五档。</p>
+                        </div>`
+                    },
+                    {
+                        type: "essay",
+                        title: "参考范文",
+                        body: `<div class="en-text">
+                            <p><span class="essay-title-line">Dear Paul,</span></p>
+                            <p>Words fail to express my excitement when I received your email. I'm so glad that you have an interest in handwritten letters. Below are the details.</p>
+                            <p>Once serving as a vital means of communication, handwritten letters have witnessed the sincere emotions between family members in the old days. It took much time to convey a message, sometimes up to a couple of months, by letters, which made each word written with great care. What makes handwritten letters so special is not only the information they carry, but also the warmth and personal feelings behind them. Every time people heard from their beloved ones, a strong sense of happiness would flood their hearts, an experience that is far beyond today's instant messaging.</p>
+                            <p>As for public display, there's currently a captivating exhibition in the National Museum showcasing letters covering various dynasties, which is highly recommended. Through these precious handwritten documents, visitors are able to gain profound insights into our nation's cultural heritage and the rich connotations behind it.</p>
+                            <p>Anytime you want to visit this exhibition, I would be more than delighted to accompany you. Looking forward to your early reply.</p>
+                            <p><span class="essay-title-line">Yours sincerely,<br>Li Ming.</span></p>
+                        </div>`
+                    }
+                ]
+            },
+            {
+                tag: "小作文",
+                title: "Week 1 · 手写书信回信",
+                meta: "参考译文与开头模板",
+                tone: "small",
+                grid: "equal",
+                cards: [
+                    {
+                        type: "translation",
+                        title: "参考译文",
+                        body: `<div class="zh-text">
+                            <p>亲爱的保罗：</p>
+                            <p>当我收到你的邮件时，激动之情难以用言语表达。很高兴你对手写书信产生了兴趣，以下是相关信息。</p>
+                            <p>手写书信曾在过去作为一种重要的交流方式，见证了家庭成员之间真挚而深厚的情感。在那个年代，通过书信传递信息往往需要较长时间，有时甚至长达数月，因此每一个字都被人们认真斟酌、谨慎书写。手写书信之所以如此特别，不仅在于其所承载的信息，更在于其中蕴含的温度与个人情感。每当人们收到来自亲人的来信时，内心都会涌起强烈的幸福感，这种体验远远超越了当今即时通讯所带来的感受。</p>
+                            <p>关于公开展览，目前国家博物馆正在举办一场引人入胜的展览，展出涵盖多个朝代的书信作品，非常值得参观。通过这些珍贵的手写文献，参观者能够深入了解我国的文化遗产及其丰富的内涵。</p>
+                            <p>如果你想参观这次展览，我将非常乐意陪同你前往。期待你的早日回复。</p>
+                            <p>此致敬礼<br>李明</p>
+                        </div>`
+                    },
+                    {
+                        type: "analysis",
+                        title: "解析：回信开头与第一段",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">Words fail to express my ... when I ...</span> 可以作为回信开头，填入一个表达情感态度的词，适合说明自己态度或观点。</li>
+                            <li><span class="en-frag">I'm so glad that you have an interest in ...</span> 用来回应对方兴趣；<span class="en-frag">Below are the details.</span> 用来进入正文。</li>
+                            <li><span class="en-frag">Once serving as a vital means of communication</span>：<span class="en-frag">Serving as + 名词</span> 表示“作为……”，可承担原因说明功能。</li>
+                            <li><span class="en-frag">have witnessed ...</span> 是“无灵主语 + 有灵动词”结构，相当于 <span class="en-frag">... happened / there be ...</span>，很适合提升句式质感。</li>
+                        </ul>`
+                    }
+                ]
+            },
+            {
+                tag: "小作文",
+                title: "Week 1 · 手写书信回信",
+                meta: "正文句型解析",
+                tone: "small",
+                grid: "equal",
+                cards: [
+                    {
+                        type: "analysis",
+                        title: "解析：信息说明句",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">It took much time to convey a message, sometimes up to a couple of months, by letters...</span> 用插入语和状语补充信息，位置灵活，能增加句式多样性。</li>
+                            <li><span class="en-frag">which made each word written with great care</span>：非限制性定语从句，<span class="en-frag">with great care</span> 可替换副词 <span class="en-frag">carefully</span>。</li>
+                            <li><span class="en-frag">What makes ... so special is ...</span> 是主语从句，也可用来表达原因，替代简单的 <span class="en-frag">because</span>。</li>
+                            <li><span class="en-frag">not only ... but also ...</span> 中间段、结尾段都通用，适合连接信息与情感两层内容。</li>
+                        </ul>`
+                    },
+                    {
+                        type: "analysis",
+                        title: "解析：情感与展览信息",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">Every time</span> 等于 <span class="en-frag">whenever</span>，可引导时间状语从句。</li>
+                            <li><span class="en-frag">a strong sense of happiness would flood their hearts</span> 仍是“无灵主语 + 有灵动词”，增强文学性。</li>
+                            <li><span class="en-frag">an experience that is far beyond today's instant messaging</span> 是同位语加定语从句，概括前文感受。</li>
+                            <li><span class="en-frag">As for ..., there's ..., which is highly recommended.</span> 是推荐地点、活动或展览的万能句式。</li>
+                            <li><span class="en-frag">showcasing letters covering various dynasties</span> 使用非谓语压缩信息。</li>
+                        </ul>`
+                    }
+                ]
+            },
+            {
+                tag: "小作文",
+                title: "Week 1 · 手写书信回信",
+                meta: "结尾模板",
+                tone: "small",
+                grid: "single",
+                cards: [
+                    {
+                        type: "analysis",
+                        title: "信件结尾标准模板",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">Anytime you want to ..., I would be more than delighted to ...</span> 用于表达陪同、帮助、进一步解释等。</li>
+                            <li><span class="en-frag">Looking forward to your early reply.</span> 是信件类结尾常用句。</li>
+                            <li>完整结尾可直接替换动词短语：<span class="en-frag">Anytime you want to visit this exhibition, I would be more than delighted to accompany you. Looking forward to your early reply.</span></li>
+                        </ul>`
+                    }
+                ]
+            },
+            {
+                tag: "小作文",
+                title: "Week 2 · 创新大赛邀请信",
+                meta: "2022 英一小作文 · 题目与范文",
+                tone: "small",
+                grid: "",
+                cards: [
+                    {
+                        type: "prompt",
+                        title: "题目 Directions",
+                        body: `<div class="prompt-text">
+                            <p>Write an email to a professor at a British university, inviting him / her to organize a team for the international innovation contest to be held at your university.</p>
+                            <p>You should write about 100 words on the ANSWER SHEET. Do not use your own name. Use “Li Ming” instead.</p>
+                            <p class="source-line">图片顺序来源：Week2小作文 p1-p3；评分参考：9/10，第五档。</p>
+                        </div>`
+                    },
+                    {
+                        type: "essay",
+                        title: "参考范文",
+                        body: `<div class="en-text">
+                            <p><span class="essay-title-line">Dear professor,</span></p>
+                            <p>Words fail to express my excitement to inform you about our approaching innovation contest. It is our honor to invite you to participate in the contest with your team. Below are the details.</p>
+                            <p>The contest, revolving around the theme of inspiring students' creativity, will be held at my university next month. Serving as a high-level platform to encourage campus innovation, it has attracted extraordinary teams from all over the world to sign up. And through engaging in this game, not only do competitors reap a chance to be immersed in the atmosphere of collaboration and competition, but they will also enhance their practical skills in addressing real-world issues. So, given your extensive experience in contests of this kind, it occurs to us first to offer you an invitation.</p>
+                            <p>On behalf of the contest committee, we sincerely anticipate your attendance with your talented team. Looking forward to receiving your early reply.</p>
+                            <p><span class="essay-title-line">Yours sincerely,<br>Li Ming.</span></p>
+                        </div>`
+                    }
+                ]
+            },
+            {
+                tag: "小作文",
+                title: "Week 2 · 创新大赛邀请信",
+                meta: "参考译文与开头模板",
+                tone: "small",
+                grid: "equal",
+                cards: [
+                    {
+                        type: "translation",
+                        title: "参考译文",
+                        body: `<div class="zh-text">
+                            <p>尊敬的教授：</p>
+                            <p>难以言表的激动之情让我迫不及待想告诉您，我们期待已久的创新大赛即将拉开帷幕。我们深感荣幸，诚挚地邀请您带领您的团队参加本次大赛。具体细节如下：</p>
+                            <p>本次大赛以“激发学生创造力”为主题，将于下个月在我校举办。作为一个鼓励校园创新的高水平平台，大赛已经吸引了来自世界各地的杰出团队报名参与。通过参与这场竞技，参赛者不仅能沉浸在协作与竞争并存的氛围中，更能提升解决现实问题的实践能力。鉴于您在此类赛事中拥有丰富的经验，我们第一时间就想到了您，并向您发出这份邀请。</p>
+                            <p>我谨代表大赛组委会，衷心期待您能携您才华横溢的团队拨冗出席。期待您的早日回复。</p>
+                            <p>此致敬礼<br>李明</p>
+                        </div>`
+                    },
+                    {
+                        type: "analysis",
+                        title: "解析：邀请信开头",
+                        body: `<ul class="analysis-list">
+                            <li>沿用 Week1 的回信开头结构：<span class="en-frag">Words fail to express my excitement to inform you about ...</span></li>
+                            <li><span class="en-frag">It is our honor to invite you to do sth.</span> 适用于非平等关系或较正式的邀请信。</li>
+                            <li><span class="en-frag">Below are the details.</span> 可作为标准过渡句，引出活动安排。</li>
+                        </ul>`
+                    }
+                ]
+            },
+            {
+                tag: "小作文",
+                title: "Week 2 · 创新大赛邀请信",
+                meta: "正文与结尾解析",
+                tone: "small",
+                grid: "equal",
+                cards: [
+                    {
+                        type: "analysis",
+                        title: "解析：比赛介绍与邀请理由",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">revolving around the theme of ...</span> 表示“围绕……主题”，用于回应题目、说明事由。</li>
+                            <li><span class="en-frag">Serving as a high-level platform...</span> 等于用 <span class="en-frag">as / is / because</span> 说明活动定位。</li>
+                            <li><span class="en-frag">not only do competitors reap a chance to ..., but they will also ...</span> 用倒装增强表达，适合写参赛收获。</li>
+                            <li><span class="en-frag">be immersed in the atmosphere of ...</span> 可替换 <span class="en-frag">experience / get</span>，用于描述活动氛围。</li>
+                            <li><span class="en-frag">given your extensive experience...</span> 中 <span class="en-frag">given</span> 表示“鉴于”，相当于原因状语。</li>
+                            <li><span class="en-frag">it occurs to us first to offer you an invitation</span> 表示“我们首先想到您”。</li>
+                        </ul>`
+                    },
+                    {
+                        type: "analysis",
+                        title: "解析：代表组织的结尾",
+                        body: `<ul class="analysis-list">
+                            <li>代表某个团体写信时，可以用 <span class="en-frag">On behalf of ..., we sincerely ...</span> 作为结尾。</li>
+                            <li><span class="en-frag">we sincerely anticipate your attendance with your talented team</span> 比简单的 <span class="en-frag">welcome you</span> 更正式。</li>
+                            <li><span class="en-frag">Looking forward to receiving your early reply.</span> 适合正式邀请信收束。</li>
+                        </ul>`
+                    }
+                ]
+            },
+            {
+                tag: "大作文",
+                title: "Week 1 · 人生选择图画作文",
+                meta: "2013 英一大作文 · 题目与范文",
+                tone: "large",
+                grid: "",
+                cards: [
+                    {
+                        type: "prompt",
+                        title: "题目 Directions",
+                        body: `<div class="prompt-text">
+                            <p>Write an essay of 160-200 words based on the following drawing. In your essay, you should:</p>
+                            <p>1) describe the drawing briefly;<br>2) interpret its intended meaning;<br>3) give your comments.</p>
+                            <p>图画展示一群大学毕业生站在人生十字路口，面前有四种方向：求职、考研、出国、创业。图下标题为“选择”。</p>
+                            <p class="source-line">图片顺序来源：Week1大作文 p1-p4；评分参考：17/20，第五档。</p>
+                        </div>`
+                    },
+                    {
+                        type: "essay",
+                        title: "参考范文",
+                        body: `<div class="en-text compact">
+                            <p>Amid the vivid imagery displayed, a snapshot of a prevailing phenomenon emerges: in the face of four different paths, groups of graduates are hesitant to make their choice between four options involving employment, preparing for postgraduate examination, studying abroad and entrepreneurship. The succinct caption beneath “critical decisions that lie ahead” aptly distills the essence of this issue: how could graduates at such a pivotal juncture discern their desired trajectory of life?</p>
+                            <p>Too familiar as such scenarios may seem, they reveal a disconcerting reality. As choices continue to diversify, lack of personal life goals has emerged as a pressing social concern. The horizons of students nowadays are confined to scores and on-campus activities, failing to ponder what their actual pursuit is. While society rapidly varies, most college students are exhausted from handling their academic assignments so as to stick to outdated ideas of it. As a consequence, anxiety and confusion flood into their minds when they encounter a life-altering turning point. On reflection, it is imperative for each individual to define a blueprint to navigate through the uncertain phase.</p>
+                            <p>To encapsulate, working hard does matter, so does looking up at the starry sky. Not only are we college students solely preoccupied with academic performance and keen on getting straight As, but further beyond we must broaden our horizons, find out our advantages and make preparations for our future as early as possible. Only if personal ambition and societal needs are closely combined, and simultaneously integrating oneself into the great rejuvenation of the Chinese nation, will we embark on a promising future brimming with potential.</p>
+                        </div>`
+                    }
+                ]
+            },
+            {
+                tag: "大作文",
+                title: "Week 1 · 人生选择图画作文",
+                meta: "参考译文",
+                tone: "large",
+                grid: "single",
+                cards: [
+                    {
+                        type: "translation",
+                        title: "参考译文",
+                        body: `<div class="zh-text">
+                            <p>在这幅生动呈现的画面中，一个普遍存在的现象被清晰地展现出来：面对四条不同的人生路径，一群毕业生在就业、备考研究生、出国深造以及自主创业这四种选择之间犹豫不决。画面下方简洁的文字说明“摆在眼前的关键抉择”，恰如其分地点明了问题的本质：在如此重要的人生关口，毕业生究竟该如何辨明自己真正向往的人生方向？</p>
+                            <p>这样的情景或许早已司空见惯，但它却揭示了一个令人不安的现实。随着选择日益多元化，缺乏清晰的人生目标已成为一个亟待关注的社会问题。当今学生的视野往往局限于成绩与校园活动，忽视了对自身真正追求的思考。与此同时，社会飞速变化，大多数大学生却疲于应对学业任务，仍停留在对学习的陈旧认知之中。由此，当他们面对人生的重要转折点时，焦虑与迷茫便随之而来。反思之下，每个人都有必要为自己制定一份清晰的蓝图，以应对充满不确定性的阶段。</p>
+                            <p>总而言之，脚踏实地固然重要，仰望星空同样不可或缺。我们大学生不应只专注于学业成绩、执着于取得高分，更应拓宽视野，发掘自身优势，并尽早为未来做好准备。唯有将个人理想与社会需求紧密结合，同时把自身融入中华民族伟大复兴的进程之中，才能走向一个充满希望与无限可能的未来。</p>
+                        </div>`
+                    }
+                ]
+            },
+            {
+                tag: "大作文",
+                title: "Week 1 · 人生选择图画作文",
+                meta: "图画作文模板解析",
+                tone: "large",
+                grid: "equal",
+                cards: [
+                    {
+                        type: "analysis",
+                        title: "开头段：三处可替换",
+                        body: `<ul class="analysis-list">
+                            <li>开头段可直接作为模板使用，只需要替换三个地方：对图画的描述、图画名称、文章主题。</li>
+                            <li><span class="en-frag">Amid the vivid imagery displayed, a snapshot of a prevailing phenomenon emerges...</span> 用于引出图画反映的现象。</li>
+                            <li><span class="en-frag">in the face of ...</span> 可替换成具体场景；<span class="en-frag">options involving ...</span> 可列举并概括多个选择。</li>
+                            <li><span class="en-frag">aptly distills the essence of this issue</span> 用于说明图画标题或文字点明主题。</li>
+                            <li>建议三个填空处都尽量只用一句话，避免开头过长。</li>
+                        </ul>`
+                    },
+                    {
+                        type: "analysis",
+                        title: "第二段：递进分析",
+                        body: `<ul class="analysis-list">
+                            <li>第二段是递进逻辑，不能整段机械套用，但每句都是可迁移功能句。</li>
+                            <li><span class="en-frag">Too familiar as such scenarios may seem, they reveal a disconcerting reality.</span> 适合引入负面社会现象。</li>
+                            <li><span class="en-frag">As ... continue to diversify, ... has emerged as a pressing social concern.</span> 可用于“现象加剧，问题凸显”。</li>
+                            <li><span class="en-frag">The horizons of students nowadays are confined to ..., failing to ponder ...</span> 使用无灵主语、被动语态、非谓语和宾语从句。</li>
+                        </ul>`
+                    }
+                ]
+            },
+            {
+                tag: "大作文",
+                title: "Week 1 · 人生选择图画作文",
+                meta: "中段与结尾功能句",
+                tone: "large",
+                grid: "equal",
+                cards: [
+                    {
+                        type: "analysis",
+                        title: "中段功能句",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">While society rapidly varies, most college students are exhausted from ..., so as to ...</span>：让步状语从句 + 结果表达 + 非谓语。</li>
+                            <li><span class="en-frag">As a consequence, anxiety and confusion flood into their minds when they encounter ...</span>：时间状语从句 + 无灵主语 + 有灵动词。</li>
+                            <li><span class="en-frag">On reflection, it is imperative for each individual to define a blueprint to navigate through the uncertain phase.</span>：适合转入建议。</li>
+                            <li><span class="en-frag">it is adj. for sb. to do sth.</span> 是形式主语结构。</li>
+                        </ul>`
+                    },
+                    {
+                        type: "analysis",
+                        title: "结尾段模板",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">To encapsulate, working hard does matter, so does looking up at the starry sky.</span> 可以拆成 <span class="en-frag">... does matter, so does ...</span>。</li>
+                            <li><span class="en-frag">Not only ..., but further beyond ...</span> 用于递进总结。</li>
+                            <li><span class="en-frag">Only if ..., will we ...</span> 适合用在结尾提出条件与愿景。</li>
+                            <li>这几类结构都可用于图画作文结尾段的总结、呼吁和展望。</li>
+                        </ul>`
+                    }
+                ]
+            },
+            {
+                tag: "大作文",
+                title: "Week 2 · 老年人休闲活动图表",
+                meta: "2025 英二大作文 · 题目与范文",
+                tone: "large",
+                grid: "",
+                cards: [
+                    {
+                        type: "prompt",
+                        title: "题目 Directions",
+                        body: `<div class="prompt-text">
+                            <p>Write an essay based on the chart below. In your essay, you should:</p>
+                            <p>1) describe and interpret the chart;<br>2) give your comments.</p>
+                            <p>图表主题：某社区老年人主要日常休闲活动调查。主要项目包括看电视、散步、园艺、阅读、下棋等。</p>
+                            <p class="source-line">图片顺序来源：Week2大作文 p1-p3；评分参考：14/15，第五档。</p>
+                        </div>`
+                    },
+                    {
+                        type: "essay",
+                        title: "参考范文",
+                        body: `<div class="en-text compact">
+                            <p>The bar chart illustrates the primary leisure activities of the elderly in a community. The participation rate highlights the prevalence of watching TV and walking, accounting for 90.8% and 68.3% respectively. While other activities, involving gardening, reading and playing chess, are overshadowed in comparison, none of which exceeds 35%. Succinct as it is, the chart conveys abundant enlightenments, and below are my perspectives.</p>
+                            <p>For one thing, what first comes into view, without any doubt, is the remarkable diversity of leisure. Stemming from the immense progress in living conditions, the elderly enjoy increasing opportunities to cultivate their hobbies and entertain themselves. For another, there still remain potential concerns indicated in the chart. The disproportionate preference for hobbies requiring less cognitive effort serves as an implication that humanistic care for the elderly may fall behind. As a prescription, it is imperative for both the government and the community to prioritize spiritual care over material support.</p>
+                            <p>Every little endeavor counts to enhance the quality of life for elderly citizens. As college students, we bear the responsibility to accompany our grandparents, and take more participation in volunteer work. With joint efforts, we will create an environment where seniors feel motivated and valued.</p>
+                        </div>`
+                    }
+                ]
+            },
+            {
+                tag: "大作文",
+                title: "Week 2 · 老年人休闲活动图表",
+                meta: "参考译文",
+                tone: "large",
+                grid: "single",
+                cards: [
+                    {
+                        type: "translation",
+                        title: "参考译文",
+                        body: `<div class="zh-text">
+                            <p>这张柱状图展示了某社区老年人主要的休闲活动。从参与率就能看出，“看电视”和“散步”最为普遍，分别占到 90.8% 和 68.3%。相比之下，园艺、阅读和下棋等其他活动就显得有些相形见绌了，每一项的占比都没有超过 35%。虽然图表很简洁，但它传递出的启示却很丰富，以下是我的一些看法。</p>
+                            <p>一方面，毫无疑问，我们首先注意到的是休闲方式的显著多样性。得益于生活条件的巨大进步，老年人现在拥有了越来越多的机会去培养爱好、自娱自乐。但另一方面，图表也揭示了一些潜在的隐忧。老年人对这类“低认知投入”爱好的过度偏爱，暗示了我们在人文关怀方面可能有所欠缺。对此，一个有效的解决良方是：政府与社区都必须将精神关怀置于物质支持之上。</p>
+                            <p>每一个小小的努力，对于提升老年公民的生活质量都至关重要。作为大学生，我们有责任多陪伴家里的爷爷奶奶，并更多地参与到相关的志愿服务工作中去。只要大家共同努力，我们就能为老人们营造一个让他们感到有动力、被重视的生活环境。</p>
+                        </div>`
+                    }
+                ]
+            },
+            {
+                tag: "大作文",
+                title: "Week 2 · 老年人休闲活动图表",
+                meta: "静态图表作文解析",
+                tone: "large",
+                grid: "equal",
+                cards: [
+                    {
+                        type: "analysis",
+                        title: "第一段：图表描述模板",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">The bar chart illustrates ...</span> 和 <span class="en-frag">Succinct as it is, the chart conveys abundant enlightenments...</span> 可作为静态图表作文模板句。</li>
+                            <li>第二、三句描述具体数据：先写较高项目，再写较低项目，2-3 句话即可。</li>
+                            <li><span class="en-frag">accounting for ... respectively</span> 用于描述两项占比。</li>
+                            <li><span class="en-frag">While other activities, involving ..., are overshadowed in comparison, none of which exceeds ...</span> 用于处理较低的一组数据。</li>
+                            <li>多个并列词可先概括为 <span class="en-frag">other activities, involving ...</span>，避免堆砌。</li>
+                        </ul>`
+                    },
+                    {
+                        type: "analysis",
+                        title: "第二段：正反评论",
+                        body: `<ul class="analysis-list">
+                            <li>静态图难点在评论：没有动态对比时，可以从正面和负面两个角度入手。</li>
+                            <li>正面可谈所属话题的进步：国家、政府、社区、经济、制度、人文关怀等。</li>
+                            <li><span class="en-frag">For one thing, what first comes into view, without any doubt, is ...</span> 可以作为评论段开头模板。</li>
+                            <li><span class="en-frag">Stemming from ...</span> 用来解释原因。</li>
+                            <li><span class="en-frag">For another, there still remain potential concerns indicated in the chart.</span> 可以作为负面角度模板句。</li>
+                        </ul>`
+                    }
+                ]
+            },
+            {
+                tag: "大作文",
+                title: "Week 2 · 老年人休闲活动图表",
+                meta: "建议与结尾模板",
+                tone: "large",
+                grid: "equal",
+                cards: [
+                    {
+                        type: "analysis",
+                        title: "提出建议",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">serves as an implication that ...</span> 很多时候相当于 <span class="en-frag">is</span>，可用来解释图表暗示的问题。</li>
+                            <li><span class="en-frag">As a prescription, it is imperative for ... to prioritize ... over ...</span> 可用于提出解决方案。</li>
+                            <li><span class="en-frag">prioritize spiritual care over material support</span> 是“将精神关怀置于物质支持之上”的表达。</li>
+                        </ul>`
+                    },
+                    {
+                        type: "analysis",
+                        title: "结尾段功能句",
+                        body: `<ul class="analysis-list">
+                            <li><span class="en-frag">Every little endeavor counts to do sth.</span> 是结尾段呼吁万能句。</li>
+                            <li>写青年责任可用 <span class="en-frag">bear the responsibility to ...</span> 和 <span class="en-frag">take more participation in ...</span>。</li>
+                            <li><span class="en-frag">With joint efforts, we will ...</span> 用于畅想未来，适合结尾收束。</li>
+                        </ul>`
+                    }
+                ]
+            }
+        ];
+
+        /* ===========================================
+           RENDERING
+           =========================================== */
+        function renderCard(card) {
+            return `
+                <article class="card ${card.type} reveal">
+                    <h3>${card.title}</h3>
+                    ${card.body}
+                </article>
+            `;
+        }
+
+        function renderContentSlide(item) {
+            const tagClass = item.tone === "large" ? "tag large" : "tag";
+            const gridClass = item.grid ? `card-grid ${item.grid}` : "card-grid";
+            const slideTone = item.tone === "large" ? "content-slide large" : "content-slide";
+            return `
+                <section class="slide ${slideTone}">
+                    <header class="slide-head">
+                        <span class="${tagClass} reveal">${item.tag}</span>
+                        <h2 class="slide-title reveal">${item.title}</h2>
+                        <span class="slide-meta reveal">${item.meta}</span>
+                    </header>
+                    <div class="${gridClass}">
+                        ${item.cards.map(renderCard).join("")}
+                    </div>
+                </section>
+            `;
+        }
+
+        const stage = document.getElementById("stage");
+        stage.insertAdjacentHTML("beforeend", contentSlides.map(renderContentSlide).join(""));
+
+        /* ===========================================
+           DECK CONTROLLER
+           =========================================== */
+        class DeckController {
+            constructor() {
+                this.stage = document.getElementById("stage");
+                this.slides = Array.from(document.querySelectorAll(".slide"));
+                this.currentIndex = 0;
+                this.totalSlides = this.slides.length;
+                this.counter = document.getElementById("counter");
+                this.touchStartX = 0;
+                this.init();
+            }
+
+            init() {
+                this.scaleStage();
+                window.addEventListener("resize", () => this.scaleStage());
+                this.setupNavigation();
+                this.showSlide(0);
+            }
+
+            scaleStage() {
+                const viewport = document.querySelector(".deck-viewport");
+                const vw = viewport.clientWidth;
+                const vh = viewport.clientHeight;
+                const scale = Math.min(vw / 1920, vh / 1080);
+                const offsetX = (vw - 1920 * scale) / 2;
+                const offsetY = (vh - 1080 * scale) / 2;
+                this.stage.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+            }
+
+            setupNavigation() {
+                document.addEventListener("keydown", (event) => {
+                    const key = event.key;
+                    if (key === "ArrowLeft" || key === "ArrowUp" || key === "PageUp") {
+                        event.preventDefault();
+                        this.prev();
+                    }
+                    if (key === "ArrowRight" || key === "ArrowDown" || key === " " || key === "PageDown") {
+                        event.preventDefault();
+                        this.next();
+                    }
+                    if (key === "Home") {
+                        event.preventDefault();
+                        this.goTo(0);
+                    }
+                    if (key === "End") {
+                        event.preventDefault();
+                        this.goTo(this.totalSlides - 1);
+                    }
+                });
+
+                document.getElementById("prevBtn").addEventListener("click", () => this.prev());
+                document.getElementById("nextBtn").addEventListener("click", () => this.next());
+
+                this.stage.addEventListener("touchstart", (event) => {
+                    this.touchStartX = event.changedTouches[0].screenX;
+                });
+
+                this.stage.addEventListener("touchend", (event) => {
+                    const diff = this.touchStartX - event.changedTouches[0].screenX;
+                    if (Math.abs(diff) > 50) {
+                        diff > 0 ? this.next() : this.prev();
+                    }
+                });
+
+                let wheelLocked = false;
+                document.addEventListener("wheel", (event) => {
+                    if (wheelLocked || Math.abs(event.deltaY) < 30) return;
+                    wheelLocked = true;
+                    event.deltaY > 0 ? this.next() : this.prev();
+                    window.setTimeout(() => { wheelLocked = false; }, 420);
+                }, { passive: true });
+            }
+
+            showSlide(index) {
+                const nextIndex = Math.max(0, Math.min(index, this.totalSlides - 1));
+                this.slides.forEach((slide, slideIndex) => {
+                    const active = slideIndex === nextIndex;
+                    slide.classList.toggle("active", active);
+                    slide.classList.toggle("visible", active);
+                });
+                this.currentIndex = nextIndex;
+                this.counter.textContent = `${this.currentIndex + 1} / ${this.totalSlides}`;
+            }
+
+            next() {
+                this.goTo(this.currentIndex + 1);
+            }
+
+            prev() {
+                this.goTo(this.currentIndex - 1);
+            }
+
+            goTo(index) {
+                this.showSlide(index);
+            }
+        }
+
+        new DeckController();
+    </script>
+</body>
+</html>

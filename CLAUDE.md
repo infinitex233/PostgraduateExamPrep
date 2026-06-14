@@ -13,7 +13,7 @@ Always read these files first when entering the repo:
 1. `AGENTS.md` — authoritative agent rules for all operations
 2. `README.md` — project overview and directory structure
 3. `StudyProgress/README.md` — before any study-progress task
-4. `DigitalBooks/README.md` — before any textbook lookup or book-note task
+4. `StudyMaterials/README.md` — before any textbook lookup or book-note task
 
 ## Scripts (`scripts/`)
 
@@ -27,15 +27,16 @@ Always read these files first when entering the repo:
 
 ## Repo state & git
 
-- This is a tracked git repo pushed to GitHub. PDFs (`DigitalBooks/**/*.pdf`), the OCR cache (`DigitalBooks/Cache/`), and `.claude/` are gitignored — never try to commit them.
+- This is a tracked git repo pushed to GitHub. PDFs (`StudyMaterials/**/*.pdf`), the OCR cache (`StudyMaterials/Cache/`), and `.claude/` are gitignored — never try to commit them.
 - `dashboard.html` is a generated artifact but IS committed (small, single-file, viewable on GitHub). Always regenerate it after changing logs so the committed copy stays current.
 - Do not commit anything that identifies the user's real target school. Roadmap uses a generic placeholder ("目标院校") on purpose — keep it that way.
 
 ## Key boundaries
 
-- **StudyProgress/** — daily logs, ProgressIndex, Roadmap, weekly/stage reviews. Never write study progress here to DigitalBooks.
-- **DigitalBooks/** — textbook PDFs (gitignored) and BookNotes/ (one `.md` per book, incrementally updated chapter by chapter). Never move/rename/delete PDFs unless asked.
-- **Two separate domains** — do not cross-store: study logs stay in StudyProgress, textbook-derived content stays in DigitalBooks.
+- **StudyProgress/** — daily logs, ProgressIndex, Roadmap, weekly/stage reviews. Never write study progress to StudyMaterials.
+- **StudyMaterials/** — textbook PDFs (gitignored), BookNotes/ (one `.md` per book, incrementally updated chapter by chapter), and English resources. Never move/rename/delete PDFs unless asked.
+- **StudyMaterials/English/** — English exam resources and generated review artifacts. Current writing-template deliverables live in `StudyMaterials/English/WritingTemplates/index.html` and `index.pdf`.
+- **Two separate domains** — do not cross-store: study logs stay in StudyProgress, textbook-derived content stays in StudyMaterials.
 
 ## Primary workflows
 
@@ -83,7 +84,7 @@ python scripts/build_dashboard.py    # 扫描所有日志 frontmatter → StudyP
 
 **Do NOT trigger** for mere mentions of subject names during progress reporting. If the user says "今天复习了组成原理第2章" or "做完了高数第三章习题", that's a study log, not a content question. The user would be asking you to *record* progress, not to *look up* content. Judge by intent: "我学了X" → study log. "X是什么/Y在哪" → textbook lookup.
 
-**Cache system**: `DigitalBooks/Cache/` contains `*.docling.json` files — one per book. Despite the `.docling.json` name, **all 7 books use the same page-OCR format** — `{"book": "...", "total_pages": N, "pages": [{"page_no": N, "text": "..."}]}`, one OCR'd entry per PDF page. This applies to both:
+**Cache system**: `StudyMaterials/Cache/` contains `*.docling.json` files — one per book. Despite the `.docling.json` name, **all 7 books use the same page-OCR format** — `{"book": "...", "total_pages": N, "pages": [{"page_no": N, "text": "..."}]}`, one OCR'd entry per PDF page. This applies to both:
 - **408 textbooks** (数据结构/组成原理/操作系统/计算机网络)
 - **Math textbooks** (张宇30讲 概率/线代/高数)
 
@@ -104,7 +105,7 @@ python scripts/query.py "<keyword>" --book <partial-book-name>
 Don't assume — check both ends of the OCR text and find the line that is a bare number. After running the query, ALWAYS confirm the printed page number by reading the page text:
 ```python
 import json
-with open(r'DigitalBooks/Cache/<book>.docling.json', encoding='utf-8') as f:
+with open(r'StudyMaterials/Cache/<book>.docling.json', encoding='utf-8') as f:
     data = json.load(f)
 for p in data['pages']:
     if p['page_no'] == <PDF_PAGE>:
@@ -118,17 +119,29 @@ for p in data['pages']:
 
 **Rebuilding cache** (when PDFs are added or re-scanned):
 ```bash
-# Builds the page-OCR cache for ALL books (both DigitalBooks/math/ and DigitalBooks/408/):
+# Builds the page-OCR cache for ALL books (both StudyMaterials/Math/ and StudyMaterials/408/):
 python scripts/page_ocr.py --all                # process all uncached PDFs
 python scripts/page_ocr.py "path/to/file.pdf"   # single book
 ```
-`page_ocr.py` is the script that produces the live `{book, total_pages, pages}` caches for every book, math and 408 alike. (`scripts/docling_cache.py` exists but emits a different, richer docling structure with a `texts` key — it is **not** what the current caches use. Don't use it to rebuild unless you intend to switch formats and update the query tooling to match.)
+`page_ocr.py` is the script that produces the live `{book, total_pages, pages}` caches for every book, Math and 408 alike. (`scripts/docling_cache.py` exists but emits a different, richer docling structure with a `texts` key — it is **not** what the current caches use. Don't use it to rebuild unless you intend to switch formats and update the query tooling to match.)
 
 ### 3. Chapter note organization
 
-User asks to organize a chapter (e.g., "整理《数据结构》第2章") → read the chapter from the PDF → create/update `DigitalBooks/BookNotes/<book-name>.md`. One file per book, updated incrementally. Preserve user-authored edits, deletions, and annotations — only merge in new material for the chapter being reviewed.
+User asks to organize a chapter (e.g., "整理《数据结构》第2章") → read the chapter from the PDF → create/update `StudyMaterials/BookNotes/<book-name>.md`. One file per book, updated incrementally. Preserve user-authored edits, deletions, and annotations — only merge in new material for the chapter being reviewed.
 
-### 4. Periodic reviews
+### 4. English materials
+
+English resources belong under `StudyMaterials/English/`. The current writing-template deck is:
+
+```text
+StudyMaterials/English/WritingTemplates/
+  index.html  # 16:9 browser deck
+  index.pdf   # PDF export of the same deck
+```
+
+When updating writing-template materials from images or PDFs, preserve source order and useful learning content, but omit watermarks, platform marks, UI decoration, and OCR/debug noise. If the HTML deck changes and the user needs a PDF version, regenerate the PDF next to it. Delete temporary contact sheets, rendered pages, OCR intermediates, and local server PID files after use unless the user asks to keep them.
+
+### 5. Periodic reviews
 
 Weekly reviews → `StudyProgress/Reviews/Weekly/YYYY-Www.md`. Stage reviews → `StudyProgress/Reviews/Stage/`. Use the `_template.md` files as structure guides.
 
@@ -139,7 +152,7 @@ All `_template.md` files define the expected structure for new records:
 - `StudyProgress/DailyLogs/_template.md`
 - `StudyProgress/Reviews/Weekly/_template.md`
 - `StudyProgress/Reviews/Stage/_template.md`
-- `DigitalBooks/BookNotes/_template.md`
+- `StudyMaterials/BookNotes/_template.md`
 
 ## Language
 

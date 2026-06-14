@@ -6,7 +6,7 @@
 
 仓库的目标很简单：把备考过程留下来。每天用自然语言汇报学习情况，由 agent 整理成结构化记录；复习到某一章时，再把这一章的知识点整理进对应书籍的 Markdown 笔记。考后复盘路线或整理经验帖，都可以从这些记录回看。
 
-教材 PDF 体积大、且涉及版权，默认不提交到 GitHub。PDF 放在本地 `DigitalBooks/` 对应目录，agent 本地工作时再读取。
+教材 PDF 体积大、且涉及版权，默认不提交到 GitHub。PDF 放在本地 `StudyMaterials/` 对应目录，agent 本地工作时再读取。
 
 ## 目录结构
 
@@ -15,6 +15,10 @@ PostgraduateExamPrep/
   AGENTS.md                 # 给 agent 的全局规则
   README.md                 # 仓库说明
   scripts/                  # 工具脚本（教材检索、看板生成等）
+    query.py                # 检索 StudyMaterials/Cache/ 下的逐页 OCR 缓存
+    page_ocr.py             # 为教材 PDF 建立逐页 OCR 缓存
+    docling_cache.py        # 旧版 Docling 缓存脚本，非当前主流程
+    build_dashboard.py      # 根据 DailyLogs frontmatter 生成学习看板
   StudyProgress/            # 学习进度、路线规划、复盘
     README.md
     ProgressIndex.md        # 备考路线总览
@@ -22,10 +26,15 @@ PostgraduateExamPrep/
     dashboard.html          # 学习看板（由 build_dashboard.py 生成）
     DailyLogs/              # 每日学习记录（带 frontmatter）
     Reviews/                # 周复盘和阶段复盘
-  DigitalBooks/             # 本地教材目录和教材笔记
+  StudyMaterials/           # 本地教材目录和教材笔记
     README.md
-    408/
-    math/
+    408/                    # 专业课教材
+    Math/                   # 数学教材
+    Cache/                  # 教材逐页 OCR 缓存（*.docling.json）
+    English/                # 英语资料
+      WritingTemplates/     # 英语作文模板成品
+        index.html          # 16:9 浏览器版作文模板
+        index.pdf           # 同内容 PDF 版
     BookNotes/              # 每本书一个 md，逐章滚动更新
 ```
 
@@ -71,9 +80,9 @@ python scripts/build_dashboard.py
 
 ### 教材查阅
 
-`DigitalBooks/` 中的 PDF 是本地重点参考教材。它们不是全部备考资料，只是需要反复查阅的部分。PDF 文件默认被 `.gitignore` 忽略，不随仓库上传。
+`StudyMaterials/` 中的 PDF 是本地重点参考教材。它们不是全部备考资料，只是需要反复查阅的部分。PDF 文件默认被 `.gitignore` 忽略，不随仓库上传。
 
-当前 408 四本书和数学三本书都已在 `DigitalBooks/Cache/` 中建立逐页 OCR 缓存。查教材时优先用缓存定位候选 PDF 页：
+当前 408 四本书和数学三本书都已在 `StudyMaterials/Cache/` 中建立逐页 OCR 缓存。查教材时优先用缓存定位候选 PDF 页：
 
 ```bash
 python scripts/query.py "关键词"
@@ -93,10 +102,22 @@ python scripts/query.py "关键词" --book "线代" --page-only
 整理结果放在：
 
 ```text
-DigitalBooks/BookNotes/对应书名.md
+StudyMaterials/BookNotes/对应书名.md
 ```
 
 每本书只建一个 Markdown 文件，按章节逐步更新——复习到哪章就更新哪章，不是一次性全书总结。用户会自己删改、添加、重排笔记，agent 必须保留这些人工修改，只做增量整理。
+
+### 英语资料与作文模板
+
+英语资料统一放在 `StudyMaterials/English/`。当前已整理的作文模板位于：
+
+```text
+StudyMaterials/English/WritingTemplates/
+  index.html
+  index.pdf
+```
+
+其中 `index.html` 是 16:9 浏览器翻页版，`index.pdf` 是同内容 PDF 版，适合直接阅读、打印或移动端查看。后续如果根据新的图片或 PDF 更新作文模板，应先更新 HTML 内容，再按需重新导出 PDF，并避免把图片水印、平台标识、截图噪声写入正文。
 
 ## Agent 接手规则
 
@@ -105,14 +126,15 @@ DigitalBooks/BookNotes/对应书名.md
 1. `AGENTS.md`
 2. `README.md`
 3. 处理学习进度时读 `StudyProgress/README.md`
-4. 查教材或整理教材笔记时读 `DigitalBooks/README.md`
+4. 查教材或整理教材笔记时读 `StudyMaterials/README.md`
 
 不要依赖历史聊天记录。本仓库里的 Markdown 文件就是可迁移的项目上下文。
 
 ## 关键约束
 
 - 学习进度只写入 `StudyProgress/`。
-- 教材 PDF 和教材派生笔记只放在 `DigitalBooks/`。
+- 教材 PDF 和教材派生笔记只放在 `StudyMaterials/`。
+- 英语资料和作文模板成品放在 `StudyMaterials/English/`。
 - 不移动、重命名或删除教材 PDF，除非用户明确要求。
 - 不伪造教材内容、页码、例题、结论或学习进度。
 - 不覆盖用户手动写过的笔记和日志。
@@ -128,3 +150,4 @@ DigitalBooks/BookNotes/对应书名.md
 - 维护备考总览和路线规划
 - 周复盘与阶段复盘
 - 教材 OCR 缓存检索与逐章整理教材笔记
+- 英语作文模板的 HTML/PDF 成品维护

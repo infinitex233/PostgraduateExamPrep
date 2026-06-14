@@ -15,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-CACHE_DIR = Path(__file__).resolve().parent.parent / "DigitalBooks" / "Cache"
+CACHE_DIR = Path(__file__).resolve().parent.parent / "StudyMaterials" / "Cache"
 
 
 def load_book(json_path: Path) -> dict:
