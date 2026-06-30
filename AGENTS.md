@@ -70,14 +70,17 @@ When the user reports daily study progress in natural language:
 ## Dashboard Maintenance
 
 - `StudyProgress/dashboard.html` is generated output. Do not hand-edit it as the only source of truth.
-- Dashboard data, layout, visual theme, subject color mapping, group color mapping, and accent text styles are maintained in `scripts/build_dashboard.py`.
+- `StudyProgress/dashboard.html` is the only dashboard artifact. Do not create or keep parallel dashboard HTML variants such as `dashboard_capsule*.html`, `dashboard_signal.html`, or `DashboardTemplatePreviews.html`.
+- The dashboard is currently a Capsule-style 16:9 landscape deck (`data-dashboard-variant="capsule-dashboard"`) using Anthropic Serif-like typography.
+- Dashboard data aggregation helpers remain in `scripts/build_dashboard.py`; the visual renderer, layout, Capsule color mapping, typography, and stale-dashboard cleanup are maintained in `scripts/build_dashboard_variants.py`.
+- `python scripts/build_dashboard.py` is the compatibility entry point and delegates to `scripts/build_dashboard_variants.py`; either entry point should regenerate only `StudyProgress/dashboard.html`.
 - After changing any dashboard-related source data, style, color, or rendering logic, run `python scripts/build_dashboard.py` to regenerate `StudyProgress/dashboard.html`.
 - Keep canonical subject names stable because they are used for aggregation and `subject_colors`: `数学-高数`, `数学-线代`, `数学-概率`, `专业课-数据结构`, `专业课-组成原理`, `专业课-操作系统`, `专业课-计算机网络`, `英语`, `政治`.
 - The same concrete subject must use the same color across stacked bars, legend swatches, subject totals, and current-progress bars.
 - `subject_colors` is for concrete subjects. `group_colors` is for aggregate groups (`数学`, `专业课`, `英语`, `政治`, `其他`) and should be updated consistently when aggregate color semantics change.
-- The current dashboard visual direction is a warm paper-like background, dark readable text, muted low-saturation chart colors, subtle stacked-bar separators, and restrained academic/professional styling.
+- The current dashboard visual direction is a warm paper-like Capsule deck: 1920×1080 landscape stage, dark readable text, native Capsule colors, rounded pill controls, subtle stacked-bar separators, and restrained academic/professional styling.
 - When changing dashboard visuals, keep layout, frontmatter schema, and existing interaction logic unchanged unless the user explicitly asks for structural changes.
-- For dashboard changes, verify with `python -m unittest scripts.test_build_dashboard` when tests are available, run `python scripts/build_dashboard.py`, and visually or programmatically check the generated HTML when layout or CSS changed.
+- For dashboard changes, verify with `python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants` when tests are available, run `python scripts/build_dashboard.py`, and visually or programmatically check the generated HTML when layout or CSS changed.
 
 ## StudyMaterials Workflow
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a personal postgraduate exam preparation (考研) workspace — not a software project. There is no build or lint system. The only automated check is `scripts/test_build_dashboard.py` (run with `python -m unittest scripts.test_build_dashboard`), which covers the dashboard aggregation logic. The repo tracks study progress, textbook notes, and review cycles through structured Markdown files.
+This is a personal postgraduate exam preparation (考研) workspace — not a software project. There is no build or lint system. The dashboard checks are `scripts/test_build_dashboard.py` and `scripts/test_build_dashboard_variants.py` (run with `python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants`). The repo tracks study progress, textbook notes, and review cycles through structured Markdown files.
 
 ## Startup
 
@@ -22,14 +22,16 @@ Always read these files first when entering the repo:
 | `query.py` | Search the textbook OCR cache by keyword (`--book`, `--page-only`, `--context`, `--list-books`). Primary entry for textbook lookup. |
 | `page_ocr.py` | Build the page-OCR cache for ALL books (math + 408). Run after adding/re-scanning PDFs. Produces the live `{book, total_pages, pages}` caches. |
 | `docling_cache.py` | Legacy alt cache builder — emits a different docling `texts` structure that the current tooling does NOT use. Don't run unless intentionally switching formats. |
-| `build_dashboard.py` | Scan daily-log frontmatter → regenerate the zero-dependency `StudyProgress/dashboard.html`. Holds the visual theme, `SUBJECT_COLORS`, and aggregation logic. Run after every log change. |
-| `test_build_dashboard.py` | Unit tests for `build_dashboard.py`'s aggregation (`python -m unittest scripts.test_build_dashboard`). Run after editing dashboard logic. |
+| `build_dashboard.py` | Compatibility entry point for regenerating the single `StudyProgress/dashboard.html`; aggregation helpers live here, and the CLI delegates to `build_dashboard_variants.py`. Run after every log change. |
+| `build_dashboard_variants.py` | Capsule 16:9 landscape dashboard renderer, visual theme, Capsule subject colors, typography, and stale-dashboard cleanup. It writes only `StudyProgress/dashboard.html`. |
+| `test_build_dashboard.py` | Unit tests for `build_dashboard.py`'s aggregation (`python -m unittest scripts.test_build_dashboard`). Run after editing aggregation logic. |
+| `test_build_dashboard_variants.py` | Unit tests for the Capsule dashboard renderer and single-dashboard output (`python -m unittest scripts.test_build_dashboard_variants`). Run after editing dashboard visuals or output paths. |
 | `auto-commit.sh` | Weekly auto-commit: stages everything, writes a Chinese summary message, pushes to `main`. It does NOT rebuild the dashboard — regenerate it when you write the log, not at commit time. |
 
 ## Repo state & git
 
 - This is a tracked git repo pushed to GitHub. PDFs (`StudyMaterials/**/*.pdf`), the OCR cache (`StudyMaterials/Cache/`), and `.claude/` are gitignored — never try to commit them.
-- `dashboard.html` is a generated artifact but IS committed (small, single-file, viewable on GitHub). Always regenerate it after changing logs so the committed copy stays current.
+- `dashboard.html` is the only dashboard artifact and IS committed (small, single-file, viewable on GitHub). Always regenerate it after changing logs so the committed copy stays current. Do not keep `dashboard_capsule*.html`, `dashboard_signal.html`, or `DashboardTemplatePreviews.html`.
 - Do not commit anything that identifies the user's real target school. Roadmap uses a generic placeholder ("目标院校") on purpose — keep it that way.
 
 ## Key boundaries
@@ -87,14 +89,14 @@ tags: ["受伤", "章节完结"] # 关键事件标签；无则 []
 python scripts/build_dashboard.py    # 扫描所有日志 frontmatter → StudyProgress/dashboard.html
 ```
 
-`dashboard.html` 是零依赖单文件（数据/CSS/JS 全内联，遵循 frontend-slides 的 16:9 stage 规范），双击即可在浏览器打开。`←/→/空格` 翻页。生成器只读 frontmatter，不读正文，所以 frontmatter 字段必须准确。
+`dashboard.html` 是唯一零依赖单文件（数据/CSS/JS 全内联，Capsule 风格 16:9 横屏 stage），双击即可在浏览器打开。`←/→/空格` 翻页。生成器只读 frontmatter，不读正文，所以 frontmatter 字段必须准确。
 
-**看板是生成产物，样式与配色统一在 `scripts/build_dashboard.py` 里维护**——不要只手改 `dashboard.html`。改主题、`SUBJECT_COLORS`（具体科目色）、`group_colors`（大类汇总色）、强调文字或图表细节时，先改生成脚本再重新运行。同一科目在柱状图、图例、科目投入、当前推进中必须保持同色。当前视觉方向：纸感浅底、深色正文、低饱和柔和图表色、堆叠柱有轻微透明度和白色分隔线、克制的学术风。改样式时保持布局、frontmatter schema、交互逻辑不变，除非用户明确要求结构性改动。
+**看板是生成产物，聚合逻辑在 `scripts/build_dashboard.py`，Capsule 版式/配色/字体在 `scripts/build_dashboard_variants.py` 里维护**——不要只手改 `dashboard.html`。改主题、Capsule 科目色、强调文字或图表细节时，先改生成脚本再重新运行。同一科目在柱状图、图例、科目投入、当前推进中必须保持同色。当前视觉方向：纸感浅底、深色正文、Capsule 原生低饱和配色、胶囊控件、堆叠柱分隔清楚、克制的学术风。改样式时保持 frontmatter schema 和既有翻页交互不变，除非用户明确要求结构性改动。
 
 **改动看板后的验证**（涉及聚合或样式时）：
 
 ```bash
-python -m unittest scripts.test_build_dashboard   # 聚合逻辑单元测试（scripts/test_build_dashboard.py）
+python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
 python scripts/build_dashboard.py                  # 重新生成 dashboard.html
 ```
 

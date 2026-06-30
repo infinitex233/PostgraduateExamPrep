@@ -18,12 +18,13 @@ PostgraduateExamPrep/
     query.py                # 检索 StudyMaterials/Cache/ 下的逐页 OCR 缓存
     page_ocr.py             # 为教材 PDF 建立逐页 OCR 缓存
     docling_cache.py        # 旧版 Docling 缓存脚本，非当前主流程
-    build_dashboard.py      # 根据 DailyLogs frontmatter 生成学习看板
+    build_dashboard.py      # 兼容入口：生成唯一学习看板 dashboard.html
+    build_dashboard_variants.py # Capsule 横屏看板渲染与旧变体清理
   StudyProgress/            # 学习进度、路线规划、复盘
     README.md
     ProgressIndex.md        # 备考路线总览
     Roadmap.md              # 阶段规划和策略调整
-    dashboard.html          # 学习看板（由 build_dashboard.py 生成）
+    dashboard.html          # 唯一学习看板（Capsule 16:9 横屏 deck）
     DailyLogs/              # 每日学习记录（带 frontmatter）
     Reviews/                # 周复盘和阶段复盘
   StudyMaterials/           # 本地教材目录和教材笔记
@@ -72,9 +73,15 @@ python scripts/build_dashboard.py
 
 它扫描所有日志的 frontmatter，生成 `StudyProgress/dashboard.html`——零依赖单文件，双击即可在浏览器打开，含每日时长趋势、各科进度追踪和关键节点时间线。新增或修改日志后重新运行即可刷新。
 
-看板的视觉样式和科目配色统一维护在 `scripts/build_dashboard.py` 中，`StudyProgress/dashboard.html` 是生成结果。调整主题、`subject_colors`、`group_colors`、强调文字颜色或图表细节时，优先修改生成脚本，再运行 `python scripts/build_dashboard.py`，不要只手改 HTML。当前看板使用纸感浅底、深色正文、柔和低饱和图表色；同一科目在柱状图、图例、科目投入和当前推进中必须保持同色。
+当前只保留一个看板成品：`StudyProgress/dashboard.html`。它是 Capsule 风格的 16:9 横屏 deck，使用纸感浅底、深色正文、胶囊式控件、堆叠柱和分科进度条。不要保留并行的 `dashboard_capsule*.html`、`dashboard_signal.html` 或 `DashboardTemplatePreviews.html`。
 
-看板生成逻辑的轻量回归测试放在 `scripts/test_build_dashboard.py`，可用 `python -m unittest scripts.test_build_dashboard` 运行。
+`scripts/build_dashboard.py` 是兼容入口，内部委托 `scripts/build_dashboard_variants.py` 生成唯一 `dashboard.html`；聚合数据 helper 仍在 `build_dashboard.py`，Capsule 版式、配色、字体和旧变体清理逻辑维护在 `build_dashboard_variants.py`。调整主题、科目颜色、强调文字或图表细节时，优先修改生成脚本，再运行 `python scripts/build_dashboard.py`，不要只手改 HTML。同一科目在柱状图、图例、科目投入和当前推进中必须保持同色。
+
+看板生成逻辑的轻量回归测试放在 `scripts/test_build_dashboard.py` 和 `scripts/test_build_dashboard_variants.py`，可用下面命令运行：
+
+```bash
+python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
+```
 
 ### 备考路线复盘
 
@@ -150,7 +157,7 @@ StudyMaterials/English/WritingTemplates/
 
 - 每日自然语言学习汇报
 - 自动生成每日学习记录（带结构化 frontmatter）
-- 一键生成可视化学习看板（`scripts/build_dashboard.py` → `dashboard.html`）
+- 一键生成唯一可视化学习看板（`scripts/build_dashboard.py` → `StudyProgress/dashboard.html`）
 - 维护备考总览和路线规划
 - 周复盘与阶段复盘
 - 教材 OCR 缓存检索与逐章整理教材笔记

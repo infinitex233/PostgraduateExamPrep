@@ -14,7 +14,7 @@
 - frontmatter 是看板的数据源：科目名用统一命名，时长一律用分钟，用户没给的写 `null`，不臆造。
 - 如果月份目录不存在，先创建 `DailyLogs/YYYY-MM/`。
 - 每次记录后，同步更新 `ProgressIndex.md`，并运行 `python scripts/build_dashboard.py` 刷新 `dashboard.html`。
-- `dashboard.html` 是生成文件；看板布局、配色、科目颜色映射和强调文字样式统一维护在根目录 `scripts/build_dashboard.py`。
+- `dashboard.html` 是唯一生成看板；命令入口为根目录 `scripts/build_dashboard.py`，当前 Capsule 16:9 横屏版式、配色、科目颜色映射和强调文字样式维护在 `scripts/build_dashboard_variants.py`。
 - 原始汇报必须保留，整理内容必须基于用户实际提供的信息。
 - 对用户未提供的时长、数量、状态，不要自行推断，写 `未说明`。
 - `ProgressIndex.md` 是总览路线图，应该能帮助用户考后回看整段备考过程。
@@ -40,11 +40,13 @@ agent 应该自动完成：
 
 - 只从 DailyLogs 的 frontmatter 读取结构化数据，不从正文猜测精确时长或章节状态。
 - 科目名必须使用模板中的统一命名；这些名称同时用于 `subject_colors` 映射。
-- 当前看板保持固定布局：最近记录趋势、最近一天、统计指标、科目投入、下一步、当前推进、最近记录和节点。
+- 当前只保留 `dashboard.html` 一个看板成品，不保留 `dashboard_capsule*.html`、`dashboard_signal.html` 或 `DashboardTemplatePreviews.html`。
+- 当前看板是 Capsule 风格 16:9 横屏 deck，保持固定分页结构：封面概览、月度/近 14 条记录、科目投入/下一步、当前推进、最近记录/节点。
 - `subject_colors` 控制具体科目颜色，应在柱状图、图例、科目投入和当前推进中保持一致。
 - `group_colors` 保留给大类汇总数据使用；如果以后恢复大类图表，也应从同一映射取色。
-- 视觉调整优先修改 `scripts/build_dashboard.py`，再重新生成 `dashboard.html`；不要只改生成后的 HTML。
-- 看板生成逻辑的轻量回归测试位于 `scripts/test_build_dashboard.py`，可用 `python -m unittest scripts.test_build_dashboard` 运行。
+- 视觉调整优先修改 `scripts/build_dashboard_variants.py`，聚合逻辑调整修改 `scripts/build_dashboard.py`，再运行 `python scripts/build_dashboard.py` 重新生成 `dashboard.html`；不要只改生成后的 HTML。
+- `scripts/build_dashboard.py` 是兼容入口，会委托 Capsule 生成器并只输出 `StudyProgress/dashboard.html`。
+- 看板生成逻辑的轻量回归测试位于 `scripts/test_build_dashboard.py` 和 `scripts/test_build_dashboard_variants.py`，可用 `python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants` 运行。
 - 叠加柱形使用轻微透明度和白色分隔线，目的是让同一天内的科目层次更清楚，避免高饱和撞色。
 - 最近一天的科目名与详情正文同尺寸、加粗，并使用看板强调色；这属于视觉样式，不影响日志数据。
 
@@ -55,7 +57,7 @@ StudyProgress/
   README.md
   ProgressIndex.md
   Roadmap.md
-  dashboard.html          # 学习看板，由 scripts/build_dashboard.py 生成
+  dashboard.html          # 唯一学习看板，Capsule 16:9 横屏 deck
   DailyLogs/
     _template.md          # 含 frontmatter 字段说明
     YYYY-MM/

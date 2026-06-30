@@ -2,649 +2,255 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>11408 学习看板</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="screen-orientation" content="landscape">
+<title>11408 Capsule Dashboard Horizontal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 <style>
+@font-face {
+  font-family:"Anthropic Serif";
+  src:url("https://cdn.prod.website-files.com/6889473510b50328dbb70ae6/6997199fab1923a705f0042d_AnthropicSerif-Roman-Web.woff2") format("woff2");
+  font-weight:300 800;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face {
+  font-family:"Anthropic Serif";
+  src:url("https://cdn.prod.website-files.com/6889473510b50328dbb70ae6/699719a0cb5e870a441e0b92_AnthropicSerif-Italic-Web.woff2") format("woff2");
+  font-weight:300 800;
+  font-style:italic;
+  font-display:swap;
+}
 :root {
-  --paper: #F5F0E6;
-  --paper-soft: #F8F4EC;
-  --paper-deep: #E8DFD1;
-  --ink: #2E2A25;
-  --ink-soft: #49433B;
-  --ink-faint: rgba(109, 103, 95, .22);
-  --grid: rgba(109, 103, 95, .09);
-  --text: #2E2A25;
-  --muted: #6D675F;
-  --border: #6D675F;
-  --rule: rgba(109, 103, 95, .48);
-  --warm: #D97757;
-  --sage: #8E9F8A;
-  --steel: #8DA5B8;
-  --font-display: "Newsreader", "Noto Serif SC", Georgia, serif;
-  --font-body: "Hanken Grotesk", "Noto Serif SC", "Microsoft YaHei", sans-serif;
-  --font-mono: "DM Mono", ui-monospace, monospace;
+  --cream:#F5F5F0; --ink:#1A1A1A; --outline:#1E1E1E; --white:#FFFFFF;
+  --coral:#E85D4E; --lime:#C4D94E; --lavender:#C5B5E0; --sky:#8BB4F7;
+  --violet:#A06CE8; --yellow:#F2D160; --peach:#F5B895; --mint:#A8E6CF;
+  --shadow:rgba(26,26,26,.08); --display:"Anthropic Serif","ZCOOL XiaoWei",Georgia,serif;
+  --body:"Space Grotesk","ZCOOL XiaoWei",sans-serif;
 }
-
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  color: var(--text);
-  font-family: var(--font-body);
-  background:
-    linear-gradient(to right, var(--grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid) 1px, transparent 1px),
-    var(--paper);
-  background-size: 34px 34px;
-}
-button, input { font: inherit; }
-
-.shell {
-  width: min(1180px, calc(100vw - 40px));
-  margin: 0 auto;
-}
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-bottom: 1.5px solid var(--border);
-  background: rgba(245, 240, 230, .94);
-  backdrop-filter: blur(10px);
-}
-.topbar .shell {
-  min-height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-.brand {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  color: var(--ink);
-}
-.brand strong {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 600;
-}
-.brand span, .navmeta {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: .04em;
-  color: var(--ink-soft);
-}
-.navmeta { text-align: right; line-height: 1.4; }
-
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, .82fr) minmax(380px, 1.18fr);
-  gap: 22px;
-  align-items: stretch;
-  padding: 32px 0 22px;
-}
-.hero-copy {
-  border-top: 1.5px solid var(--border);
-  border-bottom: 1.5px solid var(--border);
-  padding: 26px 0 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.eyebrow {
-  font-family: var(--font-mono);
-  color: var(--ink);
-  font-size: 12px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
-h1 {
-  margin: 0;
-  max-width: 620px;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(42px, 5.6vw, 74px);
-  font-weight: 400;
-  line-height: .98;
-  letter-spacing: 0;
-}
-.lead {
-  max-width: 620px;
-  margin: 18px 0 0;
-  color: var(--muted);
-  font-size: 18px;
-  line-height: 1.65;
-}
-.hero-side {
-  display: grid;
-  gap: 16px;
-}
-.countdown {
-  border: 1.5px solid var(--border);
-  padding: 20px 26px;
-  background: rgba(248, 244, 236, .78);
-}
-.countdown .smallcap {
-  display: block;
-  margin-bottom: 14px;
-}
-.countdown .days {
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(64px, 9vw, 112px);
-  line-height: 1;
-}
-.countdown .label {
-  margin-top: 12px;
-  color: var(--muted);
-  font-size: 16px;
-}
-.latest {
-  border: 1.5px solid var(--border);
-  padding: 22px 26px;
-  background: var(--paper-soft);
-}
-.latest h2, .panel h2 {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: 30px;
-  font-weight: 400;
-  line-height: 1;
-}
-.latest-title {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: start;
-  border-bottom: 1px solid var(--ink-faint);
-  padding-bottom: 16px;
-  margin-bottom: 18px;
-}
-.date-pill {
-  font-family: var(--font-mono);
-  color: var(--ink);
-  font-size: 12px;
-  white-space: nowrap;
-}
-.focus {
-  margin: 0 0 18px;
-  font-size: 18px;
-  line-height: 1.5;
-}
-.latest-list, .action-list, .log-list, .timeline, .progress-list {
-  display: grid;
-  gap: 12px;
-}
-.latest-item, .action, .log-row, .timeline-row, .progress-row {
-  border-top: 1px solid var(--ink-faint);
-  padding-top: 12px;
-}
-.latest-item {
-  display: grid;
-  grid-template-columns: 120px 1fr auto;
-  gap: 12px;
-  align-items: baseline;
-}
-.subject-name, .minutes, .tag, .smallcap {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: .04em;
-}
-.subject-name { color: var(--ink); }
-.minutes { color: var(--muted); }
-.latest-item .subject-name, .status, .date-pill { color: var(--warm); }
-.latest-item .subject-name {
-  font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0;
-}
-.detail { line-height: 1.55; }
-
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin: 0 0 22px;
-}
-.metric {
-  border: 1.5px solid var(--border);
-  background: rgba(248, 244, 236, .78);
-  padding: 22px;
-  min-height: 132px;
-}
-.metric .value {
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: 52px;
-  line-height: .95;
-}
-.metric .label {
-  margin-top: 12px;
-  color: var(--muted);
-  font-size: 14px;
-}
-.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.32fr) minmax(330px, .68fr);
-  gap: 18px;
-  padding-bottom: 58px;
-}
-.panel {
-  border: 1.5px solid var(--border);
-  background: rgba(248, 244, 236, .84);
-  padding: 26px;
-  min-width: 0;
-}
-.panel.wide { grid-column: 1 / -1; }
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 20px;
-  border-bottom: 1.5px solid var(--border);
-  padding-bottom: 14px;
-  margin-bottom: 20px;
-}
-.panel-note {
-  color: var(--muted);
-  font-size: 13px;
-  text-align: right;
-}
-
-.trend {
-  height: 320px;
-  display: grid;
-  grid-template-columns: repeat(var(--bar-count), minmax(34px, 1fr));
-  gap: 10px;
-  align-items: end;
-}
-.bar-col {
-  min-width: 0;
-  display: grid;
-  grid-template-rows: auto minmax(40px, 1fr) auto;
-  gap: 8px;
-  height: 100%;
-}
-.bar-value {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-align: center;
-}
-.bar {
-  align-self: end;
-  min-height: 3px;
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column-reverse;
-  background: rgba(109, 103, 95, .08);
-}
-.segment {
-  width: 100%;
-  opacity: .94;
-  border-top: 1px solid rgba(255, 255, 255, .46);
-}
-.segment:first-child { border-top: 0; }
-.bar-date {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-align: center;
-}
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  margin-top: 18px;
-}
-.legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.swatch { width: 12px; height: 12px; border: 1px solid var(--border); }
-
-.group-bars { display: grid; gap: 16px; }
-.group-row {
-  display: grid;
-  grid-template-columns: 76px 1fr 86px;
-  gap: 12px;
-  align-items: center;
-}
-.lane {
-  height: 18px;
-  border: 1px solid var(--border);
-  background: rgba(109, 103, 95, .08);
-}
-.lane-fill { height: 100%; }
-
-.progress-row {
-  display: grid;
-  grid-template-columns: 190px 1fr 112px;
-  gap: 16px;
-  align-items: start;
-}
-.progress-row strong {
-  color: var(--ink);
-  font-weight: 700;
-}
-.chapter {
-  color: var(--text);
-  line-height: 1.5;
-}
-.status {
-  display: inline-block;
-  margin-left: 8px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
-
-.log-row {
-  display: grid;
-  grid-template-columns: 96px 1fr 88px;
-  gap: 14px;
-  align-items: start;
-}
-.log-main {
-  line-height: 1.55;
-}
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
-}
-.tag {
-  border: 1px solid var(--ink-faint);
-  color: var(--ink);
-  padding: 3px 7px;
-}
-.timeline-row {
-  display: grid;
-  grid-template-columns: 104px 1fr;
-  gap: 14px;
-  line-height: 1.55;
-}
-.action {
-  line-height: 1.55;
-}
-.muted { color: var(--muted); }
-.empty { color: var(--muted); line-height: 1.6; }
-
-@media (max-width: 900px) {
-  .shell { width: min(100% - 28px, 680px); }
-  .topbar .shell { align-items: flex-start; flex-direction: column; padding: 14px 0; }
-  .navmeta { text-align: left; }
-  .hero, .grid { grid-template-columns: 1fr; }
-  .hero { min-height: 0; padding-top: 34px; }
-  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .trend { overflow-x: auto; grid-auto-flow: column; grid-auto-columns: minmax(42px, 1fr); grid-template-columns: none; padding-bottom: 6px; }
-  .progress-row, .log-row, .latest-item, .timeline-row {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-}
-@media (max-width: 560px) {
-  .metrics { grid-template-columns: 1fr; }
-  .panel, .latest, .countdown, .metric { padding: 18px; }
-  .panel-head { align-items: start; flex-direction: column; }
-  .panel-note { text-align: left; }
-  h1 { font-size: 52px; }
-}
+* { box-sizing:border-box; }
+html,body { width:100%; height:100%; margin:0; overflow:hidden; background:#ecece5; }
+.deck-viewport { position:fixed; inset:0; overflow:hidden; background:#ecece5; }
+.deck-stage { position:absolute; left:0; top:0; width: 1920px; height: 1080px; overflow:hidden; transform-origin:0 0; background:var(--cream); }
+.slide { position:absolute; inset:0; width: 1920px; height: 1080px; overflow:hidden; display:block; visibility:hidden; opacity:0; pointer-events:none; padding:58px 78px 70px; color:var(--ink); font-family:var(--body); background:
+  radial-gradient(ellipse at 10% 12%, rgba(232,93,78,.12), transparent 34%),
+  radial-gradient(ellipse at 88% 18%, rgba(139,180,247,.13), transparent 34%),
+  radial-gradient(ellipse at 76% 96%, rgba(196,217,78,.12), transparent 36%),
+  var(--cream); }
+.slide.active,.slide.visible { visibility:visible; opacity:1; pointer-events:auto; z-index:1; }
+.grain { position:fixed; inset:0; pointer-events:none; opacity:.04; mix-blend-mode:multiply; z-index:3000; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E"); }
+.chrome { display:flex; justify-content:space-between; align-items:center; height:42px; font-size:16px; letter-spacing:.08em; color:rgba(26,26,26,.62); }
+.tag,.mini-tag,.pill-card,.metric-pill,.latest-pill,.subject-pill,.action-pill,.progress-pill,.log-pill,.node-pill,.legend-pill,.month-pill,.empty-pill,.deck-controls button,.counter { border:2px solid var(--outline); box-shadow:4px 4px 0 var(--shadow); }
+.tag,.mini-tag,.legend-pill,.empty-pill,.deck-controls button,.counter { border-radius:9999px; }
+.tag { display:inline-flex; align-items:center; justify-content:center; padding:12px 28px; background:var(--yellow); color:var(--ink); font-weight:800; letter-spacing:.08em; font-size:14px; }
+.mini-tag { display:inline-flex; padding:8px 18px; background:var(--lavender); font-size:12px; font-weight:800; color:rgba(26,26,26,.72); }
+.pill-card { background:var(--white); border-radius:32px; padding:26px; box-shadow:8px 8px 0 var(--shadow); }
+h1,h2,h3 { margin:0; font-family:var(--display); font-weight:800; letter-spacing:0; color:var(--ink); }
+h1 { font-size:94px; line-height:.94; }
+h2 { font-size:58px; line-height:.98; }
+h3 { font-size:38px; line-height:1; }
+.lead { margin:18px 0 0; font-size:22px; line-height:1.58; color:rgba(26,26,26,.66); }
+.home-grid { display:grid; grid-template-columns:1.18fr .82fr; gap:38px; padding-top:36px; }
+.metric-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:28px; }
+.metric-pill { background:var(--white); border-radius:32px; padding:24px 22px; min-height:150px; }
+.metric-pill b { display:block; font-family:var(--display); font-size:44px; line-height:1; margin-bottom:18px; white-space:nowrap; }
+.metric-pill span,.latest-pill em,.subject-pill span,.progress-pill em,.log-pill em { color:rgba(26,26,26,.62); font-weight:800; }
+.coral { color:var(--coral); } .lime { color:var(--lime); } .sky { color:var(--sky); } .peach { color:var(--peach); } .violet { color:var(--violet); }
+.tag.sky,.tag.lime,.tag.peach,.tag.violet,.tag.lavender,.tag.yellow { color:var(--ink); }
+.latest-panel { display:grid; grid-template-rows:auto auto 1fr; min-height:520px; align-self:start; }
+.latest-list { display:grid; gap:14px; margin-top:22px; align-content:start; }
+.latest-pill { display:grid; grid-template-columns:160px 1fr 94px; gap:14px; align-items:center; background:var(--white); border-radius:9999px; padding:14px 20px; }
+.legend-pill::before { content:""; width:18px; height:18px; border:2px solid var(--outline); border-radius:50%; background:var(--fill); }
+.latest-pill b { display:flex; align-items:center; gap:10px; }
+.latest-pill b::before { content:""; width:16px; height:16px; border:2px solid var(--outline); border-radius:50%; background:var(--fill); flex:0 0 auto; }
+.stack-layout { display:grid; grid-template-rows:auto 1fr auto; gap:22px; padding-top:28px; }
+.trend-grid { height:610px; display:grid; grid-template-columns:repeat(14,1fr); gap:13px; align-items:end; }
+.stack-col { height:100%; display:grid; grid-template-rows:32px 1fr 28px; gap:10px; text-align:center; font-size:13px; color:rgba(26,26,26,.62); }
+.stack-track { align-self:end; min-height:10px; display:flex; flex-direction:column-reverse; overflow:hidden; background:var(--white); border:2px solid var(--outline); border-radius:9999px; box-shadow:4px 4px 0 var(--shadow); }
+.stack-track i { display:block; width:100%; border-top:2px solid rgba(30,30,30,.86); }
+.legend-row { display:flex; flex-wrap:wrap; gap:10px; }
+.legend-pill { display:inline-flex; align-items:center; gap:8px; background:var(--white); padding:8px 14px; font-size:13px; font-weight:800; }
+.overview-grid { display:grid; grid-template-columns:.82fr 1.18fr; gap:34px; padding-top:30px; }
+.overview-grid h2 { font-size:50px; }
+.overview-grid .trend-grid { height:545px; gap:10px; }
+.overview-grid .legend-row { margin-top:4px; }
+.month-grid { display:grid; gap:16px; margin-top:22px; }
+.month-pill { background:var(--white); border-radius:30px; padding:20px 22px; }
+.month-pill div:first-child { display:flex; justify-content:space-between; align-items:center; font-weight:800; color:rgba(26,26,26,.64); }
+.month-pill strong { display:block; font-family:var(--display); font-size:38px; line-height:1; margin:13px 0 12px; color:var(--coral); }
+.month-pill p { margin:12px 0 0; color:rgba(26,26,26,.62); font-size:14px; font-weight:800; }
+.two-col { display:grid; grid-template-columns:.94fr 1.06fr; gap:38px; padding-top:34px; }
+.archive-subject-grid { display:grid; grid-template-columns:1fr; gap:20px; margin-top:22px; }
+.archive-subject-grid .subject-list { margin-top:0; gap:18px; }
+.archive-subject-grid .subject-pill { grid-template-columns:220px minmax(360px,1fr) 110px; padding:20px 24px; }
+.archive-subject-grid .capsule-track { height:42px; }
+.subject-list,.action-list,.progress-list,.log-list,.node-list { display:grid; gap:13px; margin-top:22px; }
+.subject-pill { display:grid; grid-template-columns:190px 1fr 100px; gap:16px; align-items:center; background:var(--white); border-radius:9999px; padding:13px 18px; }
+.capsule-track,.mini-track { height:30px; border:2px solid var(--outline); border-radius:9999px; background:var(--cream); overflow:hidden; }
+.capsule-track i,.mini-track i { display:block; height:100%; background:var(--fill); border-right:2px solid var(--outline); border-radius:9999px; }
+.action-pill,.log-pill,.node-pill,.progress-pill { background:var(--white); border-radius:9999px; padding:15px 22px; }
+.action-pill { font-size:21px; line-height:1.38; }
+.muted { color:rgba(26,26,26,.62); }
+.progress-pill { display:grid; grid-template-columns:180px 1fr 150px; gap:16px; align-items:center; }
+.progress-pill .mini-track { grid-column:2 / 4; height:16px; }
+.log-pill { display:grid; grid-template-columns:132px 1fr 90px; gap:16px; align-items:center; }
+.node-pill { display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:center; }
+.swatches { display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }
+.swatches span { display:inline-flex; border:2px solid var(--outline); border-radius:9999px; background:var(--fill); padding:6px 12px; font-size:12px; font-weight:800; }
+.float { position:absolute; border:2px solid var(--outline); border-radius:9999px; padding:8px 20px; font-size:12px; font-weight:800; letter-spacing:.08em; }
+.f1 { left:86px; top:126px; transform:rotate(-12deg); background:var(--coral); } .f2 { right:132px; top:126px; transform:rotate(10deg); background:var(--lavender); }
+.f3 { left:102px; bottom:112px; transform:rotate(8deg); background:var(--mint); } .f4 { right:122px; bottom:118px; transform:rotate(-9deg); background:var(--lime); }
+.empty-pill { display:inline-flex; align-items:center; background:var(--white); padding:18px 24px; color:rgba(26,26,26,.62); }
+.rotate-hint { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:4000; background:var(--cream); color:var(--ink); font:18px var(--body); text-align:center; padding:30px; }
+@media (orientation:portrait) and (max-width:900px) { .rotate-hint { display:flex; } }
+.deck-controls { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:3500; }
+.deck-controls button { width:48px; height:34px; background:var(--white); margin:0 5px; font-family:var(--body); font-weight:800; }
+.counter { display:inline-flex; align-items:center; height:34px; padding:0 16px; background:var(--yellow); font-family:var(--body); font-weight:800; }
+@media print { html,body{width:1920px;height:auto;overflow:visible;background:#fff} .deck-viewport{position:static;overflow:visible;background:#fff} .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none} .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always} .deck-controls,.rotate-hint{display:none!important} }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important} }
 </style>
 </head>
-<body>
-<header class="topbar">
-  <div class="shell">
-    <div class="brand"><strong>11408 学习看板</strong><span>Postgraduate Exam Prep</span></div>
-    <div class="navmeta" id="navmeta"></div>
+<body data-dashboard-variant="capsule-dashboard">
+<div class="rotate-hint">请将手机转为横屏查看。<br>这版 Capsule 看板按 16:9 横屏舞台设计。</div>
+<div class="deck-viewport"><main class="deck-stage" id="deckStage">
+<section class="slide active visible">
+  <span class="float f1">FOCUS</span><span class="float f2">RECORD</span><span class="float f3">NEXT</span><span class="float f4">NODE</span>
+  <div class="chrome"><span>11408 CAPSULE DASHBOARD</span><span>2026-03 至 2026-06</span></div>
+  <div class="home-grid">
+    <div><div class="tag">Daily Progress</div><h1 style="margin-top:28px">Study<br>Progress</h1><p class="lead">基础阶段（一轮）。累计 465h49m，其中考研相关 387h15m，课内/其他 78h34m。最近主线：课内/其他 7h30min。</p><div class="metric-grid"><div class="metric-pill"><b class="coral">465h49m</b><span>累计学习时长</span></div>
+<div class="metric-pill"><b class="lime">5h14m</b><span>学习日日均</span></div>
+<div class="metric-pill"><b class="sky">89天</b><span>有效学习日</span></div>
+<div class="metric-pill"><b class="peach">172天</b><span>距初试首日</span></div>
+<div class="metric-pill"><b class="violet">46h5m</b><span>近 7 天投入</span></div></div><div class="swatches"><span style="--fill:#E85D4E">数学-高数</span>
+<span style="--fill:#C4D94E">数学-线代</span>
+<span style="--fill:#C5B5E0">数学-概率</span>
+<span style="--fill:#8BB4F7">专业课-数据结构</span>
+<span style="--fill:#A06CE8">专业课-组成原理</span>
+<span style="--fill:#F2D160">专业课-操作系统</span>
+<span style="--fill:#F5B895">专业课-计算机网络</span>
+<span style="--fill:#A8E6CF">英语</span>
+<span style="--fill:#C5B5E0">政治</span></div></div>
+    <div class="pill-card latest-panel"><div><div class="mini-tag">最近一天</div><h2 style="margin-top:18px">2026-06-27</h2></div><p class="lead">课内/其他 7h30min</p><div class="latest-list"><div class="latest-pill" style="--fill:#FFFFFF"><b>其他</b><span>MARL-Final 4h10min；PRCV-Final 3h20min</span><em>7h30m</em></div></div></div>
   </div>
-</header>
-
-<main class="shell">
-  <section class="hero">
-    <div class="hero-copy">
-      <div class="eyebrow">Daily Progress Archive</div>
-      <h1>Study Progress</h1>
-      <p class="lead" id="lead"></p>
-    </div>
-    <aside class="hero-side">
-      <div class="countdown">
-        <div class="smallcap">Exam Countdown</div>
-        <div class="days" id="daysToExam"></div>
-        <div class="label" id="examLabel"></div>
-      </div>
-      <div class="latest">
-        <div class="latest-title">
-          <h2>最近一天</h2>
-          <div class="date-pill" id="latestDate"></div>
-        </div>
-        <p class="focus" id="latestFocus"></p>
-        <div class="latest-list" id="latestSubjects"></div>
-      </div>
-    </aside>
-  </section>
-
-  <section class="metrics" id="metrics"></section>
-
-  <section class="grid">
-    <section class="panel wide">
-      <div class="panel-head">
-        <h2>近 14 条记录</h2>
-        <div class="panel-note">柱高为总时长，色块为科目构成</div>
-      </div>
-      <div class="trend" id="trend"></div>
-      <div class="legend" id="legend"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>科目投入</h2>
-        <div class="panel-note">按具体科目合并</div>
-      </div>
-      <div class="group-bars" id="groupBars"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>下一步</h2>
-        <div class="panel-note">来自最新日志</div>
-      </div>
-      <div class="action-list" id="actions"></div>
-    </section>
-
-    <section class="panel wide">
-      <div class="panel-head">
-        <h2>当前推进</h2>
-        <div class="panel-note">条形长度为累计投入占比</div>
-      </div>
-      <div class="progress-list" id="progressList"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>最近记录</h2>
-        <div class="panel-note">保留原始节奏</div>
-      </div>
-      <div class="log-list" id="logList"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>节点</h2>
-        <div class="panel-note">章节状态与标签</div>
-      </div>
-      <div class="timeline" id="timeline"></div>
-    </section>
-  </section>
-</main>
-
-<script id="dashboard-data" type="application/json">{"generated": "2026-06-14", "daily": [{"date": "2026-06-02", "total": 409, "subjects": {"数学-高数": 140, "数学-线代": 150, "专业课-组成原理": 119}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 140, "detail": "《数学基础过关660题》高数部分", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 150, "detail": "张宇30讲线代第一讲完成，并完成张宇1000题对应部分", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 119, "detail": "王道计组，学到印刷 p.42 无符号整数除法运算原理", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": ["章节完结"]}, {"date": "2026-06-05", "total": 307, "subjects": {"数学-高数": 143, "数学-线代": 50, "专业课-组成原理": 114}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 143, "detail": "660 高数练习", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "第二章矩阵，学到第 52 页（本章未学完）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 114, "detail": "学完王道计组 2.24 节，习题做到 p.45 第 19 题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "受干扰", "tags": ["受干扰"]}, {"date": "2026-06-07", "total": null, "subjects": {}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": null, "detail": "继续学习第二章矩阵", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": null, "detail": "写完 2.2.5 习题并看完解析", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-08", "total": 266, "subjects": {"数学-线代": 146, "专业课-组成原理": 120}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 146, "detail": "学习第二章矩阵", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 120, "detail": "学习浮点数乘除法运算", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-09", "total": 316, "subjects": {"数学-线代": 225, "专业课-组成原理": 91}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 225, "detail": "第二章矩阵，并完成张宇基础 1000 题对应部分习题", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 91, "detail": "做浮点数运算课后题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": []}, {"date": "2026-06-10", "total": 416, "subjects": {"数学-高数": 181, "数学-线代": 88, "专业课-组成原理": 147}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 181, "detail": "做 660 题", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 88, "detail": "完结第二章矩阵并完成对应习题", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 147, "detail": "做 2.3.5 习题，差几题做完", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "未说明", "tags": ["章节完结"]}, {"date": "2026-06-11", "total": 370, "subjects": {"数学-高数": 170, "数学-线代": 72, "专业课-组成原理": 128}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 170, "detail": "做 660 题", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 72, "detail": "开始学第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 128, "detail": "完结第二章", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "受干扰", "tags": ["受伤", "章节完结"]}, {"date": "2026-06-12", "total": 352, "subjects": {"数学-高数": 152, "数学-线代": 100, "专业课-组成原理": 100}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 152, "detail": "刷660题，保持手感防止遗忘", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 100, "detail": "学习第三章向量", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 100, "detail": "完成习题2.3.5解析，学完3.1节并完成选择题", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "", "tags": []}, {"date": "2026-06-13", "total": 248, "subjects": {"英语": 100, "数学-线代": 50, "专业课-组成原理": 98}, "subject_details": [{"name": "英语", "group": "英语", "time_min": 100, "detail": "看作文模板", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "继续学习第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 98, "detail": "看完3.2节，习题未做（明天补）", "result": "", "next": ""}], "phase": "", "focus": "", "mood": "时间偏少", "tags": ["CET6考试"]}], "subject_totals": {"数学-高数": 786, "数学-线代": 881, "专业课-组成原理": 917, "英语": 100}, "subject_days": {"数学-高数": 5, "数学-线代": 8, "专业课-组成原理": 8, "英语": 1}, "subject_colors": {"数学-高数": "#6F90C9", "数学-线代": "#7DB7B0", "数学-概率": "#A8B7D8", "专业课-数据结构": "#9CB59A", "专业课-组成原理": "#E1D2BC", "专业课-操作系统": "#A79BBF", "专业课-计算机网络": "#96B8C5", "英语": "#C98279", "政治": "#C09AA7"}, "group_totals": {"数学": 1667, "专业课": 917, "英语": 100, "政治": 0, "其他": 0}, "group_days": {"数学": 8, "专业课": 8, "英语": 1, "政治": 0, "其他": 0}, "group_colors": {"数学": "#7398C6", "专业课": "#AFA188", "英语": "#C98279", "政治": "#C09AA7", "其他": "#9A948D"}, "subject_chapters_done": {"数学-线代": 2, "专业课-组成原理": 1}, "progress_rows": [{"date": "2026-06-02", "subject": "数学-线代", "chapter": "第一讲", "status": "完结"}, {"date": "2026-06-05", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-07", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-08", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-09", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-10", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}, {"date": "2026-06-11", "subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"date": "2026-06-11", "subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}, {"date": "2026-06-12", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, {"date": "2026-06-12", "subject": "专业课-组成原理", "chapter": "第三章", "status": "起步"}, {"date": "2026-06-13", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, {"date": "2026-06-13", "subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}], "latest_chapter": {"数学-线代": {"date": "2026-06-13", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, "专业课-组成原理": {"date": "2026-06-13", "subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}}, "latest_log": {"date": "2026-06-13", "phase": "", "focus": "看作文模板 + 继续学习第三章 + 看完3.2节，习题未做（明天补）", "mood": "时间偏少", "tags": ["CET6考试"], "subjects": [{"name": "英语", "group": "英语", "time_min": 100, "detail": "看作文模板", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "继续学习第三章", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 98, "detail": "看完3.2节，习题未做（明天补）", "result": "", "next": ""}], "next_actions": [], "issues": []}, "timeline": [{"date": "2026-06-02", "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-05", "tags": ["受干扰"], "mood": "受干扰"}, {"date": "2026-06-10", "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "tags": ["受伤", "章节完结"], "mood": "受干扰"}, {"date": "2026-06-13", "tags": ["CET6考试"], "mood": "时间偏少"}], "timeline_events": [{"date": "2026-06-02", "milestones": [{"subject": "数学-线代", "chapter": "第一讲", "status": "完结"}], "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-05", "milestones": [], "tags": ["受干扰"], "mood": "受干扰"}, {"date": "2026-06-10", "milestones": [{"subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}], "tags": ["章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "milestones": [{"subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}], "tags": ["受伤", "章节完结"], "mood": "受干扰"}, {"date": "2026-06-12", "milestones": [{"subject": "专业课-组成原理", "chapter": "第三章", "status": "起步"}], "tags": [], "mood": ""}, {"date": "2026-06-13", "milestones": [], "tags": ["CET6考试"], "mood": "时间偏少"}], "recent": {"days": 7, "start_date": "2026-06-07", "end_date": "2026-06-13", "total_minutes": 1968, "studied_days": 6, "avg_minutes": 328, "subject_totals": {"数学-线代": 681, "专业课-组成原理": 684, "数学-高数": 503, "英语": 100}, "top_day": {"date": "2026-06-10", "total": 416}}, "alerts": [], "summary": {"total_minutes": 2684, "studied_days": 8, "log_count": 9, "first_date": "2026-06-02", "last_date": "2026-06-13", "avg_minutes": 336, "current_phase": "未说明", "latest_focus": "看作文模板 + 继续学习第三章 + 看完3.2节，习题未做（明天补）", "exam_date": "2026-12-20", "days_to_exam": 189}}</script>
+</section>
+<section class="slide">
+  <div class="chrome"><span>MONTHLY AND RECENT TREND</span><span>02 / 05</span></div>
+  <div class="overview-grid">
+    <div><div class="tag sky">整体节奏</div><h2 style="margin-top:20px">月度概览</h2><div class="month-grid"><div class="month-pill"><div><b>2026-03</b><span>22 天</span></div><strong>107h21m</strong><div class="capsule-track"><i style="width:84.3%"></i></div><p>数学-高数 60h8m · 专业课-数据结构 29h16m · 英语 12h38m · 其它 5h19m</p></div>
+<div class="month-pill"><div><b>2026-04</b><span>24 天</span></div><strong>119h24m</strong><div class="capsule-track"><i style="width:93.8%"></i></div><p>数学-高数 85h38m · 专业课-数据结构 18h30m · 英语 4h30m · 其它 10h46m</p></div>
+<div class="month-pill"><div><b>2026-05</b><span>21 天</span></div><strong>111h44m</strong><div class="capsule-track"><i style="width:87.7%"></i></div><p>数学-高数 73h3m · 数学-线代 2h40m · 专业课-数据结构 17h16m · 专业课-组成原理 6h22m · 英语 5h48m</p></div>
+<div class="month-pill"><div><b>2026-06</b><span>22 天</span></div><strong>127h20m</strong><div class="capsule-track"><i style="width:100.0%"></i></div><p>其它 55h54m · 专业课-组成原理 24h16m · 数学-高数 22h58m · 数学-线代 20h52m · 英语 3h20m</p></div></div></div>
+    <div><div class="tag lime">柱高为总时长，色块为科目构成</div><h2 style="margin-top:20px">近 14 条记录</h2><div class="trend-grid"><div class="stack-col"><span>6h10m</span><div class="stack-track" style="height:82.2%"><i title="数学-高数 2h50m" style="height:45.9%;background:#E85D4E"></i><i title="数学-线代 1h12m" style="height:19.5%;background:#C4D94E"></i><i title="专业课-组成原理 2h8m" style="height:34.6%;background:#A06CE8"></i></div><em>06-11</em></div>
+<div class="stack-col"><span>5h52m</span><div class="stack-track" style="height:78.2%"><i title="数学-高数 2h32m" style="height:43.2%;background:#E85D4E"></i><i title="数学-线代 1h40m" style="height:28.4%;background:#C4D94E"></i><i title="专业课-组成原理 1h40m" style="height:28.4%;background:#A06CE8"></i></div><em>06-12</em></div>
+<div class="stack-col"><span>4h8m</span><div class="stack-track" style="height:55.1%"><i title="数学-线代 50m" style="height:20.2%;background:#C4D94E"></i><i title="专业课-组成原理 1h38m" style="height:39.5%;background:#A06CE8"></i><i title="英语 1h40m" style="height:40.3%;background:#A8E6CF"></i></div><em>06-13</em></div>
+<div class="stack-col"><span>6h47m</span><div class="stack-track" style="height:90.4%"><i title="数学-高数 2h53m" style="height:42.5%;background:#E85D4E"></i><i title="数学-线代 1h27m" style="height:21.4%;background:#C4D94E"></i><i title="专业课-组成原理 2h27m" style="height:36.1%;background:#A06CE8"></i></div><em>06-14</em></div>
+<div class="stack-col"><span>6h10m</span><div class="stack-track" style="height:82.2%"><i title="数学-高数 2h28m" style="height:40.0%;background:#E85D4E"></i><i title="数学-线代 1h20m" style="height:21.6%;background:#C4D94E"></i><i title="专业课-组成原理 1h32m" style="height:24.9%;background:#A06CE8"></i><i title="英语 50m" style="height:13.5%;background:#A8E6CF"></i></div><em>06-15</em></div>
+<div class="stack-col"><span>5h</span><div class="stack-track" style="height:66.7%"><i title="其他 5h" style="height:100.0%;background:#FFFFFF"></i></div><em>06-18</em></div>
+<div class="stack-col"><span>3h9m</span><div class="stack-track" style="height:42.0%"><i title="其他 3h9m" style="height:100.0%;background:#FFFFFF"></i></div><em>06-20</em></div>
+<div class="stack-col"><span>6h33m</span><div class="stack-track" style="height:87.3%"><i title="其他 6h33m" style="height:100.0%;background:#FFFFFF"></i></div><em>06-21</em></div>
+<div class="stack-col"><span>6h36m</span><div class="stack-track" style="height:88.0%"><i title="其他 6h36m" style="height:100.0%;background:#FFFFFF"></i></div><em>06-22</em></div>
+<div class="stack-col"><span>6h3m</span><div class="stack-track" style="height:80.7%"><i title="其他 6h3m" style="height:100.0%;background:#FFFFFF"></i></div><em>06-23</em></div>
+<div class="stack-col"><span>6h39m</span><div class="stack-track" style="height:88.7%"><i title="其他 6h39m" style="height:100.0%;background:#FFFFFF"></i></div><em>06-24</em></div>
+<div class="stack-col"><span>6h26m</span><div class="stack-track" style="height:85.8%"><i title="其他 6h26m" style="height:100.0%;background:#FFFFFF"></i></div><em>06-25</em></div>
+<div class="stack-col"><span>6h18m</span><div class="stack-track" style="height:84.0%"><i title="其他 6h18m" style="height:100.0%;background:#FFFFFF"></i></div><em>06-26</em></div>
+<div class="stack-col"><span>7h30m</span><div class="stack-track" style="height:100.0%"><i title="其他 7h30m" style="height:100.0%;background:#FFFFFF"></i></div><em>06-27</em></div></div><div class="legend-row"><span class="legend-pill" style="--fill:#FFFFFF">其他 · 55h54m</span>
+<span class="legend-pill" style="--fill:#A06CE8">专业课-组成原理 · 24h16m</span>
+<span class="legend-pill" style="--fill:#E85D4E">数学-高数 · 22h58m</span>
+<span class="legend-pill" style="--fill:#C4D94E">数学-线代 · 20h52m</span>
+<span class="legend-pill" style="--fill:#A8E6CF">英语 · 3h20m</span></div></div>
+  </div>
+</section>
+<section class="slide">
+  <div class="chrome"><span>SUBJECTS AND ACTIONS</span><span>03 / 05</span></div>
+  <div class="two-col">
+    <div><div class="tag lime">按学习记录累计</div><h2 style="margin-top:20px">科目投入</h2><div class="archive-subject-grid"><div class="subject-list"><div class="subject-pill" aria-label="数学-高数 · 241h47m" style="--fill:#E85D4E"><b>数学-高数</b><div class="capsule-track"><i style="width:100.0%"></i></div><span>241h47m</span></div>
+<div class="subject-pill" aria-label="数学-线代 · 23h32m" style="--fill:#C4D94E"><b>数学-线代</b><div class="capsule-track"><i style="width:9.7%"></i></div><span>23h32m</span></div>
+<div class="subject-pill" aria-label="专业课-数据结构 · 65h2m" style="--fill:#8BB4F7"><b>专业课-数据结构</b><div class="capsule-track"><i style="width:26.9%"></i></div><span>65h2m</span></div>
+<div class="subject-pill" aria-label="专业课-组成原理 · 30h38m" style="--fill:#A06CE8"><b>专业课-组成原理</b><div class="capsule-track"><i style="width:12.7%"></i></div><span>30h38m</span></div>
+<div class="subject-pill" aria-label="英语 · 26h16m" style="--fill:#A8E6CF"><b>英语</b><div class="capsule-track"><i style="width:10.9%"></i></div><span>26h16m</span></div></div></div></div>
+    <div><div class="tag peach">来自最新日志</div><h2 style="margin-top:20px">下一步</h2><div class="action-list"><div class="action-pill">继续记录明日学习主线、各科用时和需要补的尾巴。</div><div class="action-pill muted">专业课-组成原理：近 7 天未记录 · 上次 2026-06-15</div>
+<div class="action-pill muted">数学-线代：近 7 天未记录 · 上次 2026-06-15</div>
+<div class="action-pill muted">数学-高数：近 7 天未记录 · 上次 2026-06-15</div></div></div>
+  </div>
+</section>
+<section class="slide">
+  <div class="chrome"><span>CURRENT PROGRESS</span><span>04 / 05</span></div>
+  <div style="padding-top:34px"><div class="tag lavender">条形长度为累计投入占比</div><h2 style="margin-top:20px">当前推进</h2><div class="progress-list"><div class="progress-pill" style="--fill:#FFFFFF"><b>其他</b><span>尚未记录章节进度</span><em>0 章完结 · 55h54m</em><div class="mini-track"><i style="width:100.0%"></i></div></div>
+<div class="progress-pill" style="--fill:#A06CE8"><b>专业课-组成原理</b><span>第三章 · 进行中</span><em>1 章完结 · 24h16m</em><div class="mini-track"><i style="width:43.4%"></i></div></div>
+<div class="progress-pill" style="--fill:#E85D4E"><b>数学-高数</b><span>尚未记录章节进度</span><em>0 章完结 · 22h58m</em><div class="mini-track"><i style="width:41.1%"></i></div></div>
+<div class="progress-pill" style="--fill:#C4D94E"><b>数学-线代</b><span>第三章 向量 · 进行中</span><em>2 章完结 · 20h52m</em><div class="mini-track"><i style="width:37.3%"></i></div></div>
+<div class="progress-pill" style="--fill:#A8E6CF"><b>英语</b><span>尚未记录章节进度</span><em>0 章完结 · 3h20m</em><div class="mini-track"><i style="width:6.0%"></i></div></div></div></div>
+</section>
+<section class="slide">
+  <div class="chrome"><span>ROUTE LOG</span><span>05 / 05</span></div>
+  <div class="two-col">
+    <div><div class="tag yellow">保留原始节奏</div><h2 style="margin-top:20px">最近记录</h2><div class="log-list"><div class="log-pill"><b>2026-06-27</b><span>课内/其他 7h30min</span><em>7h30m</em></div>
+<div class="log-pill"><b>2026-06-26</b><span>课内/其他 6h18min</span><em>6h18m</em></div>
+<div class="log-pill"><b>2026-06-25</b><span>课内/其他 6h26min</span><em>6h26m</em></div>
+<div class="log-pill"><b>2026-06-24</b><span>课内/其他 6h39min</span><em>6h39m</em></div>
+<div class="log-pill"><b>2026-06-23</b><span>课内/其他 6h3min</span><em>6h3m</em></div>
+<div class="log-pill"><b>2026-06-22</b><span>课内/其他 6h36min</span><em>6h36m</em></div></div></div>
+    <div><div class="tag violet">章节状态与标签</div><h2 style="margin-top:20px">节点</h2><div class="node-list"><div class="node-pill"><b>2026-06-27</b><span>番茄钟导入</span></div>
+<div class="node-pill"><b>2026-06-26</b><span>番茄钟导入</span></div>
+<div class="node-pill"><b>2026-06-25</b><span>番茄钟导入</span></div>
+<div class="node-pill"><b>2026-06-24</b><span>番茄钟导入</span></div>
+<div class="node-pill"><b>2026-06-23</b><span>番茄钟导入</span></div>
+<div class="node-pill"><b>2026-06-22</b><span>番茄钟导入</span></div>
+<div class="node-pill"><b>2026-06-21</b><span>番茄钟导入</span></div></div></div>
+  </div>
+</section>
+</main></div>
+<div class="grain"></div>
+<div class="deck-controls"><button id="prev">‹</button><span class="counter" id="counter">1 / 5</span><button id="next">›</button></div>
+<script type="application/json" id="dashboard-data">{"generated": "2026-07-01", "daily": [{"date": "2026-06-01", "total": 273, "subjects": {"数学-高数": 100, "数学-线代": 43, "专业课-组成原理": 130}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 100, "detail": "660-高数 1h40min", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 43, "detail": "线性代数 43min", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 130, "detail": "计算机组成原理 2h10min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 1h40min；数学-线代 43min；专业课-组成原理 2h10min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-02", "total": 409, "subjects": {"数学-高数": 140, "数学-线代": 150, "专业课-组成原理": 119}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 140, "detail": "《数学基础过关660题》高数部分（导出待办：660-高数 2h20min）", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 150, "detail": "张宇30讲线代第一讲完成，并完成张宇1000题对应部分（导出待办：线性代数 2h30min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 119, "detail": "王道计组，学到印刷 p.42 无符号整数除法运算原理（导出待办：计算机组成原理 1h59min）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 2h20min；数学-线代 2h30min；专业课-组成原理 1h59min", "mood": "未说明", "tags": ["番茄钟导入", "章节完结"]}, {"date": "2026-06-04", "total": 363, "subjects": {"数学-高数": 171, "数学-线代": 16, "专业课-组成原理": 26, "英语": 50, "其他": 100}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 171, "detail": "660-高数 2h51min", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 16, "detail": "线性代数 16min", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 26, "detail": "计算机组成原理 26min", "result": "", "next": ""}, {"name": "英语", "group": "英语", "time_min": 50, "detail": "英语 50min", "result": "", "next": ""}, {"name": "其他", "group": "其他", "time_min": 100, "detail": "计算生物学 1h40min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 2h51min；数学-线代 16min；专业课-组成原理 26min；英语 50min；课内/其他 1h40min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-05", "total": 307, "subjects": {"数学-高数": 143, "数学-线代": 50, "专业课-组成原理": 114}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 143, "detail": "660 高数练习（导出待办：660-高数 2h23min）", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "第二章矩阵，学到第 52 页（本章未学完）（导出待办：线性代数 50min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 114, "detail": "学完王道计组 2.24 节，习题做到 p.45 第 19 题（导出待办：计算机组成原理 1h54min）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 2h23min；数学-线代 50min；专业课-组成原理 1h54min", "mood": "受干扰", "tags": ["受干扰", "番茄钟导入"]}, {"date": "2026-06-07", "total": 289, "subjects": {"数学-线代": 145, "专业课-组成原理": 144}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 145, "detail": "继续学习第二章矩阵（导出待办：线性代数 2h25min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 144, "detail": "写完 2.2.5 习题并看完解析（导出待办：计算机组成原理 2h24min）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-线代 2h25min；专业课-组成原理 2h24min", "mood": "未说明", "tags": ["番茄钟导入"]}, {"date": "2026-06-08", "total": 266, "subjects": {"数学-线代": 146, "专业课-组成原理": 120}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 146, "detail": "学习第二章矩阵（导出待办：线性代数 2h26min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 120, "detail": "学习浮点数乘除法运算（导出待办：计算机组成原理 2h）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-线代 2h26min；专业课-组成原理 2h", "mood": "未说明", "tags": ["番茄钟导入"]}, {"date": "2026-06-09", "total": 316, "subjects": {"数学-线代": 225, "专业课-组成原理": 91}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 225, "detail": "第二章矩阵，并完成张宇基础 1000 题对应部分习题（导出待办：线性代数 3h45min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 91, "detail": "做浮点数运算课后题（导出待办：计算机组成原理 1h31min）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-线代 3h45min；专业课-组成原理 1h31min", "mood": "未说明", "tags": ["番茄钟导入"]}, {"date": "2026-06-10", "total": 416, "subjects": {"数学-高数": 181, "数学-线代": 88, "专业课-组成原理": 147}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 181, "detail": "做 660 题（导出待办：660-高数 3h1min）", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 88, "detail": "完结第二章矩阵并完成对应习题（导出待办：线性代数 1h28min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 147, "detail": "做 2.3.5 习题，差几题做完（导出待办：计算机组成原理 2h27min）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 3h1min；数学-线代 1h28min；专业课-组成原理 2h27min", "mood": "未说明", "tags": ["番茄钟导入", "章节完结"]}, {"date": "2026-06-11", "total": 370, "subjects": {"数学-高数": 170, "数学-线代": 72, "专业课-组成原理": 128}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 170, "detail": "做 660 题（导出待办：660-高数 2h50min）", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 72, "detail": "开始学第三章（导出待办：线性代数 1h12min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 128, "detail": "完结第二章（导出待办：计算机组成原理 2h8min）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 2h50min；数学-线代 1h12min；专业课-组成原理 2h8min", "mood": "受干扰", "tags": ["受伤", "番茄钟导入", "章节完结"]}, {"date": "2026-06-12", "total": 352, "subjects": {"数学-高数": 152, "数学-线代": 100, "专业课-组成原理": 100}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 152, "detail": "刷660题，保持手感防止遗忘（导出待办：660-高数 2h32min）", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 100, "detail": "学习第三章向量（导出待办：线性代数 1h40min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 100, "detail": "完成习题2.3.5解析，学完3.1节并完成选择题（导出待办：计算机组成原理 1h40min）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 2h32min；数学-线代 1h40min；专业课-组成原理 1h40min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-13", "total": 248, "subjects": {"数学-线代": 50, "专业课-组成原理": 98, "英语": 100}, "subject_details": [{"name": "数学-线代", "group": "数学", "time_min": 50, "detail": "继续学习第三章（导出待办：线性代数 50min）", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 98, "detail": "看完3.2节，习题未做（明天补）（导出待办：计算机组成原理 1h38min）", "result": "", "next": ""}, {"name": "英语", "group": "英语", "time_min": 100, "detail": "看作文模板（导出待办：英语 1h40min）", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-线代 50min；专业课-组成原理 1h38min；英语 1h40min", "mood": "时间偏少", "tags": ["CET6考试", "番茄钟导入"]}, {"date": "2026-06-14", "total": 407, "subjects": {"数学-高数": 173, "数学-线代": 87, "专业课-组成原理": 147}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 173, "detail": "660-高数 2h53min", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 87, "detail": "线性代数 1h27min", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 147, "detail": "计算机组成原理 2h27min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 2h53min；数学-线代 1h27min；专业课-组成原理 2h27min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-15", "total": 370, "subjects": {"数学-高数": 148, "数学-线代": 80, "专业课-组成原理": 92, "英语": 50}, "subject_details": [{"name": "数学-高数", "group": "数学", "time_min": 148, "detail": "660-高数 2h28min", "result": "", "next": ""}, {"name": "数学-线代", "group": "数学", "time_min": 80, "detail": "线性代数 1h20min", "result": "", "next": ""}, {"name": "专业课-组成原理", "group": "专业课", "time_min": 92, "detail": "计算机组成原理 1h32min", "result": "", "next": ""}, {"name": "英语", "group": "英语", "time_min": 50, "detail": "英语 50min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "数学-高数 2h28min；数学-线代 1h20min；专业课-组成原理 1h32min；英语 50min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-18", "total": 300, "subjects": {"其他": 300}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 300, "detail": "PRCV-Final 2h30min；PRCV 1h40min；NLP-Final 50min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 5h", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-20", "total": 189, "subjects": {"其他": 189}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 189, "detail": "PRCV-Final 3h9min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 3h9min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-21", "total": 393, "subjects": {"其他": 393}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 393, "detail": "PRCV-Final 6h33min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 6h33min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-22", "total": 396, "subjects": {"其他": 396}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 396, "detail": "PRCV-Final 6h36min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 6h36min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-23", "total": 363, "subjects": {"其他": 363}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 363, "detail": "PRCV-Final 3h33min；NLP-Final 2h30min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 6h3min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-24", "total": 399, "subjects": {"其他": 399}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 399, "detail": "NLP-Final 6h39min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 6h39min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-25", "total": 386, "subjects": {"其他": 386}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 386, "detail": "NLP-Final 6h26min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 6h26min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-26", "total": 378, "subjects": {"其他": 378}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 378, "detail": "NLP-Final 6h18min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 6h18min", "mood": "", "tags": ["番茄钟导入"]}, {"date": "2026-06-27", "total": 450, "subjects": {"其他": 450}, "subject_details": [{"name": "其他", "group": "其他", "time_min": 450, "detail": "MARL-Final 4h10min；PRCV-Final 3h20min", "result": "", "next": ""}], "phase": "基础阶段（一轮）", "focus": "课内/其他 7h30min", "mood": "", "tags": ["番茄钟导入"]}], "subject_totals": {"数学-高数": 1378, "数学-线代": 1252, "专业课-组成原理": 1456, "英语": 200, "其他": 3354}, "subject_days": {"数学-高数": 9, "数学-线代": 13, "专业课-组成原理": 13, "英语": 3, "其他": 10}, "subject_colors": {"数学-高数": "#E85D4E", "数学-线代": "#C4D94E", "数学-概率": "#C5B5E0", "专业课-数据结构": "#8BB4F7", "专业课-组成原理": "#A06CE8", "专业课-操作系统": "#F2D160", "专业课-计算机网络": "#F5B895", "英语": "#A8E6CF", "政治": "#C5B5E0"}, "group_totals": {"数学": 2630, "专业课": 1456, "英语": 200, "政治": 0, "其他": 3354}, "group_days": {"数学": 13, "专业课": 13, "英语": 3, "政治": 0, "其他": 10}, "group_colors": {"数学": "#7398C6", "专业课": "#AFA188", "英语": "#C98279", "政治": "#C09AA7", "其他": "#9A948D"}, "subject_chapters_done": {"数学-线代": 2, "专业课-组成原理": 1}, "progress_rows": [{"date": "2026-06-02", "subject": "数学-线代", "chapter": "第一讲", "status": "完结"}, {"date": "2026-06-05", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-07", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-08", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-09", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "进行中"}, {"date": "2026-06-10", "subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}, {"date": "2026-06-11", "subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"date": "2026-06-11", "subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}, {"date": "2026-06-12", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, {"date": "2026-06-12", "subject": "专业课-组成原理", "chapter": "第三章", "status": "起步"}, {"date": "2026-06-13", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, {"date": "2026-06-13", "subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}], "latest_chapter": {"数学-线代": {"date": "2026-06-13", "subject": "数学-线代", "chapter": "第三章 向量", "status": "进行中"}, "专业课-组成原理": {"date": "2026-06-13", "subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}}, "latest_log": {"date": "2026-06-27", "phase": "基础阶段（一轮）", "focus": "课内/其他 7h30min", "mood": "", "tags": ["番茄钟导入"], "subjects": [{"name": "其他", "group": "其他", "time_min": 450, "detail": "MARL-Final 4h10min；PRCV-Final 3h20min", "result": "", "next": ""}], "next_actions": [], "issues": []}, "timeline": [{"date": "2026-06-01", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-02", "tags": ["番茄钟导入", "章节完结"], "mood": "未说明"}, {"date": "2026-06-04", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-05", "tags": ["受干扰", "番茄钟导入"], "mood": "受干扰"}, {"date": "2026-06-07", "tags": ["番茄钟导入"], "mood": "未说明"}, {"date": "2026-06-08", "tags": ["番茄钟导入"], "mood": "未说明"}, {"date": "2026-06-09", "tags": ["番茄钟导入"], "mood": "未说明"}, {"date": "2026-06-10", "tags": ["番茄钟导入", "章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "tags": ["受伤", "番茄钟导入", "章节完结"], "mood": "受干扰"}, {"date": "2026-06-12", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-13", "tags": ["CET6考试", "番茄钟导入"], "mood": "时间偏少"}, {"date": "2026-06-14", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-15", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-18", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-20", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-21", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-22", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-23", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-24", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-25", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-26", "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-27", "tags": ["番茄钟导入"], "mood": ""}], "timeline_events": [{"date": "2026-06-01", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-02", "milestones": [{"subject": "数学-线代", "chapter": "第一讲", "status": "完结"}], "tags": ["番茄钟导入", "章节完结"], "mood": "未说明"}, {"date": "2026-06-04", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-05", "milestones": [], "tags": ["受干扰", "番茄钟导入"], "mood": "受干扰"}, {"date": "2026-06-07", "milestones": [], "tags": ["番茄钟导入"], "mood": "未说明"}, {"date": "2026-06-08", "milestones": [], "tags": ["番茄钟导入"], "mood": "未说明"}, {"date": "2026-06-09", "milestones": [], "tags": ["番茄钟导入"], "mood": "未说明"}, {"date": "2026-06-10", "milestones": [{"subject": "数学-线代", "chapter": "第二章 矩阵", "status": "完结"}], "tags": ["番茄钟导入", "章节完结"], "mood": "未说明"}, {"date": "2026-06-11", "milestones": [{"subject": "数学-线代", "chapter": "第三章 向量组", "status": "起步"}, {"subject": "专业课-组成原理", "chapter": "第二章", "status": "完结"}], "tags": ["受伤", "番茄钟导入", "章节完结"], "mood": "受干扰"}, {"date": "2026-06-12", "milestones": [{"subject": "专业课-组成原理", "chapter": "第三章", "status": "起步"}], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-13", "milestones": [], "tags": ["CET6考试", "番茄钟导入"], "mood": "时间偏少"}, {"date": "2026-06-14", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-15", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-18", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-20", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-21", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-22", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-23", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-24", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-25", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-26", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}, {"date": "2026-06-27", "milestones": [], "tags": ["番茄钟导入"], "mood": ""}], "recent": {"days": 7, "start_date": "2026-06-21", "end_date": "2026-06-27", "total_minutes": 2765, "studied_days": 7, "avg_minutes": 395, "subject_totals": {"其他": 2765}, "top_day": {"date": "2026-06-27", "total": 450}}, "alerts": [{"subject": "专业课-组成原理", "message": "近 7 天未记录", "last_seen": "2026-06-15"}, {"subject": "数学-线代", "message": "近 7 天未记录", "last_seen": "2026-06-15"}, {"subject": "数学-高数", "message": "近 7 天未记录", "last_seen": "2026-06-15"}, {"subject": "英语", "message": "近 7 天未记录", "last_seen": "2026-06-15"}], "summary": {"total_minutes": 7640, "studied_days": 22, "log_count": 22, "first_date": "2026-06-01", "last_date": "2026-06-27", "avg_minutes": 347, "current_phase": "基础阶段（一轮）", "latest_focus": "课内/其他 7h30min", "exam_date": "2026-12-20", "days_to_exam": 172, "archive_total_minutes": 27949, "archive_exam_minutes": 23235, "archive_other_minutes": 4714}, "archive": {"months": [{"month": "2026-03", "days": 22, "total_minutes": 6441, "exam_minutes": 6122, "other_minutes": 319, "subjects": [{"name": "数学-高数", "minutes": 3608}, {"name": "专业课-数据结构", "minutes": 1756}, {"name": "英语", "minutes": 758}, {"name": "其它", "minutes": 319}]}, {"month": "2026-04", "days": 24, "total_minutes": 7164, "exam_minutes": 6518, "other_minutes": 646, "subjects": [{"name": "数学-高数", "minutes": 5138}, {"name": "专业课-数据结构", "minutes": 1110}, {"name": "英语", "minutes": 270}, {"name": "其它", "minutes": 646}]}, {"month": "2026-05", "days": 21, "total_minutes": 6704, "exam_minutes": 6309, "other_minutes": 395, "subjects": [{"name": "数学-高数", "minutes": 4383}, {"name": "数学-线代", "minutes": 160}, {"name": "专业课-数据结构", "minutes": 1036}, {"name": "专业课-组成原理", "minutes": 382}, {"name": "英语", "minutes": 348}, {"name": "其它", "minutes": 395}]}, {"month": "2026-06", "days": 22, "total_minutes": 7640, "exam_minutes": 4286, "other_minutes": 3354, "subjects": [{"name": "其它", "minutes": 3354}, {"name": "专业课-组成原理", "minutes": 1456}, {"name": "数学-高数", "minutes": 1378}, {"name": "数学-线代", "minutes": 1252}, {"name": "英语", "minutes": 200}]}], "all_total": 27949, "exam_total": 23235, "other_total": 4714, "exam_subjects": [{"name": "数学-高数", "minutes": 14507}, {"name": "数学-线代", "minutes": 1412}, {"name": "专业课-数据结构", "minutes": 3902}, {"name": "专业课-组成原理", "minutes": 1838}, {"name": "英语", "minutes": 1576}], "other_subjects": [{"name": "PRCV-Final", "minutes": 1541}, {"name": "NLP-Final", "minutes": 1363}, {"name": "计算生物学", "minutes": 378}, {"name": "NLP-课程项目", "minutes": 345}, {"name": "多智能体强化学习", "minutes": 345}, {"name": "PRCV", "minutes": 314}, {"name": "MARL-Final", "minutes": 250}, {"name": "开悟比赛", "minutes": 104}, {"name": "形势与政策", "minutes": 50}, {"name": "综测", "minutes": 24}]}}</script>
+<script>const SUBJECT_COLORS = {"数学-高数": "#E85D4E", "数学-线代": "#C4D94E", "数学-概率": "#C5B5E0", "专业课-数据结构": "#8BB4F7", "专业课-组成原理": "#A06CE8", "专业课-操作系统": "#F2D160", "专业课-计算机网络": "#F5B895", "英语": "#A8E6CF", "政治": "#C5B5E0"}; const CAPSULE_COLOR_NAMES = {"#E85D4E": "coral", "#C4D94E": "lime", "#C5B5E0": "lavender", "#8BB4F7": "sky", "#A06CE8": "violet", "#F2D160": "yellow", "#F5B895": "peach", "#A8E6CF": "mint", "#FFFFFF": "white"};</script>
 <script>
-const DATA = JSON.parse(document.getElementById("dashboard-data").textContent);
-const SUBJECT_COLORS = DATA.subject_colors || {};
-const $ = id => document.getElementById(id);
-const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
-  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-}[c]));
-const mmdd = value => value ? value.slice(5) : "";
-function fmtMinutes(value) {
-  if (value == null) return "未说明";
-  const h = Math.floor(value / 60);
-  const m = value % 60;
-  if (h && m) return `${h}h${m}m`;
-  if (h) return `${h}h`;
-  return `${m}m`;
+class Deck {
+  constructor() {
+    this.stage = document.getElementById('deckStage');
+    this.slides = [...document.querySelectorAll('.slide')];
+    this.counter = document.getElementById('counter');
+    const requested = Number(new URLSearchParams(window.location.search).get('slide') || 0);
+    this.index = Number.isFinite(requested) ? requested : 0;
+    this.scale();
+    this.bind();
+    this.show(this.index);
+  }
+  scale() {
+    const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    const x = (window.innerWidth - 1920 * factor) / 2;
+    const y = (window.innerHeight - 1080 * factor) / 2;
+    this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+  }
+  show(next) {
+    this.index = Math.max(0, Math.min(next, this.slides.length - 1));
+    this.slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === this.index);
+      slide.classList.toggle('visible', i === this.index);
+    });
+    this.counter.textContent = `${this.index + 1} / ${this.slides.length}`;
+  }
+  bind() {
+    window.addEventListener('resize', () => this.scale());
+    document.getElementById('prev').addEventListener('click', () => this.show(this.index - 1));
+    document.getElementById('next').addEventListener('click', () => this.show(this.index + 1));
+    document.addEventListener('keydown', (e) => {
+      if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) this.show(this.index + 1);
+      if (['ArrowLeft', 'PageUp'].includes(e.key)) this.show(this.index - 1);
+    });
+    let startX = null;
+    document.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 42) this.show(this.index + (dx < 0 ? 1 : -1));
+      startX = null;
+    }, { passive: true });
+  }
 }
-function colorForSubject(subject) {
-  return SUBJECT_COLORS[subject] || "#9A948D";
-}
-
-function renderHero() {
-  const s = DATA.summary;
-  $("navmeta").innerHTML = `${esc(s.first_date || "")} 至 ${esc(s.last_date || "")}<br>生成于 ${esc(DATA.generated)}`;
-  $("lead").textContent = `${s.current_phase || "未说明"}。最近主线：${s.latest_focus || "未说明"}。`;
-  const days = s.days_to_exam;
-  $("daysToExam").textContent = days > 0 ? days : (days === 0 ? "Today" : "Done");
-  $("examLabel").textContent = `${s.exam_date} 初试首日`;
-  const latest = DATA.latest_log || {};
-  $("latestDate").textContent = latest.date || "暂无";
-  $("latestFocus").textContent = latest.focus || "暂无最新记录";
-  const subjects = (latest.subjects || []).filter(item => item.detail || item.time_min != null);
-  $("latestSubjects").innerHTML = subjects.length ? subjects.map(item => `
-    <div class="latest-item">
-      <div class="subject-name">${esc(item.name)}</div>
-      <div class="detail">${esc(item.detail || "未说明")}</div>
-      <div class="minutes">${fmtMinutes(item.time_min)}</div>
-    </div>`).join("") : `<div class="empty">暂无可展示的分科记录。</div>`;
-}
-
-function renderMetrics() {
-  const s = DATA.summary;
-  const recent = DATA.recent || {};
-  const metrics = [
-    [`${(s.total_minutes / 60).toFixed(1)}h`, "累计学习时长"],
-    [fmtMinutes(s.avg_minutes), "学习日日均"],
-    [`${s.studied_days} 天`, "有效学习日"],
-    [fmtMinutes(recent.total_minutes || 0), "近 7 天投入"]
-  ];
-  $("metrics").innerHTML = metrics.map(([value, label]) => `
-    <div class="metric"><div class="value">${esc(value)}</div><div class="label">${esc(label)}</div></div>
-  `).join("");
-}
-
-function renderTrend() {
-  const days = (DATA.daily || []).slice(-14);
-  const maxTotal = Math.max(...days.map(day => day.total || 0), 1);
-  $("trend").style.setProperty("--bar-count", days.length || 1);
-  $("trend").innerHTML = days.map(day => {
-    const height = day.total == null ? 12 : Math.max(4, (day.total / maxTotal) * 100);
-    const entries = Object.entries(day.subjects || {});
-    const segments = entries.length ? entries.map(([subject, minutes]) => `
-      <div class="segment" title="${esc(subject)} ${fmtMinutes(minutes)}"
-        style="height:${day.total ? (minutes / day.total) * 100 : 0}%;background:${colorForSubject(subject)}"></div>
-    `).join("") : "";
-    return `<div class="bar-col">
-      <div class="bar-value">${fmtMinutes(day.total)}</div>
-      <div class="bar" style="height:${height}%">${segments}</div>
-      <div class="bar-date">${mmdd(day.date)}</div>
-    </div>`;
-  }).join("");
-
-  const subjects = Object.keys(DATA.subject_totals || {}).sort((a, b) => DATA.subject_totals[b] - DATA.subject_totals[a]);
-  $("legend").innerHTML = subjects.map(subject => `
-    <span class="legend-item"><span class="swatch" style="background:${colorForSubject(subject)}"></span>${esc(subject)} · ${fmtMinutes(DATA.subject_totals[subject])}</span>
-  `).join("");
-}
-
-function renderGroups() {
-  const totals = DATA.subject_totals || {};
-  const subjects = Object.keys(totals).sort((a, b) => totals[b] - totals[a]);
-  const max = Math.max(...subjects.map(subject => totals[subject] || 0), 1);
-  $("groupBars").innerHTML = subjects
-    .map(subject => `<div class="group-row">
-      <strong>${esc(subject)}</strong>
-      <div class="lane"><div class="lane-fill" style="width:${(totals[subject] / max) * 100}%;background:${colorForSubject(subject)}"></div></div>
-      <div class="minutes">${fmtMinutes(totals[subject])}</div>
-    </div>`).join("") || `<div class="empty">暂无可统计时长。</div>`;
-}
-
-function renderActions() {
-  const latest = DATA.latest_log || {};
-  const actions = latest.next_actions && latest.next_actions.length
-    ? latest.next_actions
-    : ["继续记录明日学习主线、各科用时和需要补的尾巴。"];
-  const issues = latest.issues || [];
-  $("actions").innerHTML = [
-    ...actions.map(item => `<div class="action">${esc(item)}</div>`),
-    ...issues.map(item => `<div class="action muted">问题：${esc(item)}</div>`)
-  ].join("");
-}
-
-function renderProgress() {
-  const subjects = Object.keys(DATA.subject_totals || {}).sort((a, b) => DATA.subject_totals[b] - DATA.subject_totals[a]);
-  const max = Math.max(...subjects.map(subject => DATA.subject_totals[subject] || 0), 1);
-  const rows = subjects.map(subject => {
-    const latest = (DATA.latest_chapter || {})[subject];
-    const done = (DATA.subject_chapters_done || {})[subject] || 0;
-    const width = ((DATA.subject_totals[subject] || 0) / max) * 100;
-    const chapter = latest ? `${latest.chapter}<span class="status">${latest.status || ""}</span>` : "尚未记录章节进度";
-    return `<div class="progress-row">
-      <strong>${esc(subject)}</strong>
-      <div>
-        <div class="chapter">${chapter}</div>
-        <div class="lane" style="margin-top:10px"><div class="lane-fill" style="width:${width}%;background:${colorForSubject(subject)}"></div></div>
-      </div>
-      <div class="minutes">${done} 章完结<br>${fmtMinutes(DATA.subject_totals[subject])}</div>
-    </div>`;
-  });
-  $("progressList").innerHTML = rows.join("") || `<div class="empty">暂无章节进度。</div>`;
-}
-
-function renderLogs() {
-  const rows = (DATA.daily || []).slice(-6).reverse().map(day => {
-    const details = (day.subject_details || [])
-      .filter(item => item.detail || item.time_min != null)
-      .slice(0, 3)
-      .map(item => `${item.name}：${item.detail || fmtMinutes(item.time_min)}`)
-      .join("；");
-    const tags = (day.tags || []).map(tag => `<span class="tag">${esc(tag)}</span>`).join("");
-    return `<div class="log-row">
-      <div class="date-pill">${esc(day.date)}</div>
-      <div class="log-main">${esc(day.focus || details || day.mood || "未说明")}${tags ? `<div class="tags">${tags}</div>` : ""}</div>
-      <div class="minutes">${fmtMinutes(day.total)}</div>
-    </div>`;
-  });
-  $("logList").innerHTML = rows.join("") || `<div class="empty">暂无日志。</div>`;
-}
-
-function renderTimeline() {
-  const events = (DATA.timeline_events || []).slice(-7).reverse();
-  $("timeline").innerHTML = events.map(event => {
-    const milestones = (event.milestones || []).map(item => `${item.subject} · ${item.chapter} ${item.status || ""}`);
-    const tags = (event.tags || []).map(tag => `#${tag}`);
-    const body = [...milestones, ...tags, event.mood].filter(Boolean).join("；");
-    return `<div class="timeline-row"><div class="date-pill">${esc(event.date)}</div><div>${esc(body)}</div></div>`;
-  }).join("") || `<div class="empty">暂无节点事件。</div>`;
-}
-
-renderHero();
-renderMetrics();
-renderTrend();
-renderGroups();
-renderActions();
-renderProgress();
-renderLogs();
-renderTimeline();
+new Deck();
 </script>
 </body>
 </html>

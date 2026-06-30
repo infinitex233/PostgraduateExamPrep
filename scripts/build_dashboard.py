@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Build a self-contained HTML study dashboard from daily-log frontmatter.
+"""Build the self-contained HTML study dashboard from daily-log frontmatter.
 
 Scans StudyProgress/DailyLogs/**/*.md, reads the YAML frontmatter block at the
 top of each log, aggregates the structured data, and renders it into a single
-zero-dependency HTML file (StudyProgress/dashboard.html) with all data, CSS and
-JS inlined. Double-click the HTML to open it in any browser — no server needed.
+zero-dependency HTML file (StudyProgress/dashboard.html).
 
-The visual layout is a responsive single-page dashboard optimized for daily
-review: open it directly in a browser, no local server required.
+The command-line entry point delegates to build_dashboard_variants.py so the
+workspace has one dashboard artifact and one visual direction.
 
 Usage:
     python scripts/build_dashboard.py
@@ -1031,19 +1030,14 @@ renderTimeline();
 
 
 def main():
-    if not LOGS_DIR.is_dir():
-        print(f"No logs dir: {LOGS_DIR}", file=sys.stderr)
-        sys.exit(1)
-    logs = load_logs()
-    if not logs:
-        print("No logs with frontmatter found. Add frontmatter to daily logs first.", file=sys.stderr)
-        sys.exit(1)
-    data = aggregate(logs)
-    OUT_PATH.write_text(build_html(data), encoding="utf-8")
-    s = data["summary"]
-    print(f"[OK] {OUT_PATH.relative_to(ROOT)}")
-    print(f"     {s['log_count']} logs · {s['first_date']}~{s['last_date']} · "
-          f"{s['total_minutes']/60:.1f}h total · avg {s['avg_minutes']}min/day")
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+
+    from scripts import build_dashboard_variants
+
+    paths = build_dashboard_variants.build_variants()
+    for path in paths:
+        print(f"[OK] {path.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
