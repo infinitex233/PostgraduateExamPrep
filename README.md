@@ -58,16 +58,6 @@ The generated dashboard at `StudyProgress/dashboard.html` is built from daily-lo
 
 Book notes live in `StudyMaterials/BookNotes/`. Each textbook gets one Markdown file, updated chapter by chapter during review. Source PDFs and derived notes stay separate.
 
-### English materials
-
-English resources live under `StudyMaterials/English/`. The current writing-template artifact is maintained as both a browser deck and a PDF:
-
-```text
-StudyMaterials/English/WritingTemplates/
-  index.html
-  index.pdf
-```
-
 ## Agent workflow
 
 This repository is meant to be portable across agent sessions. A new agent should treat the Markdown files in the workspace as the project context and read these files first:
