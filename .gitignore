@@ -1,9 +1,6 @@
 # Local textbook PDFs are kept on the machine, not in Git.
 StudyMaterials/**/*.pdf
 
-# Cache files are derived from PDFs — rebuild locally.
-StudyMaterials/Cache/
-
 # Claude Code internal files
 .claude/
 

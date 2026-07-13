@@ -6,11 +6,11 @@ This directory holds the high-value textbooks, local OCR caches, rolling textboo
 
 For repository-wide policy, read `../AGENTS.md` first. This guide owns the operational details for textbook lookup, cache generation, evidence verification, book notes, and English artifacts.
 
-## Local-Only Policy
+## Version Control Policy
 
-Textbook PDFs are large and may be copyrighted. Keep them in the appropriate local directories and do not commit them. OCR caches are derived, rebuildable local data and must also remain outside Git.
+Textbook PDFs are large and may be copyrighted. Keep them in the appropriate local directories and do not commit them. Verified OCR cache files under `Cache/` are derived data that may be committed so local textbook lookup works without a full rebuild.
 
-Git may track scripts, Markdown notes, documentation, and suitable review artifacts such as the HTML writing-template deck.
+Git may also track scripts, Markdown notes, documentation, and suitable review artifacts such as the HTML writing-template deck.
 
 ## Directory Layout
 
@@ -22,7 +22,7 @@ StudyMaterials/
   Math/
     Basic/                     # Foundation-stage Mathematics I PDFs
     Intensive/                 # Intensive-stage Mathematics I PDFs
-  Cache/                       # Local categorized caches; git-ignored
+  Cache/                       # Categorized OCR caches; may be tracked
     408/
     Math/
       Basic/
@@ -82,6 +82,18 @@ It discovers PDFs recursively, uses embedded text when available, falls back to 
 
 Full-cache generation can process gigabytes of local PDFs. Do not run it as a routine documentation or pre-commit check.
 
+## Current Intensive Mathematics Cache
+
+The following local Mathematics I intensive-stage additions were fully cached and verified on 2026-07-13:
+
+| Source PDF | Cache JSON | Page coverage |
+| --- | --- | ---: |
+| `27版李林880题《数一解析册》.pdf` | `27版李林880题《数一解析册》.docling.json` | 416 / 416 |
+| `张宇100题_数一_解析册.pdf` | `张宇100题_数一_解析册.docling.json` | 568 / 568 |
+| `张宇1000题_数一_试题册.pdf` | `张宇1000题_数一_试题册.docling.json` | 195 / 195 |
+
+The source files live under `Math/Intensive/`, and the corresponding caches live under `Cache/Math/Intensive/`. Six pages across the first two books contain no OCR text; visual inspection confirmed that they are blank or text-free transition pages, so the caches still provide complete PDF-page coverage. The PDFs remain local-only, while the verified cache JSON may be committed.
+
 ## Evidence and Page Numbers
 
 OCR cache matches identify candidate **PDF pages** only. They are not final evidence.
@@ -135,6 +147,6 @@ If `WritingTemplates/index.html` changes and the user requests a PDF version, re
 
 - Never rename, move, or delete source PDFs unless the user explicitly requests it.
 - Keep source materials separate from derived notes.
-- Do not commit PDFs or anything under `Cache/`.
+- Do not commit PDFs. Cache files may be committed after verifying their structure, completeness, and contents.
 - Delete rendered PDF pages, screenshots, OCR diagnostics, temporary services, PID files, and other one-off artifacts after use.
 - If source evidence is missing or unclear, report the limitation instead of filling the gap.

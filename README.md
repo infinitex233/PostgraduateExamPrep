@@ -22,7 +22,7 @@ The workspace covers all four parts of the 11408 track:
 - Keeps one rolling, chapter-by-chapter Markdown note for each reviewed textbook.
 - Stores English study sources and derived review artifacts separately from progress logs.
 
-Source PDFs and OCR caches remain local. Git tracks the scripts, study records, notes, documentation, and suitable derived artifacts needed to maintain the system.
+Source PDFs remain local. Git may track verified OCR caches together with the scripts, study records, notes, documentation, and suitable derived artifacts needed to maintain the system.
 
 ## Repository Layout
 
@@ -115,11 +115,10 @@ python scripts/build_dashboard.py
 The following content must not be committed:
 
 - Textbook and generated PDF files below `StudyMaterials/`
-- Derived OCR data below `StudyMaterials/Cache/`
 - Python bytecode, test caches, rendered PDF pages, screenshots, diagnostics, and temporary files
 - Credentials, browser profiles, cookies, and machine-specific data
 
-This keeps copyrighted source material and rebuildable local data outside the remote repository.
+Verified OCR cache JSON under `StudyMaterials/Cache/` may be committed so textbook lookup works without rebuilding every cache. Keeping PDFs and transient artifacts out of Git avoids publishing copyrighted source material or machine-specific clutter.
 
 ## Working With Agents
 

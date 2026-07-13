@@ -78,8 +78,9 @@ the code depends on them.
   or rewrite them. Stage explicit paths when the worktree is mixed.
 - Textbook PDFs under `StudyMaterials/` are local-only files. Never stage or
   commit them.
-- OCR caches under `StudyMaterials/Cache/` are derived local data. Never stage
-  or commit them.
+- OCR caches under `StudyMaterials/Cache/` are derived data that may be staged
+  and committed. Before staging them, verify that the cache files are complete,
+  readable, and free of temporary or diagnostic artifacts.
 - Do not commit credentials, tokens, cookies, browser profiles, personal export
   files, or machine-specific diagnostics.
 - Remove `tmp/`, `__pycache__/`, `.pytest_cache/`, rendered PDF pages, OCR
@@ -242,6 +243,6 @@ stay aligned.
 - Run checks that match the risk of the change.
 - Confirm generated files are readable and organized.
 - Verify README language links and referenced paths after documentation edits.
-- After Python scripts or tests run, remove generated cache directories.
+- After Python scripts or tests run, remove generated Python cache directories.
 - Report checks that could not be run.
 - List the exact changed paths when handing work back.

@@ -73,7 +73,7 @@ Keep one rolling Markdown note per book under `StudyMaterials/BookNotes/`. Updat
 
 Follow `AGENTS.md` for full rules. In particular:
 
-- Keep PDFs and OCR caches local and out of Git.
+- Keep PDFs local and out of Git. Verified OCR caches may be committed.
 - Preserve unrelated working-tree changes and stage explicit paths in mixed worktrees.
 - Remove temporary inspection and Python cache artifacts after use.
 - Run checks appropriate to the changed surface.
