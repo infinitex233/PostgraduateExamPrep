@@ -1,104 +1,140 @@
 # StudyMaterials
 
-这里存放考研重点教材、教材 OCR 缓存、教材派生笔记和英语资料。它们不是全部备考资料，只是需要反复查阅、适合被 agent 引用和整理的重点材料。
+English | [简体中文](README.zh-CN.md)
 
-说明：教材 PDF 体积较大，且可能涉及版权问题，默认不提交到 GitHub。请把 PDF 保留在本地对应目录中，agent 在本地查书、整理章节笔记或更新学习资料时再读取。
+This directory holds the high-value textbooks, local OCR caches, rolling textbook notes, and English study materials that need repeated retrieval during 11408 preparation. It is a curated working library, not a complete archive of every resource.
 
-## 目录用途
+For repository-wide policy, read `../AGENTS.md` first. This guide owns the operational details for textbook lookup, cache generation, evidence verification, book notes, and English artifacts.
 
-- `408/`：计算机专业基础综合相关教材。
-- `Math/`：数学相关教材。
-- `English/`：英语资料与派生复习材料。
-  - `WritingTemplates/`：英语作文模板成品，当前包含 `index.html` 和 `index.pdf`。
-- `BookNotes/`：由教材 PDF 派生出的逐章复习笔记，每本书一个 Markdown 文件。
-- `Cache/`：教材 OCR 检索缓存。当前 408 四本书和数学三本书均使用逐页 OCR JSON 缓存，文件名形如 `书名.docling.json`，格式为 `{"book": "...", "total_pages": N, "pages": [{"page_no": 1, "text": "..."}]}`。
+## Local-Only Policy
 
-当前结构：
+Textbook PDFs are large and may be copyrighted. Keep them in the appropriate local directories and do not commit them. OCR caches are derived, rebuildable local data and must also remain outside Git.
+
+Git may track scripts, Markdown notes, documentation, and suitable review artifacts such as the HTML writing-template deck.
+
+## Directory Layout
 
 ```text
 StudyMaterials/
   README.md
-  408/                    # 408 专业课教材 PDF
-  Math/                   # 数学一教材 PDF
-  Cache/                  # 408 + 数学教材逐页 OCR 缓存
-  BookNotes/              # 教材派生笔记，每本书一个 Markdown 文件
-    _template.md
-  English/                # 英语一资料与整理成品
+  README.zh-CN.md
+  408/                         # Local 408 textbook PDFs
+  Math/
+    Basic/                     # Foundation-stage Mathematics I PDFs
+    Intensive/                 # Intensive-stage Mathematics I PDFs
+  Cache/                       # Local categorized caches; git-ignored
+    408/
+    Math/
+      Basic/
+      Intensive/
+  BookNotes/                   # One rolling Markdown note per textbook
+  English/
     WritingTemplates/
-      index.html          # 英语作文模板 16:9 浏览器版
-      index.pdf           # 英语作文模板 PDF 版
+      index.html               # Tracked browser version
+      index.pdf                # Local generated PDF
 ```
 
-## 缓存查询规则
+The cache category mirrors the source category, including nested parent directories. For example, a PDF under `Math/Intensive/SetA/` writes its cache under `Cache/Math/Intensive/SetA/`. Both cache builders reuse `scripts/cache_layout.py` for this mapping.
 
-当用户询问教材知识点、定义、原文位置或页码时，优先使用本地缓存检索：
+## Cache Formats
+
+The primary page-level format is:
+
+```json
+{
+  "book": "book name",
+  "total_pages": 100,
+  "pages": [
+    {"page_no": 1, "text": "..."}
+  ]
+}
+```
+
+`scripts/query.py` recursively reads `StudyMaterials/Cache/**/*.docling.json` and supports both this format and legacy Docling JSON containing structured `texts` entries.
+
+## Query the Cache
+
+When a user asks what a textbook says, where a concept appears, or how a definition is stated, search the local cache first:
 
 ```bash
 python scripts/query.py "关键词"
 python scripts/query.py "关键词" --book "数据结构"
 python scripts/query.py "关键词" --book "线代" --page-only
 python scripts/query.py "关键词" --book "高数" --context 2
+python scripts/query.py --list-books
 ```
 
-使用要求：
+A cache miss does not prove that the book lacks the material. Try synonyms, shorter terms, and split queries before inspecting likely PDF pages or reporting that the current cache did not confirm it.
 
-- `scripts/query.py` 自动读取 `StudyMaterials/Cache/*.docling.json`，兼容逐页 OCR 缓存和旧 Docling 结构缓存。
-- 408 四本与数学三本现都采用逐页 OCR 缓存，是查找候选 PDF 页的第一入口。
-- 缓存里的 `page_no` 是 PDF 页码，不一定等于书内印刷页码。回答页码时须同时标注 `书内印刷页码` 和 `PDF 页码`；某项暂不能确认，须明说“书内印刷页码未确认”或“PDF 页码未确认”，并优先核对 PDF 补齐。
-- 缓存命中只用于定位候选页。需要精确原文、公式、图表、例题细节或书内页码时，必须再打开对应 PDF 页核对。
-- 缓存未命中不代表教材没有该内容。先试同义词、缩短关键词、分词查询；仍无法确认，再查相关 PDF 页或说明“未在当前缓存/教材中确认”。
-- OCR 文本可能有误，仅用于定位和初筛，最终引用以 PDF 页面为准。
+## Build the Cache
 
-## Agent 查书规则
+Use the page-level PyMuPDF + RapidOCR pipeline by default:
 
-当用户问“某知识点书上怎么说”“在哪一页”“教材如何定义”时，按上面的查询规则执行，并注意：
-
-- 回答须标明来源：书名、章节或小节、页码。
-- 不靠常识或记忆回答教材特定内容，也不伪造内容、页码、例题、结论或原文。
-
-## 逐章整理规则
-
-`BookNotes/` 中每本书的 `.md` 是强化阶段复习对应章节时实时更新的知识点总结，不是一次性把整本书全部总结完。用户会自己删改、补充或重排笔记，agent 必须保留这些人工修改。
-
-强化阶段整理章节时，用户可以直接说：
-
-```text
-整理《数据结构》第 2 章
+```bash
+python scripts/page_ocr.py "StudyMaterials/408/某书.pdf"
+python scripts/page_ocr.py "StudyMaterials/Math/Intensive/某书.pdf"
+python scripts/page_ocr.py --all
 ```
 
-agent 应该：
+It discovers PDFs recursively, uses embedded text when available, falls back to OCR for scanned pages, resumes incomplete JSON checkpoints, and skips complete caches.
 
-- 找到对应教材 PDF。
-- 阅读对应章节内容。
-- 创建或更新 `BookNotes/对应书名.md`。
-- 在该书的 Markdown 文件中按章节追加整理内容。
-- 只更新用户正在复习的对应章节，避免无关章节的大范围改写。
-- 如果对应章节已经存在，应增量合并新内容，不要整章覆盖。
-- 保留用户手动删改、添加、标注过的内容；除非用户明确要求，不要替用户“清理”个人笔记。
-- 对教材中的定义、公式、定理、关键结论、例题、易错点尽量保留页码引用。
-- 将“教材内容”和“理解/补充”分开，不把自己的补充写成教材原意。
+`scripts/docling_cache.py` is a legacy-compatible alternative that writes both Docling JSON and Markdown. Keep it for existing cache compatibility, but do not present it as the default page-level workflow.
 
-## 笔记原则
+Full-cache generation can process gigabytes of local PDFs. Do not run it as a routine documentation or pre-commit check.
 
-- 每本书一个 `.md`，不要按章拆成多个文件。
-- 笔记是滚动更新的个人复习资料，服务于复习，不追求完整复刻教材。
-- 优先整理知识框架、关键定义、常考点、易错点、题型入口。
-- 未核实的信息不要写成确定结论。
+## Evidence and Page Numbers
 
-## 英语资料整理规则
+OCR cache matches identify candidate **PDF pages** only. They are not final evidence.
 
-`English/` 用于存放英语一相关资料和由资料整理出的复习成品。当前作文模板成品目录为：
+Open the source PDF when the answer depends on:
+
+- Exact wording or a direct quotation
+- Formulas, symbols, tables, or diagrams
+- Worked-example details
+- Printed book page numbers
+- A conclusion whose OCR text is ambiguous
+
+A textbook-specific answer should identify the book and section when possible, and distinguish:
+
+- `书内印刷页码`: the page number printed in the book
+- `PDF 页码`: the page index in the PDF viewer/cache
+
+If either value cannot be confirmed, state that explicitly. Never invent textbook wording, page locations, examples, formulas, or conclusions from memory.
+
+## Chapter-by-Chapter Book Notes
+
+`BookNotes/` contains one rolling Markdown note per textbook. Update it during review, chapter by chapter, instead of summarizing an entire book in one pass.
+
+When a chapter is requested:
+
+1. Locate the corresponding source PDF and relevant pages.
+2. Open or create `BookNotes/<book name>.md`.
+3. Update only the chapter currently under review.
+4. Merge verified material into an existing chapter rather than replacing it wholesale.
+5. Preserve the user's additions, deletions, ordering, annotations, and personal wording.
+6. Separate verified textbook content from explanations or supplements.
+7. Keep page references for definitions, formulas, theorems, examples, key conclusions, and common mistakes when possible.
+
+Prioritize knowledge structure, key definitions, exam patterns, error traps, and useful problem-entry points. The note is a review aid, not a reproduction of the source book.
+
+## English Materials
+
+`English/` stores English I source material and derived review artifacts. The current writing-template outputs are:
 
 ```text
 English/WritingTemplates/
-  index.html  # 16:9 浏览器翻页版作文模板
-  index.pdf   # 同内容 PDF 版
+  index.html
+  index.pdf
 ```
 
-整理或更新英语作文模板时：
+When transcribing screenshots or PDFs, preserve source order and useful study content while omitting watermarks, platform chrome, correction-interface decoration, screenshot noise, and OCR diagnostics.
 
-- 原始图片、PDF、截图等源材料应保存在 `English/` 下的明确子目录中，不要混入 `StudyProgress/`。
-- 从图片或 PDF 中转写内容时，按源文件顺序整理，保留题目、范文、译文、解析和模板句等有效学习内容。
-- 不要把水印、平台标识、批改界面装饰、截图噪声或 OCR 调试痕迹写进正文。
-- 如果更新了 `WritingTemplates/index.html`，并且用户需要 PDF 版，应同步重新生成 `WritingTemplates/index.pdf`。
-- 临时 OCR 中间文件、截图 contact sheet、PDF 渲染图、临时本地服务 PID 文件等用完后删除。
+If `WritingTemplates/index.html` changes and the user requests a PDF version, regenerate `WritingTemplates/index.pdf` so both formats remain aligned. The PDF remains local because all PDFs below `StudyMaterials/` are ignored.
+
+## Cleanup and Safety
+
+- Never rename, move, or delete source PDFs unless the user explicitly requests it.
+- Keep source materials separate from derived notes.
+- Do not commit PDFs or anything under `Cache/`.
+- Delete rendered PDF pages, screenshots, OCR diagnostics, temporary services, PID files, and other one-off artifacts after use.
+- If source evidence is missing or unclear, report the limitation instead of filling the gap.

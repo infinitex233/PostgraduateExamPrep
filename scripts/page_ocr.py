@@ -1,10 +1,11 @@
-"""Page-by-page OCR using PyMuPDF + RapidOCR.
+"""Build page-level text caches using PyMuPDF + RapidOCR.
 
-Memory-efficient: processes one page at a time, periodically recreates the OCR
-engine to prevent memory fragmentation, saves intermediate results every 10 pages.
+Uses embedded PDF text when available and falls back to OCR for scanned pages.
+Processes one page at a time, periodically recreates the OCR engine to prevent
+memory fragmentation, and saves intermediate results every 10 pages.
 
 Usage:
-    python scripts/page_ocr.py "DigitalBooks/408/王道2027计算机组成原理_高清带书签版.pdf"
+    python scripts/page_ocr.py "StudyMaterials/Math/Intensive/某书.pdf"
     python scripts/page_ocr.py --all   # process all uncached PDFs
 """
 
@@ -18,9 +19,15 @@ from pathlib import Path
 import fitz  # PyMuPDF
 from rapidocr import RapidOCR
 
+from cache_layout import cache_dir_for_pdf, find_pdfs, legacy_cache_path
+
 CACHE_DIR = Path(__file__).resolve().parent.parent / "StudyMaterials" / "Cache"
 ENGINE_REFRESH_INTERVAL = 20  # recreate OCR engine every N pages to avoid memory issues
-IMAGE_DPI = 144  # balance between OCR quality and memory usage
+IMAGE_DPI = 120  # sufficient for printed text while keeping scanned books practical
+OCR_PARAMS = {
+    "EngineConfig.onnxruntime.intra_op_num_threads": 8,
+    "EngineConfig.onnxruntime.inter_op_num_threads": 1,
+}
 
 
 def process_pdf(pdf_path: Path, cache_dir: Path, resume_from: int = 0) -> Path | None:
@@ -44,36 +51,59 @@ def process_pdf(pdf_path: Path, cache_dir: Path, resume_from: int = 0) -> Path |
         pages = []
 
     t0 = time.time()
-    engine = RapidOCR()
+    engine = None
+    ocr_pages_since_refresh = 0
 
     for i in range(resume_from, total):
         try:
             page = doc[i]
-            pix = page.get_pixmap(dpi=IMAGE_DPI)
-            img_bytes = pix.tobytes("png")
-            output = engine(img_bytes)
-            text = "\n".join(output.txts) if output.txts else ""
         except Exception as e:
-            print(f"  p.{i+1} OCR fail: {e}", flush=True)
-            text = ""
-            # Rebuild engine immediately — a crash may leave it in a bad state
+            print(f"  p.{i+1} page access fail: {e}", flush=True)
+            pages.append({"page_no": i + 1, "text": ""})
+            if (i + 1) % 10 == 0 or i == total - 1:
+                output = {"book": name, "total_pages": total, "pages": pages}
+                with open(out_path, "w", encoding="utf-8") as f:
+                    json.dump(output, f, ensure_ascii=False)
+            continue
+
+        try:
+            native_text = page.get_text("text", sort=True).strip()
+        except Exception as e:
+            print(f"  p.{i+1} text extraction fail, trying OCR: {e}", flush=True)
+            native_text = ""
+
+        if len(native_text) >= 100:
+            text = native_text
+        else:
+            # Short embedded fragments are often only watermarks or page labels.
             try:
+                if engine is None:
+                    engine = RapidOCR(params=OCR_PARAMS)
+                    ocr_pages_since_refresh = 0
+                pix = page.get_pixmap(dpi=IMAGE_DPI)
+                img_bytes = pix.tobytes("png")
+                output = engine(img_bytes)
+                ocr_text = "\n".join(output.txts) if output.txts else ""
+                text = "\n".join(part for part in (native_text, ocr_text) if part)
+                ocr_pages_since_refresh += 1
+                del pix, img_bytes, output
+            except Exception as e:
+                print(f"  p.{i+1} OCR fail: {e}", flush=True)
+                text = native_text
+                # Rebuild engine immediately — a crash may leave it in a bad state.
                 del engine
                 gc.collect()
-                engine = RapidOCR()
-            except Exception:
-                pass
+                engine = None
+                ocr_pages_since_refresh = 0
 
         pages.append({"page_no": i + 1, "text": text})
 
-        # Periodic engine refresh to avoid memory fragmentation
-        if (i + 1) % ENGINE_REFRESH_INTERVAL == 0:
+        # Periodic engine refresh after actual OCR work to avoid fragmentation.
+        if engine is not None and ocr_pages_since_refresh >= ENGINE_REFRESH_INTERVAL:
             del engine
             gc.collect()
-            try:
-                engine = RapidOCR()
-            except Exception:
-                pass
+            engine = None
+            ocr_pages_since_refresh = 0
 
         # Save intermediate every 10 pages
         if (i + 1) % 10 == 0 or i == total - 1:
@@ -93,15 +123,6 @@ def process_pdf(pdf_path: Path, cache_dir: Path, resume_from: int = 0) -> Path |
     non_empty = sum(1 for p in pages if p["text"].strip())
     print(f"  Done: {non_empty}/{total} pages with text, {elapsed:.0f}s", flush=True)
     return out_path
-
-
-def find_pdfs(books_dir: Path) -> list[Path]:
-    pdfs = []
-    for subdir in ["Math", "408"]:
-        d = books_dir / subdir
-        if d.is_dir():
-            pdfs.extend(sorted(d.glob("*.pdf")))
-    return pdfs
 
 
 def main():
@@ -127,7 +148,12 @@ def main():
     print(f"Processing {len(pdfs)} PDF(s)\n")
     for pdf in pdfs:
         name = pdf.stem.replace(".docling", "")
-        out = CACHE_DIR / f"{name}.docling.json"
+        cache_dir = cache_dir_for_pdf(pdf, books_dir, CACHE_DIR)
+        out = cache_dir / f"{name}.docling.json"
+        legacy_out = legacy_cache_path(CACHE_DIR, pdf, ".docling.json")
+        if not out.exists() and legacy_out.exists():
+            out = legacy_out
+            cache_dir = CACHE_DIR
 
         # Check if we can resume from checkpoint
         if out.exists():
@@ -143,14 +169,14 @@ def main():
                     continue
                 else:
                     print(f"  [RESUME] {name} ({done}/{total} done, continuing...)")
-                    process_pdf(pdf, CACHE_DIR, resume_from=done)
+                    process_pdf(pdf, cache_dir, resume_from=done)
                     continue
             except Exception:
                 pass  # corrupted file, redo from scratch
 
         print(f"  [OCR] {name} ({pdf.stat().st_size / 1024 / 1024:.1f} MB)")
         try:
-            process_pdf(pdf, CACHE_DIR)
+            process_pdf(pdf, cache_dir)
         except Exception as e:
             print(f"  [FAIL] {name}: {e}", flush=True)
 

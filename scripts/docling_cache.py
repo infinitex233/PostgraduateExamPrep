@@ -4,9 +4,8 @@ Usage:
     python scripts/docling_cache.py          # convert all uncached PDFs
     python scripts/docling_cache.py --force  # re-convert all PDFs
 
-Reads PDFs from StudyMaterials/Math/ and StudyMaterials/408/.
-Writes cache to StudyMaterials/Cache/{book_name}.docling.json
-                          StudyMaterials/Cache/{book_name}.docling.md
+Reads PDFs recursively from StudyMaterials/Math/ and StudyMaterials/408/.
+Writes caches to the matching category below StudyMaterials/Cache/.
 """
 
 import argparse
@@ -26,14 +25,7 @@ from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 
-
-def find_pdfs(books_dir: Path) -> list[Path]:
-    pdfs = []
-    for subdir in ["Math", "408"]:
-        d = books_dir / subdir
-        if d.is_dir():
-            pdfs.extend(sorted(d.glob("*.pdf")))
-    return pdfs
+from cache_layout import cache_dir_for_pdf, find_pdfs, legacy_cache_path
 
 
 def make_converter() -> DocumentConverter:
@@ -61,9 +53,11 @@ def pdf_to_cache(pdf_path: Path, cache_dir: Path, force: bool) -> tuple[Path, Pa
     name = pdf_path.stem
     json_path = cache_dir / f"{name}.docling.json"
     md_path = cache_dir / f"{name}.docling.md"
+    cache_dir.mkdir(parents=True, exist_ok=True)
 
-    if not force and json_path.exists() and md_path.exists():
-        print(f"  [SKIP] {name} — cache exists")
+    if not force and json_path.exists():
+        detail = "cache exists" if md_path.exists() else "JSON cache exists (not overwriting its format)"
+        print(f"  [SKIP] {name} — {detail}")
         return None
 
     print(f"  [CONVERT] {name} ({pdf_path.stat().st_size / 1024 / 1024:.1f} MB)...", flush=True)
@@ -90,8 +84,8 @@ def main():
 
     repo = Path(__file__).resolve().parent.parent
     books_dir = repo / "StudyMaterials"
-    cache_dir = books_dir / "Cache"
-    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_root = books_dir / "Cache"
+    cache_root.mkdir(parents=True, exist_ok=True)
 
     pdfs = find_pdfs(books_dir)
     if not pdfs:
@@ -104,6 +98,14 @@ def main():
     skipped = 0
     for pdf in pdfs:
         try:
+            cache_dir = cache_dir_for_pdf(pdf, books_dir, cache_root)
+            legacy_json = legacy_cache_path(cache_root, pdf, ".docling.json")
+            legacy_md = legacy_cache_path(cache_root, pdf, ".docling.md")
+            if not args.force and legacy_json.exists():
+                detail = "legacy cache exists" if legacy_md.exists() else "legacy JSON cache exists"
+                print(f"  [SKIP] {pdf.stem} — {detail}")
+                skipped += 1
+                continue
             result = pdf_to_cache(pdf, cache_dir, args.force)
             if result:
                 converted += 1

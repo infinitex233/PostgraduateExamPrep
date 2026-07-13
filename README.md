@@ -1,81 +1,133 @@
 # PostgraduateExamPrep
 
-A personal study-management repository for the 11408 postgraduate entrance exam track.
+English | [简体中文](README.zh-CN.md)
 
-This workspace keeps the preparation process in one place: study progress, review notes, roadmap updates, textbook lookup scripts, OCR caches, and generated review artifacts. The repository is designed to make daily records searchable and reusable, so later reviews, stage summaries, and experience posts can be built from real study history instead of memory.
+A file-based study management system for China's 11408 postgraduate entrance examination. It keeps daily progress, stage plans, textbook retrieval, review notes, and a generated study dashboard in one repository.
 
-The 11408 preparation scope includes:
+## Exam Scope
+
+The workspace covers all four parts of the 11408 track:
 
 - Politics
 - English I
-- Mathematics I: advanced mathematics, linear algebra, probability and statistics
+- Mathematics I: calculus, linear algebra, probability, and statistics
 - 408 Computer Science: data structures, computer organization, operating systems, and computer networks
 
-Textbook PDFs are kept locally because of file size and copyright constraints. They are ignored by Git by default. The repository stores scripts, OCR cache data, study logs, derived notes, and generated review artifacts.
+## What This Repository Does
 
-## Repository layout
+- Turns short natural-language study reports into dated Markdown records with structured YAML frontmatter.
+- Maintains a long-term progress index, roadmap, weekly reviews, and stage reviews.
+- Generates a single Capsule-style HTML dashboard from the study records.
+- Searches local textbook OCR caches before opening multi-hundred-megabyte PDFs.
+- Keeps one rolling, chapter-by-chapter Markdown note for each reviewed textbook.
+- Stores English study sources and derived review artifacts separately from progress logs.
+
+Source PDFs and OCR caches remain local. Git tracks the scripts, study records, notes, documentation, and suitable derived artifacts needed to maintain the system.
+
+## Repository Layout
 
 ```text
 PostgraduateExamPrep/
-  AGENTS.md                      # Workspace rules for coding and study-record agents
-  README.md                      # Project overview
-  scripts/                       # Lookup, OCR, dashboard, and maintenance scripts
-    query.py                     # Search page-level OCR caches under StudyMaterials/Cache/
-    page_ocr.py                  # Build page-level OCR caches for local textbook PDFs
-    docling_cache.py             # Legacy Docling cache script
-    build_dashboard.py           # Compatibility entry point for the study dashboard
-    build_dashboard_variants.py  # Capsule dashboard renderer and cleanup logic
-  StudyProgress/                 # Progress records, planning, dashboards, and reviews
-    README.md                    # Operational guide for study-progress logging
-    ProgressIndex.md             # Route-level preparation index
-    Roadmap.md                   # Stage planning, goals, and strategy adjustments
-    dashboard.html               # Generated Capsule-style 16:9 study dashboard
-    DailyLogs/                   # Daily logs with YAML frontmatter
+  AGENTS.md                      # Authoritative repository rules
+  CLAUDE.md                      # Concise Claude Code entry point
+  README.md                      # English GitHub landing page
+  README.zh-CN.md                # Simplified Chinese landing page
+  scripts/
+    cache_layout.py              # Shared source-to-cache path rules
+    query.py                     # Search categorized OCR caches
+    page_ocr.py                  # Primary page-level cache builder
+    docling_cache.py             # Legacy-compatible Docling builder
+    build_dashboard.py           # Dashboard build entry point
+    build_dashboard_variants.py  # Archive enrichment and rendering
+    test_build_dashboard.py
+    test_build_dashboard_variants.py
+  StudyProgress/
+    README.md                    # English progress workflow
+    README.zh-CN.md              # Simplified Chinese progress workflow
+    DailyLogs/                   # Daily records with YAML frontmatter
     Reviews/                     # Weekly and stage reviews
-  StudyMaterials/                # Local materials, OCR cache data, and derived notes
-    README.md                    # Operational guide for textbook lookup and notes
-    408/                         # Computer science textbooks
-    Math/                        # Mathematics textbooks
-    Cache/                       # Page-level OCR caches (*.docling.json)
-    English/                     # English exam materials
-      WritingTemplates/          # Writing-template artifacts
-        index.html               # Browser deck version
-        index.pdf                # PDF version
-    BookNotes/                   # One Markdown note per textbook, updated by chapter
+    ProgressIndex.md             # Long-term route and archive summary
+    Roadmap.md                   # Goals and stage planning
+    dashboard.html               # Generated Capsule dashboard
+  StudyMaterials/
+    README.md                    # English materials workflow
+    README.zh-CN.md              # Simplified Chinese materials workflow
+    408/                         # Local 408 textbook PDFs
+    Math/Basic/                  # Local foundation-stage math PDFs
+    Math/Intensive/              # Local intensive-stage math PDFs
+    Cache/                       # Local categorized OCR caches
+    BookNotes/                   # Rolling textbook notes
+    English/                     # English sources and review artifacts
 ```
 
-## Core areas
+## Daily Progress
 
-### Study progress
+A natural-language report is normalized into:
 
-`StudyProgress/` is the source of truth for the preparation timeline. Daily logs live under `StudyProgress/DailyLogs/` with structured frontmatter for dates, subject-level minutes, chapter progress, and tags. `ProgressIndex.md` gives a compact route-level summary, while `Roadmap.md` records stage plans and strategy changes.
+```text
+StudyProgress/DailyLogs/YYYY-MM/YYYY-MM-DD.md
+```
 
-The generated dashboard at `StudyProgress/dashboard.html` is built from daily-log frontmatter. It is the only dashboard artifact kept in the repository.
+Each record follows `StudyProgress/DailyLogs/_template.md`. Structured daily metrics come only from YAML frontmatter: unknown values stay `null`, and minutes or completion states are never inferred from prose. The same update also refreshes `StudyProgress/ProgressIndex.md` and the generated dashboard.
 
-### Study materials
+```bash
+python scripts/build_dashboard.py
+```
 
-`StudyMaterials/` stores local reference materials and textbook-derived notes. The page-level OCR cache under `StudyMaterials/Cache/` supports fast textbook lookup through the scripts in `scripts/`.
+Archive and monthly dashboard sections additionally read stable summaries in `StudyProgress/ProgressIndex.md` and, when present, `StudyProgress/DailyLogs/Monthly/*.md`.
 
-Book notes live in `StudyMaterials/BookNotes/`. Each textbook gets one Markdown file, updated chapter by chapter during review. Source PDFs and derived notes stay separate.
+See the [StudyProgress guide](StudyProgress/README.md) for the complete logging and dashboard workflow.
 
-## Agent workflow
+## Textbook Lookup
 
-This repository is meant to be portable across agent sessions. A new agent should treat the Markdown files in the workspace as the project context and read these files first:
+Search the local page cache before opening a large PDF:
+
+```bash
+python scripts/query.py "二叉树"
+python scripts/query.py "矩阵" --book "线性代数"
+python scripts/query.py "极限" --book "高数" --page-only
+```
+
+Build or resume page-level caches with the primary OCR pipeline:
+
+```bash
+python scripts/page_ocr.py "StudyMaterials/Math/Intensive/某书.pdf"
+python scripts/page_ocr.py --all
+```
+
+Cache hits locate candidate PDF pages; they are not final evidence. Exact wording, formulas, diagrams, examples, and printed page numbers must be checked against the source PDF. Page citations distinguish the printed book page from the PDF page.
+
+See the [StudyMaterials guide](StudyMaterials/README.md) for cache formats, evidence rules, and book-note workflow.
+
+## Dashboard Checks
+
+After changing dashboard code:
+
+```bash
+python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
+python scripts/build_dashboard.py
+```
+
+`StudyProgress/dashboard.html` is the only retained dashboard artifact. The renderer removes obsolete parallel variants during a production build.
+
+## Local-Only Content
+
+The following content must not be committed:
+
+- Textbook and generated PDF files below `StudyMaterials/`
+- Derived OCR data below `StudyMaterials/Cache/`
+- Python bytecode, test caches, rendered PDF pages, screenshots, diagnostics, and temporary files
+- Credentials, browser profiles, cookies, and machine-specific data
+
+This keeps copyrighted source material and rebuildable local data outside the remote repository.
+
+## Working With Agents
+
+Read the documentation in this order before changing files:
 
 1. `AGENTS.md`
-2. `README.md`
-3. `StudyProgress/README.md` for progress logging tasks
-4. `StudyMaterials/README.md` for textbook lookup, material organization, or book-note tasks
+2. This README
+3. `StudyProgress/README.md` for logs, reviews, or dashboard work
+4. `StudyMaterials/README.md` for textbooks, caches, book notes, or English materials
 
-Daily study records belong under `StudyProgress/`. Textbook PDFs, textbook-derived chapter notes, and English source materials belong under `StudyMaterials/`. Existing notes, logs, templates, and PDFs should be preserved unless an explicit request says otherwise.
-
-## Current status
-
-The repository is set up for:
-
-- Daily natural-language study logging with structured frontmatter
-- A generated visual study dashboard
-- Route-level planning and stage reviews
-- OCR-backed textbook search
-- Chapter-by-chapter textbook notes
-- English writing-template artifacts in HTML and PDF formats
+`AGENTS.md` is authoritative. `CLAUDE.md` is a concise command and architecture reference.

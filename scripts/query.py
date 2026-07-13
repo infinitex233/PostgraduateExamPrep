@@ -6,8 +6,9 @@ Usage:
     python scripts/query.py "二叉树" --page-only             # show page numbers only
     python scripts/query.py "二叉树" --context 2             # show 2 surrounding items
 
-The script searches `texts` in cached docling JSON for matching keywords,
-returning page numbers, section headers, and text previews.
+The script searches categorized page-level and legacy Docling caches, returning
+matching PDF page numbers and text previews (plus section headers when the cache
+format provides them).
 """
 
 import argparse
@@ -16,6 +17,16 @@ import sys
 from pathlib import Path
 
 CACHE_DIR = Path(__file__).resolve().parent.parent / "StudyMaterials" / "Cache"
+
+
+def find_cache_files() -> list[Path]:
+    """Return categorized caches, falling back to legacy flat copies."""
+    files = sorted(CACHE_DIR.rglob("*.docling.json"))
+    categorized_stems = {path.stem for path in files if path.parent != CACHE_DIR}
+    return [
+        path for path in files
+        if path.parent != CACHE_DIR or path.stem not in categorized_stems
+    ]
 
 
 def load_book(json_path: Path) -> dict:
@@ -46,7 +57,7 @@ def find_parent_headers(texts: list, item: dict, max_depth: int = 3) -> list[str
 
 
 def _search_docling(data: dict, query: str, book_name: str, context: int) -> list[dict]:
-    """Search docling-format JSON (used for math textbooks)."""
+    """Search legacy Docling-format JSON."""
     texts = data.get("texts", [])
     matches = []
     for i, item in enumerate(texts):
@@ -70,7 +81,7 @@ def _search_docling(data: dict, query: str, book_name: str, context: int) -> lis
 
 
 def _search_pageocr(data: dict, query: str, book_name: str, context: int) -> list[dict]:
-    """Search page-OCR-format JSON (used for 408 textbooks)."""
+    """Search page-level cache JSON."""
     pages = data.get("pages", [])
     matches = []
     for page in pages:
@@ -162,13 +173,13 @@ def main():
 
     if args.list_books:
         print("Cached books:")
-        for f in sorted(CACHE_DIR.glob("*.docling.json")):
+        for f in find_cache_files():
             print(f"  {f.stem.replace('.docling', '')}")
         return
 
-    json_files = sorted(CACHE_DIR.glob("*.docling.json"))
+    json_files = find_cache_files()
     if not json_files:
-        print("No cached books found. Run scripts/docling_cache.py first.")
+        print("No cached books found. Run scripts/page_ocr.py --all first.")
         sys.exit(1)
 
     if args.book:
