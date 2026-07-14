@@ -6,6 +6,8 @@ English | [简体中文](README.zh-CN.md)
 
 A file-based study management system for the 11408 postgraduate entrance examination. It keeps daily progress, stage plans, textbook retrieval, review notes, and a generated study dashboard in one repository.
 
+[Open the live study dashboard](https://infinitex233.github.io/PostgraduateExamPrep/)
+
 ## Exam Scope
 
 The workspace covers all four parts of the 11408 track:
