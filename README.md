@@ -45,7 +45,9 @@ PostgraduateExamPrep/
     README.md                    # English progress workflow
     README.zh-CN.md              # Simplified Chinese progress workflow
     DailyLogs/                   # Daily records with YAML frontmatter
+    Summaries/                   # Stable monthly subject summaries
     Reviews/                     # Weekly and stage reviews
+    Imports/                     # Raw exports used for historical backfill
     ProgressIndex.md             # Long-term route and archive summary
     Roadmap.md                   # Goals and stage planning
     dashboard.html               # Generated Capsule dashboard
@@ -74,7 +76,7 @@ Each record follows `StudyProgress/DailyLogs/_template.md`. Structured daily met
 python scripts/build_dashboard.py
 ```
 
-Archive and monthly dashboard sections additionally read stable summaries in `StudyProgress/ProgressIndex.md` and, when present, `StudyProgress/DailyLogs/Monthly/*.md`.
+Archive and monthly dashboard sections additionally read stable summaries in `StudyProgress/ProgressIndex.md` and, when present, `StudyProgress/Summaries/Monthly/*.md`. Raw source exports used for historical backfill are kept separately under `StudyProgress/Imports/`.
 
 See the [StudyProgress guide](StudyProgress/README.md) for the complete logging and dashboard workflow.
 

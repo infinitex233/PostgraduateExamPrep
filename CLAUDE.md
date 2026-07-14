@@ -50,7 +50,7 @@ python scripts/page_ocr.py --all
 Daily logs live at `StudyProgress/DailyLogs/YYYY-MM/YYYY-MM-DD.md` and follow `StudyProgress/DailyLogs/_template.md`.
 
 - Structured daily metrics come only from YAML frontmatter. Never infer minutes or progress from prose; use `null` for values the user did not provide.
-- Archive and monthly presentation also reads stable summaries in `StudyProgress/ProgressIndex.md` and optional files under `StudyProgress/DailyLogs/Monthly/`.
+- Archive and monthly presentation also reads stable summaries in `StudyProgress/ProgressIndex.md` and optional files under `StudyProgress/Summaries/Monthly/`.
 - `scripts/build_dashboard.py` is the compatibility entry point and daily-data aggregation layer.
 - `scripts/build_dashboard_variants.py` performs archive enrichment, Capsule rendering, typography, color mapping, interaction, and stale-output cleanup.
 - The only retained output is `StudyProgress/dashboard.html`. Do not hand-edit it as the source of truth or create parallel dashboard variants.

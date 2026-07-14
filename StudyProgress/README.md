@@ -23,6 +23,7 @@ StudyProgress/
     _template.md               # Canonical frontmatter and log structure
     YYYY-MM/
       YYYY-MM-DD.md
+  Summaries/
     Monthly/                   # Optional monthly subject summaries
   Reviews/
     Weekly/
@@ -30,6 +31,7 @@ StudyProgress/
       YYYY-Www.md
     Stage/
       _template.md
+  Imports/                     # Raw exports used for historical backfill
 ```
 
 ## Daily Logging Workflow
@@ -78,7 +80,8 @@ Do not replace an unknown value with zero. Zero means the user explicitly report
 - `ProgressIndex.md` is the long-term route and historical overview. Keep its monthly overview and stage-observation structure stable because the dashboard reads those sections for archive presentation.
 - `Roadmap.md` stores goals and stage planning rather than daily facts.
 - `Reviews/Weekly/` and `Reviews/Stage/` are maintained when a weekly or stage review is requested; they do not need daily updates.
-- `DailyLogs/Monthly/` may provide monthly per-subject summaries used by archive cards.
+- `Summaries/Monthly/` may provide monthly per-subject summaries used by archive cards.
+- `Imports/` stores raw exports used to backfill historical summaries; keep these source files separate from daily logs.
 
 The system's primary goal is reliable recording and review. Experience-post material can be derived later from accumulated records.
 
@@ -87,7 +90,7 @@ The system's primary goal is reliable recording and review. Experience-post mate
 The generated dashboard uses two layers of data:
 
 1. Daily and current structured metrics come from `DailyLogs/**/YYYY-MM-DD.md` frontmatter only.
-2. Archive and monthly presentation also reads stable summaries in `ProgressIndex.md` and optional files under `DailyLogs/Monthly/`.
+2. Archive and monthly presentation also reads stable summaries in `ProgressIndex.md` and optional files under `Summaries/Monthly/`.
 
 The build path is:
 

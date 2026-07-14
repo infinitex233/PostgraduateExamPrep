@@ -45,7 +45,9 @@ PostgraduateExamPrep/
     README.md                    # 英文进度工作流
     README.zh-CN.md              # 简体中文进度工作流
     DailyLogs/                   # 带 YAML frontmatter 的每日记录
+    Summaries/                   # 稳定的月度分科汇总
     Reviews/                     # 周复盘与阶段复盘
+    Imports/                     # 用于历史补录的原始导出数据
     ProgressIndex.md             # 长期路线与历史汇总
     Roadmap.md                   # 目标与阶段规划
     dashboard.html               # 生成后的 Capsule 看板
@@ -74,7 +76,7 @@ StudyProgress/DailyLogs/YYYY-MM/YYYY-MM-DD.md
 python scripts/build_dashboard.py
 ```
 
-看板的历史归档与月度部分还会读取 `StudyProgress/ProgressIndex.md` 中的稳定汇总结构，以及存在时的 `StudyProgress/DailyLogs/Monthly/*.md`。
+看板的历史归档与月度部分还会读取 `StudyProgress/ProgressIndex.md` 中的稳定汇总结构，以及存在时的 `StudyProgress/Summaries/Monthly/*.md`。用于历史补录的原始导出数据单独保存在 `StudyProgress/Imports/`。
 
 完整规则见 [StudyProgress 工作流](StudyProgress/README.zh-CN.md)。
 

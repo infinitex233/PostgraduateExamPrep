@@ -34,8 +34,11 @@ Before changing files:
 
 ## Repository map
 
-- `StudyProgress/` contains daily logs, progress indexes, plans, reviews, and
-  the generated dashboard.
+- `StudyProgress/` contains daily logs, progress indexes, plans, reviews,
+  monthly summaries, raw imports, and the generated dashboard.
+- `StudyProgress/Summaries/Monthly/` contains optional monthly subject summaries
+  used by archive views.
+- `StudyProgress/Imports/` contains raw exports used for historical backfill.
 - `StudyMaterials/408/` contains local 408 textbook PDFs.
 - `StudyMaterials/Math/Basic/` contains foundation-stage mathematics PDFs.
 - `StudyMaterials/Math/Intensive/` contains intensive-stage mathematics PDFs.
@@ -127,7 +130,7 @@ python scripts/build_dashboard.py
 Structured daily-log metrics come only from YAML frontmatter; never infer
 minutes or progress from prose. Archive and monthly presentation also reads the
 stable sections in `StudyProgress/ProgressIndex.md` and optional summaries under
-`StudyProgress/DailyLogs/Monthly/`.
+`StudyProgress/Summaries/Monthly/`.
 
 Data aggregation lives in `scripts/build_dashboard.py`. Archive enrichment,
 rendering, layout, Capsule colors, typography, and stale-output cleanup live in

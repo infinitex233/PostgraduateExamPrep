@@ -11,6 +11,16 @@ class DashboardVariantTests(unittest.TestCase):
         self.assertEqual(variants.display_subject("数学-线代"), "数学-线代")
         self.assertEqual(variants.canonical_subject("数学-概统"), "数学-概率")
 
+    def test_monthly_summaries_use_dedicated_directory(self):
+        self.assertEqual(
+            variants.MONTHLY_SUMMARY_DIR,
+            variants.ROOT / "StudyProgress" / "Summaries" / "Monthly",
+        )
+        self.assertIn(
+            {"name": "数学-高数", "minutes": 3608},
+            variants.parse_monthly_subjects("2026-03"),
+        )
+
     def test_variant_renderer_outputs_single_capsule_dashboard(self):
         with TemporaryDirectory() as tmp:
             out_dir = Path(tmp)

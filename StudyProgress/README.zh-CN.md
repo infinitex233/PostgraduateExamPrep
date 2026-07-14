@@ -23,6 +23,7 @@ StudyProgress/
     _template.md               # 标准 frontmatter 与日志结构
     YYYY-MM/
       YYYY-MM-DD.md
+  Summaries/
     Monthly/                   # 可选的月度分科汇总
   Reviews/
     Weekly/
@@ -30,6 +31,7 @@ StudyProgress/
       YYYY-Www.md
     Stage/
       _template.md
+  Imports/                     # 用于历史补录的原始导出数据
 ```
 
 ## 每日记录工作流
@@ -78,7 +80,8 @@ StudyProgress/
 - `ProgressIndex.md` 是长期路线和历史总览。其月度概览与阶段性观察结构应保持稳定，因为看板会读取这些部分展示历史归档。
 - `Roadmap.md` 保存目标和阶段规划，不承担每日事实记录。
 - `Reviews/Weekly/` 和 `Reviews/Stage/` 只在用户请求周复盘或阶段复盘时维护，无需每日更新。
-- `DailyLogs/Monthly/` 可提供看板历史卡片使用的月度分科汇总。
+- `Summaries/Monthly/` 可提供看板历史卡片使用的月度分科汇总。
+- `Imports/` 保存用于历史补录的原始导出数据，并与每日日志分开管理。
 
 本系统的首要目标是可靠记录和复盘；经验帖素材可以在积累充分后再从记录中提炼。
 
@@ -87,7 +90,7 @@ StudyProgress/
 生成后的看板使用两层数据：
 
 1. 每日和当前的结构化指标只读取 `DailyLogs/**/YYYY-MM-DD.md` 的 frontmatter。
-2. 历史归档和月度展示还会读取 `ProgressIndex.md` 中的稳定汇总结构，以及 `DailyLogs/Monthly/` 下存在的月度文件。
+2. 历史归档和月度展示还会读取 `ProgressIndex.md` 中的稳定汇总结构，以及 `Summaries/Monthly/` 下存在的月度文件。
 
 生成链路如下：
 

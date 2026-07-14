@@ -21,7 +21,7 @@ from scripts import build_dashboard
 
 OUT_DIR = ROOT / "StudyProgress"
 PROGRESS_INDEX = ROOT / "StudyProgress" / "ProgressIndex.md"
-MONTHLY_LOG_DIR = ROOT / "StudyProgress" / "DailyLogs" / "Monthly"
+MONTHLY_SUMMARY_DIR = ROOT / "StudyProgress" / "Summaries" / "Monthly"
 DASHBOARD_OUT = "dashboard.html"
 STALE_DASHBOARD_FILES = [
     "dashboard_signal.html",
@@ -99,7 +99,7 @@ def parse_named_durations(text: str, pattern: str) -> list[dict]:
 
 def parse_monthly_subjects(month: str) -> list[dict]:
     """Read concrete subject totals from a monthly summary note."""
-    path = MONTHLY_LOG_DIR / f"{month}.md"
+    path = MONTHLY_SUMMARY_DIR / f"{month}.md"
     if not path.exists():
         return []
 
