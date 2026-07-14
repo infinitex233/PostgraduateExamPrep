@@ -6,6 +6,11 @@ from scripts import build_dashboard_variants as variants
 
 
 class DashboardVariantTests(unittest.TestCase):
+    def test_probability_subject_uses_display_name_without_changing_data_key(self):
+        self.assertEqual(variants.display_subject("数学-概率"), "数学-概统")
+        self.assertEqual(variants.display_subject("数学-线代"), "数学-线代")
+        self.assertEqual(variants.canonical_subject("数学-概统"), "数学-概率")
+
     def test_variant_renderer_outputs_single_capsule_dashboard(self):
         with TemporaryDirectory() as tmp:
             out_dir = Path(tmp)
@@ -34,14 +39,14 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("#A8E6CF", capsule_dashboard)
             self.assertGreaterEqual(capsule_dashboard.count("class=\"slide"), 5)
             self.assertIn("2026-03 至 2026-07", capsule_dashboard)
-            self.assertIn("515h45m", capsule_dashboard)
-            self.assertIn("考研相关 437h11m", capsule_dashboard)
+            self.assertIn("523h32m", capsule_dashboard)
+            self.assertIn("考研相关 444h58m", capsule_dashboard)
             self.assertIn("课内/其他 78h34m", capsule_dashboard)
-            self.assertIn("98天", capsule_dashboard)
+            self.assertIn("99天", capsule_dashboard)
             self.assertIn("距初试首日", capsule_dashboard)
-            self.assertIn("160天", capsule_dashboard)
-            self.assertNotIn("98 天", capsule_dashboard)
-            self.assertNotIn("160 天", capsule_dashboard)
+            self.assertIn("159天", capsule_dashboard)
+            self.assertNotIn("99 天", capsule_dashboard)
+            self.assertNotIn("159 天", capsule_dashboard)
             self.assertIn("grid-template-columns:repeat(5,1fr)", capsule_dashboard)
             self.assertIn("月度概览", capsule_dashboard)
             self.assertIn("2026-03", capsule_dashboard)
@@ -54,6 +59,9 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertNotIn("考研 102h2m", capsule_dashboard)
             self.assertNotIn("考研 71h26m", capsule_dashboard)
             self.assertIn("数学-高数 · 241h47m", capsule_dashboard)
+            self.assertIn("数学-概统 · 5h55m", capsule_dashboard)
+            self.assertIn('title="数学-概统 5h55m"', capsule_dashboard)
+            self.assertIn('"数学-概率": "#C5B5E0"', capsule_dashboard)
             self.assertIn("archive-subject-grid { display:grid; grid-template-columns:1fr", capsule_dashboard)
             self.assertIn("grid-template-columns:220px minmax(360px,1fr) 110px", capsule_dashboard)
             self.assertIn(".archive-subject-grid .capsule-track { height:42px; }", capsule_dashboard)

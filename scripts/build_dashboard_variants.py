@@ -42,6 +42,17 @@ CAPSULE_SUBJECT_COLORS = {
     "政治": "#C5B5E0",
 }
 CAPSULE_DEFAULT_COLOR = "#FFFFFF"
+SUBJECT_DISPLAY_NAMES = {
+    "数学-概率": "数学-概统",
+}
+
+
+def display_subject(subject: str) -> str:
+    return SUBJECT_DISPLAY_NAMES.get(subject, subject)
+
+
+def canonical_subject(subject: str) -> str:
+    return "数学-概率" if subject == "数学-概统" else subject
 
 
 def fmt_minutes(minutes: int | float | None) -> str:
@@ -80,7 +91,7 @@ def parse_named_durations(text: str, pattern: str) -> list[dict]:
         if not item:
             continue
         items.append({
-            "name": item.group(1).strip(),
+            "name": canonical_subject(item.group(1).strip()),
             "minutes": parse_duration(item.group(2)),
         })
     return items
@@ -531,7 +542,7 @@ def render_capsule_dashboard(data: dict) -> str:
 
     latest_subjects = "\n".join(
         f'<div class="latest-pill" style="--fill:{capsule_color(item["name"])}">'
-        f'<b>{esc(item["name"])}</b><span>{esc(item.get("detail") or item.get("result") or "未说明")}</span>'
+        f'<b>{esc(display_subject(item["name"]))}</b><span>{esc(item.get("detail") or item.get("result") or "未说明")}</span>'
         f'<em>{fmt_minutes(item.get("time_min"))}</em></div>'
         for item in (latest.get("subjects") or [])[:7]
     )
@@ -545,7 +556,7 @@ def render_capsule_dashboard(data: dict) -> str:
         for subject, minutes in (day.get("subjects") or {}).items():
             seg_height = (minutes / day["total"] * 100) if day.get("total") else 0
             segments.append(
-                f'<i title="{esc(subject)} {fmt_minutes(minutes)}" '
+                f'<i title="{esc(display_subject(subject))} {fmt_minutes(minutes)}" '
                 f'style="height:{seg_height:.1f}%;background:{capsule_color(subject)}"></i>'
             )
         trend_bars.append(
@@ -563,7 +574,7 @@ def render_capsule_dashboard(data: dict) -> str:
                 {"name": "其它", "minutes": month.get("other_minutes")},
             ]
         return " · ".join(
-            f'{esc(item["name"])} {fmt_minutes(item.get("minutes"))}'
+            f'{esc(display_subject(item["name"]))} {fmt_minutes(item.get("minutes"))}'
             for item in subjects[:5]
             if item.get("minutes")
         )
@@ -577,20 +588,20 @@ def render_capsule_dashboard(data: dict) -> str:
     ) or '<div class="empty-pill">暂无月度概览。</div>'
 
     legend_html = "\n".join(
-        f'<span class="legend-pill" style="--fill:{capsule_color(name)}">{esc(name)} · {fmt_minutes(minutes)}</span>'
+        f'<span class="legend-pill" style="--fill:{capsule_color(name)}">{esc(display_subject(name))} · {fmt_minutes(minutes)}</span>'
         for name, minutes in subjects
     )
 
     subject_rows = "\n".join(
-        f'<div class="subject-pill" style="--fill:{capsule_color(name)}"><b>{esc(name)}</b>'
+        f'<div class="subject-pill" style="--fill:{capsule_color(name)}"><b>{esc(display_subject(name))}</b>'
         f'<div class="capsule-track"><i style="width:{pct(minutes, max_subject):.1f}%"></i></div>'
         f'<span>{fmt_minutes(minutes)}</span></div>'
         for name, minutes in subjects
     ) or '<div class="empty-pill">暂无可统计时长。</div>'
 
     archive_exam_rows = "\n".join(
-        f'<div class="subject-pill" aria-label="{esc(item["name"])} · {fmt_minutes(item["minutes"])}" '
-        f'style="--fill:{capsule_color(item["name"])}"><b>{esc(item["name"])}</b>'
+        f'<div class="subject-pill" aria-label="{esc(display_subject(item["name"]))} · {fmt_minutes(item["minutes"])}" '
+        f'style="--fill:{capsule_color(item["name"])}"><b>{esc(display_subject(item["name"]))}</b>'
         f'<div class="capsule-track"><i style="width:{pct(item["minutes"], max_exam_subject):.1f}%"></i></div>'
         f'<span>{fmt_minutes(item["minutes"])}</span></div>'
         for item in archive_exam_subjects
@@ -606,7 +617,7 @@ def render_capsule_dashboard(data: dict) -> str:
     )
     if not issue_items:
         issue_items = "\n".join(
-            f'<div class="action-pill muted">{esc(item["subject"])}：{esc(item["message"])}'
+            f'<div class="action-pill muted">{esc(display_subject(item["subject"]))}：{esc(item["message"])}'
             f'{(" · 上次 " + esc(item["last_seen"])) if item.get("last_seen") else ""}</div>'
             for item in (data.get("alerts") or [])[:3]
         )
@@ -618,7 +629,7 @@ def render_capsule_dashboard(data: dict) -> str:
         chapter = latest_chapter.get("chapter") or "尚未记录章节进度"
         status = latest_chapter.get("status") or ""
         progress_rows.append(
-            f'<div class="progress-pill" style="--fill:{capsule_color(name)}"><b>{esc(name)}</b>'
+            f'<div class="progress-pill" style="--fill:{capsule_color(name)}"><b>{esc(display_subject(name))}</b>'
             f'<span>{esc(chapter)}{(" · " + esc(status)) if status else ""}</span>'
             f'<em>{done} 章完结 · {fmt_minutes(minutes)}</em>'
             f'<div class="mini-track"><i style="width:{pct(minutes, max_subject):.1f}%"></i></div></div>'
@@ -640,7 +651,7 @@ def render_capsule_dashboard(data: dict) -> str:
 
     subject_color_json = json.dumps(CAPSULE_SUBJECT_COLORS, ensure_ascii=False)
     color_swatches = "\n".join(
-        f'<span style="--fill:{color}">{esc(name)}</span>'
+        f'<span style="--fill:{color}">{esc(display_subject(name))}</span>'
         for name, color in CAPSULE_SUBJECT_COLORS.items()
     )
 

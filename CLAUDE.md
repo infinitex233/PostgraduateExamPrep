@@ -2,6 +2,13 @@
 
 This file is the concise Claude Code entry point for this repository.
 
+## No Subagents
+
+- Never call or spawn subagents in this repository.
+- Do not use the `Agent` or `Task` tools, agent teams, background agents, or worktree-isolated agents.
+- Complete all exploration, planning, implementation, review, and verification directly in the main session, regardless of task complexity.
+- Do not create `.claude/worktrees`. Planning may be done in the main session without delegation.
+
 ## Read First
 
 `AGENTS.md` is the authoritative source for repository policy and overrides this file. Read it before changing files, followed by the relevant operational guide:
