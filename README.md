@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-A file-based study management system for China's 11408 postgraduate entrance examination. It keeps daily progress, stage plans, textbook retrieval, review notes, and a generated study dashboard in one repository.
+A file-based study management system for the 11408 postgraduate entrance examination. It keeps daily progress, stage plans, textbook retrieval, review notes, and a generated study dashboard in one repository.
 
 ## Exam Scope
 
