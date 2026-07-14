@@ -2,6 +2,8 @@
 
 [English](README.md) | 简体中文
 
+[![Deploy study dashboard](https://github.com/infinitex233/PostgraduateExamPrep/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/infinitex233/PostgraduateExamPrep/actions/workflows/deploy-pages.yml)
+
 一个面向 11408 考研的文件化学习管理系统，在同一仓库中维护每日进度、阶段规划、教材检索、复习笔记和自动生成的学习看板。
 
 ## 考试范围
