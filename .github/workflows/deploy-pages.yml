@@ -32,6 +32,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install dashboard dependency
+        run: python -m pip install pyyaml
+
       - name: Test dashboard builders
         run: python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
 
