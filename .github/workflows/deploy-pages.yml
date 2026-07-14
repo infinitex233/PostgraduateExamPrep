@@ -1,0 +1,53 @@
+name: Deploy study dashboard
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - StudyProgress/**
+      - scripts/build_dashboard.py
+      - scripts/build_dashboard_variants.py
+      - scripts/test_build_dashboard.py
+      - scripts/test_build_dashboard_variants.py
+      - .github/workflows/deploy-pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test dashboard builders
+        run: python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
+
+      - name: Build dashboard
+        run: python scripts/build_dashboard.py
+
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p _site
+          cp StudyProgress/dashboard.html _site/index.html
+          touch _site/.nojekyll
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./_site
+          force_orphan: true
