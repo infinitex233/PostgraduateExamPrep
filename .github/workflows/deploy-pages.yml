@@ -14,14 +14,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -41,16 +46,20 @@ jobs:
       - name: Build dashboard
         run: python scripts/build_dashboard.py
 
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Prepare Pages artifact
         run: |
           mkdir -p _site
           cp StudyProgress/dashboard.html _site/index.html
           touch _site/.nojekyll
 
-      - name: Publish to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./_site
-          force_orphan: true
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
