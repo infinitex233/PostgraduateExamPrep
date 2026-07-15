@@ -2,11 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-[![Deploy study dashboard](https://github.com/infinitex233/PostgraduateExamPrep/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/infinitex233/PostgraduateExamPrep/actions/workflows/deploy-pages.yml)
-
 A file-based study management system for the 11408 postgraduate entrance examination. It keeps daily progress, stage plans, textbook retrieval, review notes, and a generated study dashboard in one repository.
-
-[Open the live study dashboard](https://infinitex233.github.io/PostgraduateExamPrep/)
 
 ## Exam Scope
 
