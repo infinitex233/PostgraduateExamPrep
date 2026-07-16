@@ -66,6 +66,33 @@ Agent instruction files such as `AGENTS.md` and `CLAUDE.md` remain in English.
 Canonical subject names and literal schema values may remain in Chinese when
 the code depends on them.
 
+## Mathematical notation
+
+Format formulas in CLI-facing responses and transferable Markdown so they can
+be pasted into Typora and rendered directly:
+
+- Use `$...$` for inline formulas.
+- Use `$$...$$` for display formulas, with the opening and closing `$$` on
+  separate lines and blank lines around the block.
+- Do not use `\\(...\\)` or `\\[...\\]` as math delimiters.
+- Do not place formulas that should render inside fenced code blocks.
+
+## Python environment
+
+- A repository-local `.venv` is optional, not a requirement for every Python
+  task.
+- When `.venv/bin/python` exists, prefer invoking it explicitly for repository
+  Python commands so installed OCR, dashboard, and document-processing
+  dependencies are available.
+- Do not assume a global `python` command exists or that virtual-environment
+  activation persists between shell commands. Use `.venv/bin/python` directly
+  instead of relying on `source .venv/bin/activate` in agent-run commands.
+- If `.venv` is absent, use an available Python 3 interpreter only when the
+  required dependencies are already installed.
+- Do not create, delete, recreate, or upgrade `.venv` unless dependencies are
+  missing, environment maintenance is part of the task, or the user explicitly
+  requests it.
+
 ## File and Git safety
 
 - Keep daily progress records under `StudyProgress/`.
@@ -86,8 +113,9 @@ the code depends on them.
   readable, and free of temporary or diagnostic artifacts.
 - Do not commit credentials, tokens, cookies, browser profiles, personal export
   files, or machine-specific diagnostics.
-- Remove `tmp/`, `__pycache__/`, `.pytest_cache/`, rendered PDF pages, OCR
-  diagnostics, PID files, screenshots, and other one-off artifacts after use.
+- At the end of every task, remove the entire `tmp/` directory, including when
+  it is empty, together with `__pycache__/`, `.pytest_cache/`, rendered PDF
+  pages, OCR diagnostics, PID files, screenshots, and other one-off artifacts.
 - Do not commit or push unless the user asks. Before either action, inspect the
   staged diff and verify that ignored or sensitive files are absent.
 
