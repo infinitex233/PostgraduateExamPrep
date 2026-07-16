@@ -22,6 +22,18 @@ class DashboardVariantTests(unittest.TestCase):
         )
 
     def test_variant_renderer_outputs_single_capsule_dashboard(self):
+        data = variants.enriched_data()
+        summary = data["summary"]
+        archive = data["archive"]
+        months = archive["months"]
+        archive_days = sum(month["days"] for month in months)
+        exam_subjects = {
+            item["name"]: item["minutes"] for item in archive["exam_subjects"]
+        }
+        latest_probability_day = next(
+            day for day in reversed(data["daily"]) if "数学-概率" in day["subjects"]
+        )
+
         with TemporaryDirectory() as tmp:
             out_dir = Path(tmp)
             paths = variants.build_variants(out_dir=out_dir)
@@ -48,15 +60,23 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("#F5B895", capsule_dashboard)
             self.assertIn("#A8E6CF", capsule_dashboard)
             self.assertGreaterEqual(capsule_dashboard.count("class=\"slide"), 5)
-            self.assertIn("2026-03 至 2026-07", capsule_dashboard)
-            self.assertIn("523h32m", capsule_dashboard)
-            self.assertIn("考研相关 444h58m", capsule_dashboard)
-            self.assertIn("课内/其他 78h34m", capsule_dashboard)
-            self.assertIn("99天", capsule_dashboard)
+            self.assertIn(f'{months[0]["month"]} 至 {months[-1]["month"]}', capsule_dashboard)
+            self.assertIn(
+                variants.fmt_minutes(summary["archive_total_minutes"]), capsule_dashboard
+            )
+            self.assertIn(
+                f'考研相关 {variants.fmt_minutes(summary["archive_exam_minutes"])}',
+                capsule_dashboard,
+            )
+            self.assertIn(
+                f'课内/其他 {variants.fmt_minutes(summary["archive_other_minutes"])}',
+                capsule_dashboard,
+            )
+            self.assertIn(f"{archive_days}天", capsule_dashboard)
             self.assertIn("距初试首日", capsule_dashboard)
-            self.assertIn("159天", capsule_dashboard)
-            self.assertNotIn("99 天", capsule_dashboard)
-            self.assertNotIn("159 天", capsule_dashboard)
+            self.assertIn(f'{summary["days_to_exam"]}天', capsule_dashboard)
+            self.assertNotIn(f"{archive_days} 天", capsule_dashboard)
+            self.assertNotIn(f'{summary["days_to_exam"]} 天', capsule_dashboard)
             self.assertIn("grid-template-columns:repeat(5,1fr)", capsule_dashboard)
             self.assertIn("月度概览", capsule_dashboard)
             self.assertIn("2026-03", capsule_dashboard)
@@ -68,9 +88,19 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("其它 55h54m", capsule_dashboard)
             self.assertNotIn("考研 102h2m", capsule_dashboard)
             self.assertNotIn("考研 71h26m", capsule_dashboard)
-            self.assertIn("数学-高数 · 241h47m", capsule_dashboard)
-            self.assertIn("数学-概统 · 5h55m", capsule_dashboard)
-            self.assertIn('title="数学-概统 5h55m"', capsule_dashboard)
+            self.assertIn(
+                f'数学-高数 · {variants.fmt_minutes(exam_subjects["数学-高数"])}',
+                capsule_dashboard,
+            )
+            self.assertIn(
+                f'数学-概统 · {variants.fmt_minutes(exam_subjects["数学-概率"])}',
+                capsule_dashboard,
+            )
+            self.assertIn(
+                'title="数学-概统 '
+                f'{variants.fmt_minutes(latest_probability_day["subjects"]["数学-概率"])}"',
+                capsule_dashboard,
+            )
             self.assertIn('"数学-概率": "#C5B5E0"', capsule_dashboard)
             self.assertIn("archive-subject-grid { display:grid; grid-template-columns:1fr", capsule_dashboard)
             self.assertIn("grid-template-columns:220px minmax(360px,1fr) 110px", capsule_dashboard)
