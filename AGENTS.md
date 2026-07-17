@@ -76,6 +76,12 @@ be pasted into Typora and rendered directly:
   separate lines and blank lines around the block.
 - Do not use `\\(...\\)` or `\\[...\\]` as math delimiters.
 - Do not place formulas that should render inside fenced code blocks.
+- Use Markdown heading syntax for section and knowledge-point titles, with a
+  space after each `#` and heading levels that reflect the structure. For
+  example, write `## 9. 二维随机变量函数的分布` rather than plain or bold text.
+- Keep headings and formulas separate: never write `# $$`, `## $$`, or put a
+  heading marker on the same line as a formula delimiter. Put the heading on
+  its own line, leave a blank line, then place the `$$` block on separate lines.
 
 ## Python environment
 
