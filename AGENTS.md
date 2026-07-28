@@ -79,9 +79,67 @@ be pasted into Typora and rendered directly:
 - Use Markdown heading syntax for section and knowledge-point titles, with a
   space after each `#` and heading levels that reflect the structure. For
   example, write `## 9. 二维随机变量函数的分布` rather than plain or bold text.
-- Keep headings and formulas separate: never write `# $$`, `## $$`, or put a
-  heading marker on the same line as a formula delimiter. Put the heading on
-  its own line, leave a blank line, then place the `$$` block on separate lines.
+- Treat standalone-formula formatting as a hard output constraint for every
+  CLI-facing response and every Markdown file. Any formula intended to occupy
+  an entire line must be a display-math block; never use Markdown heading syntax
+  (`#`, `##`, and so on) to introduce, prefix, enlarge, or format that formula.
+  In particular, never write `# $$`, `## $$`, or put `#` on the equation line
+  inside a display-math block.
+- A heading may contain an inline formula delimited by single dollar signs when
+  the formula is genuinely part of the title. For example,
+  `## 2. 随机变量 $X$ 的方差` is valid because the formula is inline within
+  descriptive heading text. Do not turn a standalone formula into a heading.
+- A display-math delimiter line must contain exactly `$$` after trimming
+  whitespace. Do not prefix it with `#`, a list marker, a blockquote marker, or
+  any other Markdown syntax, and do not put an equation on the delimiter line.
+  Put any heading or explanatory text on its own line, leave a blank line, then
+  put the opening `$$`, equation body, and closing `$$` on separate lines.
+- Use this literal structure for a titled display equation:
+
+  ```markdown
+  ## 2. 方差
+
+  $$
+  D(X)=E(X^2)-[E(X)]^2
+  $$
+  ```
+
+  The following structures are invalid and must never be emitted:
+  `# $$`, `## $$`, `### $$ E(X) $$`, `- $$`, `> $$`, and
+  `$$ E(X)=\sum_i x_i p_i $$`.
+- Before sending a math-heavy response or finishing a Markdown edit, scan the
+  output for standalone formulas preceded by heading markers, heading lines
+  containing `$$` (equivalent to `^#{1,6} .*\$\$`), and display delimiters that
+  share a line with other content. Rewrite any match before handing the result
+  back. Do not flag valid inline math within descriptive heading text, such as
+  `## 随机变量 $X$ 的数学期望`.
+- Favor conservative Typora-compatible math structure over dense LaTeX. Keep
+  each display block to one logical equation or one short derivation.
+- Split long equality chains across separate `$$` blocks when they contain
+  multiple matrices, determinants, cases, or transformation steps. Leave a
+  blank line between consecutive display blocks and between a display block
+  and surrounding prose or headings.
+- When a multi-line derivation genuinely needs alignment, wrap it in an
+  `aligned` environment and use explicit `&=` alignment points. Do not rely on
+  ordinary source line breaks to align equations.
+- For explicit spacing inside Typora math, use a backslash followed by a normal
+  space (`\ `). Do not use `\,` or allow it to appear in generated formulas;
+  in the user's copy-and-render path it can degrade into a visible comma.
+- Write equality and relation operators directly on the same source line as the
+  surrounding expression. Never put `=`, `<`, `>`, `\leq`, `\geq`, or a similar
+  operator alone on its own source line inside a math block. For a one-line
+  equation, write `I^2=\pi`. For a multi-line derivation, write each step inside
+  `aligned`, such as `I^2&=\int_0^{2\pi}\frac12\ \mathrm{d}\theta\\` followed by
+  `&=\pi`; never write `I^2`, then a line containing only `=`, then the next
+  expression.
+- Before sending a math-heavy response or finishing a Markdown edit, reject any
+  occurrence of `\,` and scan display-math bodies for lines consisting only of
+  a relation operator (equivalent to
+  `^\s*(=|<|>|\\leq|\\geq)\s*$`). Rewrite each match using `\ ` for spacing and
+  an inline `=` or an `aligned` `&=` relation.
+- Use `\frac` in inline math and avoid inline `\dfrac`, which can disrupt line
+  height in Typora. Move visually large or important fractions into their own
+  display block.
 
 ## Python environment
 

@@ -27,7 +27,9 @@ StudyMaterials/
     Math/
       Basic/
       Intensive/
-  BookNotes/                   # 每本教材一份滚动 Markdown 笔记
+  BookNotes/                   # 按学科类别组织滚动教材笔记
+    Math/                      # 数学教材笔记
+    408/                       # 408 教材笔记
   English/
     WritingTemplates/
       index.html               # Git 跟踪的浏览器版本
@@ -115,12 +117,12 @@ OCR 缓存命中只定位候选 **PDF 页**，不是最终证据。
 
 ## 逐章教材笔记
 
-`BookNotes/` 中每本教材维护一份滚动 Markdown 笔记。笔记在复习过程中按章节更新，不一次性总结整本书。
+`BookNotes/` 按学科类别组织滚动教材笔记：数学笔记放在 `BookNotes/Math/`，408 笔记放在 `BookNotes/408/`。每本教材维护一份滚动 Markdown 笔记，在复习过程中按章节更新，不一次性总结整本书。
 
 用户请求整理某章时：
 
 1. 定位对应源 PDF 和相关页面。
-2. 打开或创建 `BookNotes/<书名>.md`。
+2. 打开或创建 `BookNotes/Math/<书名>.md` 或 `BookNotes/408/<书名>.md`。
 3. 只更新当前复习的章节。
 4. 对已有章节增量合并已核实内容，不整章覆盖。
 5. 保留用户的增删、排序、标注和个人表述。

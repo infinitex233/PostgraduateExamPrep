@@ -27,7 +27,9 @@ StudyMaterials/
     Math/
       Basic/
       Intensive/
-  BookNotes/                   # One rolling Markdown note per textbook
+  BookNotes/                   # Rolling notes grouped by subject family
+    Math/                      # Mathematics textbook notes
+    408/                       # 408 textbook notes
   English/
     WritingTemplates/
       index.html               # Tracked browser version
@@ -115,12 +117,12 @@ If either value cannot be confirmed, state that explicitly. Never invent textboo
 
 ## Chapter-by-Chapter Book Notes
 
-`BookNotes/` contains one rolling Markdown note per textbook. Update it during review, chapter by chapter, instead of summarizing an entire book in one pass.
+`BookNotes/` groups rolling textbook notes by subject family: mathematics notes live under `BookNotes/Math/`, and 408 notes live under `BookNotes/408/`. Keep one rolling Markdown note per textbook and update it during review, chapter by chapter, instead of summarizing an entire book in one pass.
 
 When a chapter is requested:
 
 1. Locate the corresponding source PDF and relevant pages.
-2. Open or create `BookNotes/<book name>.md`.
+2. Open or create `BookNotes/Math/<book name>.md` or `BookNotes/408/<book name>.md`.
 3. Update only the chapter currently under review.
 4. Merge verified material into an existing chapter rather than replacing it wholesale.
 5. Preserve the user's additions, deletions, ordering, annotations, and personal wording.
