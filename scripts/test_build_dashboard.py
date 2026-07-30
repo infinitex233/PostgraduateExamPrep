@@ -120,6 +120,53 @@ class DashboardAggregationTests(unittest.TestCase):
         self.assertEqual(data["latest_log"]["next_actions"], ["补计组习题", "复盘线代错题"])
         self.assertEqual(data["latest_log"]["subjects"][0]["detail"], "矩阵习题")
 
+    def test_home_status_uses_recent_main_lines_and_latest_next_nodes(self):
+        data = aggregate([
+            {
+                "date": "2026-07-27",
+                "phase": "强化阶段",
+                "total_minutes": 240,
+                "subjects": [
+                    {"name": "数学-高数", "time_min": 150, "detail": "第一章"},
+                    {"name": "专业课-组成原理", "time_min": 90, "detail": "5.3 节"},
+                ],
+                "progress": [],
+                "tags": [],
+            },
+            {
+                "date": "2026-07-28",
+                "phase": "强化阶段",
+                "total_minutes": 330,
+                "subjects": [
+                    {
+                        "name": "数学-高数",
+                        "time_min": 180,
+                        "detail": "第一章收尾",
+                        "next": "完成第一章严选题。",
+                    },
+                    {
+                        "name": "专业课-组成原理",
+                        "time_min": 120,
+                        "detail": "5.4 节",
+                        "next": "继续 5.4 节。",
+                    },
+                    {"name": "英语", "time_min": 30, "detail": "单词"},
+                ],
+                "review": {
+                    "next_actions": ["完成高数第一章严选题。", "继续学习计组 5.4 节。"],
+                },
+                "progress": [],
+                "tags": [],
+            },
+        ])
+
+        self.assertEqual(data["home_status"]["phase"], "强化阶段进行中")
+        self.assertEqual(data["home_status"]["main"], "高数强化 × 组成原理")
+        self.assertEqual(
+            data["home_status"]["next"],
+            "完成高数第一章严选题 · 继续学习计组 5.4 节",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

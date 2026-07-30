@@ -51,6 +51,15 @@ GROUP_COLORS = {
     "政治": "#C09AA7",
     "其他": "#9A948D",
 }
+HOME_SUBJECT_LABELS = {
+    "数学-高数": "高数",
+    "数学-线代": "线代",
+    "数学-概率": "概统",
+    "专业课-数据结构": "数据结构",
+    "专业课-组成原理": "组成原理",
+    "专业课-操作系统": "操作系统",
+    "专业课-计算机网络": "计算机网络",
+}
 
 # 初试首日（思想政治理论），用于封面倒计时。11408 初试固定在 12 月，2026 年为 12/20-21。
 EXAM_DATE = date(2026, 12, 20)
@@ -92,6 +101,52 @@ def latest_nonempty(logs: list[dict], key: str) -> str:
         if value:
             return str(value)
     return "未说明"
+
+
+def build_home_status(recent: dict, latest_log: dict, phase: str) -> dict[str, str]:
+    """Build the compact, record-driven status shown on the dashboard home."""
+    if not phase or phase == "未说明":
+        phase_status = "阶段待记录"
+    elif phase.endswith("进行中"):
+        phase_status = phase
+    else:
+        phase_status = f"{phase}进行中"
+
+    ranked_subjects = sorted(
+        (
+            (subject, minutes)
+            for subject, minutes in (recent.get("subject_totals") or {}).items()
+            if minutes > 0
+        ),
+        key=lambda item: (-item[1], item[0]),
+    )
+    main_labels = []
+    for subject, _ in ranked_subjects[:2]:
+        label = HOME_SUBJECT_LABELS.get(subject, subject)
+        if subject.startswith("数学-") and "强化" in phase:
+            label = f"{label}强化"
+        main_labels.append(label)
+
+    next_actions = clean_list(latest_log.get("next_actions"))
+    if not next_actions:
+        next_actions = [
+            item["next"]
+            for item in (latest_log.get("subjects") or [])
+            if item.get("next")
+        ]
+    next_nodes = []
+    for action in next_actions:
+        node = action.rstrip("。；; ")
+        if node and node not in next_nodes:
+            next_nodes.append(node)
+        if len(next_nodes) == 2:
+            break
+
+    return {
+        "phase": phase_status,
+        "main": " × ".join(main_labels) or "待记录",
+        "next": " · ".join(next_nodes) or "待记录",
+    }
 
 
 def parse_frontmatter(text: str) -> dict | None:
@@ -236,6 +291,8 @@ def aggregate(logs: list[dict]) -> dict:
 
     recent = recent_summary(daily, window_days=7)
     timeline_events = build_timeline_events(progress_rows, timeline)
+    current_phase = latest_nonempty(logs, "phase")
+    home_status = build_home_status(recent, latest_log or {}, current_phase)
 
     today = date.today()
     days_to_exam = (EXAM_DATE - today).days
@@ -253,6 +310,7 @@ def aggregate(logs: list[dict]) -> dict:
         "progress_rows": progress_rows,
         "latest_chapter": latest_chapter,
         "latest_log": latest_log or {},
+        "home_status": home_status,
         "timeline": timeline,
         "timeline_events": timeline_events,
         "recent": recent,
@@ -264,7 +322,7 @@ def aggregate(logs: list[dict]) -> dict:
             "first_date": daily[0]["date"] if daily else None,
             "last_date": daily[-1]["date"] if daily else None,
             "avg_minutes": round(total_minutes / studied_days) if studied_days else 0,
-            "current_phase": latest_nonempty(logs, "phase"),
+            "current_phase": current_phase,
             "latest_focus": (latest_log or {}).get("focus") or "未说明",
             "exam_date": EXAM_DATE.isoformat(),
             "days_to_exam": days_to_exam,

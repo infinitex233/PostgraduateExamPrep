@@ -490,20 +490,12 @@ def render_capsule_dashboard(data: dict) -> str:
     archive = data.get("archive") or {}
     months = archive.get("months") or []
     archive_total = s.get("archive_total_minutes") or s["total_minutes"]
-    archive_exam = s.get("archive_exam_minutes")
-    archive_other = s.get("archive_other_minutes")
     archive_days = sum(m.get("days", 0) for m in months) or s["studied_days"]
     archive_avg = round(archive_total / archive_days) if archive_days else s["avg_minutes"]
     archive_range = (
         f'{months[0]["month"]} 至 {months[-1]["month"]}'
         if months else f'{s["first_date"]} 至 {s["last_date"]}'
     )
-    archive_lead_parts = [f"累计 {fmt_minutes(archive_total)}"]
-    if archive_exam is not None:
-        archive_lead_parts.append(f"考研相关 {fmt_minutes(archive_exam)}")
-    if archive_other is not None:
-        archive_lead_parts.append(f"课内/其他 {fmt_minutes(archive_other)}")
-    archive_lead = "，其中".join([archive_lead_parts[0], "，".join(archive_lead_parts[1:])]) if len(archive_lead_parts) > 1 else archive_lead_parts[0]
     archive_exam_subjects = archive.get("exam_subjects") or [
         {"name": name, "minutes": minutes}
         for name, minutes in subjects
@@ -511,6 +503,11 @@ def render_capsule_dashboard(data: dict) -> str:
     ]
     capsule_data = dict(data)
     capsule_data["subject_colors"] = CAPSULE_SUBJECT_COLORS
+    home_status = data.get("home_status") or {
+        "phase": "阶段待记录",
+        "main": "待记录",
+        "next": "待记录",
+    }
 
     max_day = max((d["total"] or 0 for d in recent), default=1)
     max_subject = max((m for _, m in subjects), default=1)
@@ -709,6 +706,10 @@ h1 {{ font-size:94px; line-height:.94; }}
 h2 {{ font-size:58px; line-height:.98; }}
 h3 {{ font-size:38px; line-height:1; }}
 .lead {{ margin:18px 0 0; font-size:22px; line-height:1.58; color:rgba(26,26,26,.66); }}
+.home-status {{ margin-top:20px; color:rgba(26,26,26,.66); font-size:22px; line-height:1.5; }}
+.home-status p {{ margin:5px 0; }}
+.home-status .status-phase {{ color:var(--ink); font-weight:800; }}
+.home-status b {{ color:var(--ink); }}
 .home-grid {{ display:grid; grid-template-columns:1.18fr .82fr; gap:38px; padding-top:36px; }}
 .metric-grid {{ display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:28px; }}
 .metric-pill {{ background:var(--white); border-radius:32px; padding:24px 22px; min-height:150px; }}
@@ -776,7 +777,7 @@ h3 {{ font-size:38px; line-height:1; }}
   <span class="float f1">FOCUS</span><span class="float f2">RECORD</span><span class="float f3">NEXT</span><span class="float f4">NODE</span>
   <div class="chrome"><span>11408 CAPSULE DASHBOARD</span><span>{esc(archive_range)}</span></div>
   <div class="home-grid">
-    <div><div class="tag">Daily Progress</div><h1 style="margin-top:28px">Study<br>Progress</h1><p class="lead">{esc(s.get("current_phase") or "未说明")}。{esc(archive_lead)}。最近主线：{esc(s.get("latest_focus") or "未说明")}。</p><div class="metric-grid">{metric_html}</div><div class="swatches">{color_swatches}</div></div>
+    <div><div class="tag">Daily Progress</div><h1 style="margin-top:28px">Study<br>Progress</h1><div class="home-status"><p class="status-phase">{esc(home_status["phase"])}。</p><p><b>主线：</b>{esc(home_status["main"])}</p><p><b>下一节点：</b>{esc(home_status["next"])}</p></div><div class="metric-grid">{metric_html}</div><div class="swatches">{color_swatches}</div></div>
     <div class="pill-card latest-panel"><div><div class="mini-tag">最近一天</div><h2 style="margin-top:18px">{esc(latest.get("date") or "暂无记录")}</h2></div><p class="lead">{esc(latest.get("focus") or "暂无最新记录")}</p><div class="latest-list">{latest_subjects}</div></div>
   </div>
 </section>

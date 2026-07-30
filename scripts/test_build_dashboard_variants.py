@@ -64,14 +64,17 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn(
                 variants.fmt_minutes(summary["archive_total_minutes"]), capsule_dashboard
             )
+            home_status = data["home_status"]
             self.assertIn(
-                f'考研相关 {variants.fmt_minutes(summary["archive_exam_minutes"])}',
+                f'<p class="status-phase">{home_status["phase"]}。</p>',
                 capsule_dashboard,
             )
+            self.assertIn(f'<p><b>主线：</b>{home_status["main"]}</p>', capsule_dashboard)
             self.assertIn(
-                f'课内/其他 {variants.fmt_minutes(summary["archive_other_minutes"])}',
+                f'<p><b>下一节点：</b>{home_status["next"]}</p>',
                 capsule_dashboard,
             )
+            self.assertNotIn("最近主线：", capsule_dashboard)
             self.assertIn(f"{archive_days}天", capsule_dashboard)
             self.assertIn("距初试首日", capsule_dashboard)
             self.assertIn(f'{summary["days_to_exam"]}天', capsule_dashboard)
