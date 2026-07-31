@@ -143,19 +143,32 @@ be pasted into Typora and rendered directly:
 
 ## Python environment
 
-- A repository-local `.venv` is optional, not a requirement for every Python
-  task.
-- When `.venv/bin/python` exists, prefer invoking it explicitly for repository
-  Python commands so installed OCR, dashboard, and document-processing
-  dependencies are available.
-- Do not assume a global `python` command exists or that virtual-environment
-  activation persists between shell commands. Use `.venv/bin/python` directly
-  instead of relying on `source .venv/bin/activate` in agent-run commands.
-- If `.venv` is absent, use an available Python 3 interpreter only when the
-  required dependencies are already installed.
-- Do not create, delete, recreate, or upgrade `.venv` unless dependencies are
-  missing, environment maintenance is part of the task, or the user explicitly
-  requests it.
+- A repository-local `.venv` is optional. Its absence is normal and does not by
+  itself justify creating one.
+- Python virtual environments are platform-specific. Never reuse or copy a
+  `.venv` between Windows, WSL, and Linux repository copies.
+- Resolve the Python interpreter for the current execution environment in this
+  order:
+  - On native Windows, use `.\.venv\Scripts\python.exe` when it exists;
+    otherwise prefer `py -3`, then `python`.
+  - On Linux, WSL, or another POSIX environment, use
+    `./.venv/bin/python` when it exists; otherwise prefer `python3`, then
+    `python`.
+- Verify the selected interpreter with `--version` before using it. It must be
+  Python 3.
+- Invoke the selected interpreter explicitly for each agent-run command. Do not
+  rely on virtual-environment activation persisting between commands.
+- Commands elsewhere in this file that begin with `python` are portable
+  examples. When executing them, replace `python` with the interpreter selected
+  above.
+- Standard-library-only scripts may use any available compatible Python 3
+  interpreter. Before running OCR or document-processing scripts, verify that
+  their required third-party packages are installed in the selected
+  interpreter.
+- Do not create, delete, recreate, upgrade, or install packages into `.venv`
+  merely because it is absent. Perform environment maintenance only when the
+  current task requires missing dependencies or the user explicitly requests
+  it.
 
 ## File and Git safety
 
@@ -312,6 +325,20 @@ When updating a chapter:
 - Merge verified material into the existing chapter.
 - Preserve the user's additions, deletions, ordering, and annotations.
 - Separate textbook content from the agent's explanations or supplements.
+- Put derivations, proof ideas, detailed explanations, cautions, memory aids,
+  error analysis, and similar supplemental reasoning in Typora blockquotes.
+  Prefix each explanatory paragraph with `>` and separate quoted paragraphs
+  with a quoted blank line containing only `>`.
+- Keep formulas inside these blockquotes as `$...$` inline math so Typora
+  renders them normally. Split long derivations across multiple quoted
+  paragraphs instead of using invalid `> $$` display-math delimiters.
+- Keep primary textbook content such as definitions, theorems, standalone
+  formulas, key conclusions, method trees, procedural steps, and checklists in
+  the normal document body unless the surrounding text is itself supplemental
+  explanation.
+- When editing an existing chapter, review the nearby material and bring clear
+  supplemental explanation into blockquote compliance, but do not reformat
+  unrelated primary content merely to change its visual style.
 - Add page references for definitions, formulas, theorems, examples, key
   conclusions, and common mistakes when possible.
 - Prefer frameworks, definitions, exam patterns, error traps, and useful entry
