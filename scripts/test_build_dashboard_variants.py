@@ -1,15 +1,35 @@
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from scripts import build_dashboard_variants as variants
 
 
 class DashboardVariantTests(unittest.TestCase):
+    def test_bundled_source_serif_font_is_valid_woff2(self):
+        self.assertTrue(variants.SOURCE_SERIF_FONT.is_file())
+        self.assertEqual(variants.SOURCE_SERIF_FONT.read_bytes()[:4], b"wOF2")
+        self.assertLess(variants.SOURCE_SERIF_FONT.stat().st_size, 150_000)
+
+    def test_all_renderers_are_self_contained(self):
+        data = variants.enriched_data()
+        for html in (
+            variants.render_signal(data),
+            variants.render_capsule(data),
+            variants.render_capsule_dashboard(data),
+        ):
+            self.assertNotIn("https://", html)
+            self.assertNotIn("fonts.googleapis.com", html)
+
     def test_probability_subject_uses_display_name_without_changing_data_key(self):
         self.assertEqual(variants.display_subject("数学-概率"), "数学-概统")
         self.assertEqual(variants.display_subject("数学-线代"), "数学-线代")
         self.assertEqual(variants.canonical_subject("数学-概统"), "数学-概率")
+        self.assertEqual(
+            len(set(variants.CAPSULE_SUBJECT_COLORS.values())),
+            len(variants.CAPSULE_SUBJECT_COLORS),
+        )
 
     def test_monthly_summaries_use_dedicated_directory(self):
         self.assertEqual(
@@ -48,7 +68,24 @@ class DashboardVariantTests(unittest.TestCase):
             capsule_dashboard = (out_dir / "dashboard.html").read_text(encoding="utf-8")
             self.assertIn("width: 1920px;", capsule_dashboard)
             self.assertIn("height: 1080px;", capsule_dashboard)
-            self.assertIn("横屏", capsule_dashboard)
+            self.assertIn("mobile-panel", capsule_dashboard)
+            self.assertIn('class="mobile-nav"', capsule_dashboard)
+            for section_id in [
+                "mobile-overview",
+                "mobile-monthly",
+                "mobile-subjects",
+                "mobile-progress",
+                "mobile-logs",
+            ]:
+                self.assertIn(f'id="{section_id}"', capsule_dashboard)
+            self.assertEqual(
+                capsule_dashboard.count('class="mobile-recent-row"'),
+                min(14, len(data["daily"])),
+            )
+            self.assertIn("mobile-month-grid", capsule_dashboard)
+            self.assertIn("mobile-archive", capsule_dashboard)
+            self.assertIn("mobile-nodes", capsule_dashboard)
+            self.assertIn(".rotate-hint { display:block; }", capsule_dashboard)
             self.assertIn("class=\"slide active visible\"", capsule_dashboard)
             self.assertIn("data-dashboard-variant=\"capsule-dashboard\"", capsule_dashboard)
             self.assertIn("#E85D4E", capsule_dashboard)
@@ -59,6 +96,7 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("#F2D160", capsule_dashboard)
             self.assertIn("#F5B895", capsule_dashboard)
             self.assertIn("#A8E6CF", capsule_dashboard)
+            self.assertIn("#D98CB3", capsule_dashboard)
             self.assertGreaterEqual(capsule_dashboard.count("class=\"slide"), 5)
             self.assertIn(f'{months[0]["month"]} 至 {months[-1]["month"]}', capsule_dashboard)
             self.assertIn(
@@ -81,19 +119,36 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn(f'<p class="lead">{latest_log["focus"]}</p>', capsule_dashboard)
             self.assertNotIn("暂无记录", capsule_dashboard)
             self.assertIn(f"{archive_days}天", capsule_dashboard)
-            self.assertIn("距初试首日", capsule_dashboard)
+            self.assertIn("计划初试倒计时", capsule_dashboard)
             self.assertIn(f'{summary["days_to_exam"]}天', capsule_dashboard)
             self.assertNotIn(f"{archive_days} 天", capsule_dashboard)
             self.assertNotIn(f'{summary["days_to_exam"]} 天', capsule_dashboard)
             self.assertIn("grid-template-columns:repeat(5,1fr)", capsule_dashboard)
+            self.assertIn('font-family:"Source Serif 4 Dashboard"', capsule_dashboard)
+            self.assertIn("data:font/woff2;base64,", capsule_dashboard)
+            self.assertIn('--display:"Source Serif 4 Dashboard",Georgia', capsule_dashboard)
+            self.assertIn("font-variant-numeric:lining-nums proportional-nums", capsule_dashboard)
+            self.assertIn('font-feature-settings:"lnum" 1,"pnum" 1', capsule_dashboard)
+            self.assertIn('font-variation-settings:"opsz" 12', capsule_dashboard)
+            self.assertNotIn("tabular-nums", capsule_dashboard)
+            self.assertNotIn('font-family:var(--metric)', capsule_dashboard)
+            self.assertIn(".subject-pill > span,.latest-pill > em", capsule_dashboard)
+            for label in ["累计", "日均", "有效天数", "初试倒计时", "近7日投入"]:
+                self.assertIn(f"<span>{label}</span><b", capsule_dashboard)
+            self.assertNotIn("初始倒计时", capsule_dashboard)
+            self.assertIn("font-size:15px; color:rgba(26,26,26,.62)", capsule_dashboard)
+            self.assertIn("font-size:14px; line-height:1.35", capsule_dashboard)
+            self.assertIn(".metric-pill b { display:block; order:2;", capsule_dashboard)
+            self.assertIn(".metric-pill > span { order:1;", capsule_dashboard)
             self.assertIn("月度概览", capsule_dashboard)
             self.assertIn("2026-03", capsule_dashboard)
             self.assertIn("2026-06", capsule_dashboard)
+            self.assertIn("2026-07", capsule_dashboard)
+            self.assertIn("2026-08", capsule_dashboard)
+            self.assertEqual(capsule_dashboard.count('class="month-pill"'), len(months) * 2)
             self.assertIn("数学-高数 60h8m", capsule_dashboard)
             self.assertIn("专业课-数据结构 29h16m", capsule_dashboard)
-            self.assertIn("其它 5h19m", capsule_dashboard)
             self.assertIn("专业课-组成原理 24h16m", capsule_dashboard)
-            self.assertIn("其它 55h54m", capsule_dashboard)
             self.assertNotIn("考研 102h2m", capsule_dashboard)
             self.assertNotIn("考研 71h26m", capsule_dashboard)
             self.assertIn(
@@ -110,9 +165,10 @@ class DashboardVariantTests(unittest.TestCase):
                 capsule_dashboard,
             )
             self.assertIn('"数学-概率": "#C5B5E0"', capsule_dashboard)
+            self.assertIn('"政治": "#D98CB3"', capsule_dashboard)
             self.assertIn("archive-subject-grid { display:grid; grid-template-columns:1fr", capsule_dashboard)
-            self.assertIn("grid-template-columns:220px minmax(360px,1fr) 110px", capsule_dashboard)
-            self.assertIn(".archive-subject-grid .capsule-track { height:42px; }", capsule_dashboard)
+            self.assertIn("grid-template-columns:210px minmax(300px,1fr) 120px", capsule_dashboard)
+            self.assertIn(".archive-subject-grid .capsule-track { height:28px; }", capsule_dashboard)
             self.assertNotIn("class=\"subject-pill other-row\"", capsule_dashboard)
             self.assertNotIn("aria-label=\"PRCV-Final · 25h41m\"", capsule_dashboard)
             self.assertNotIn("补录", capsule_dashboard)
@@ -126,7 +182,7 @@ class DashboardVariantTests(unittest.TestCase):
                 "节点",
             ]:
                 self.assertIn(label, capsule_dashboard)
-            self.assertIn("柱高为总时长，色块为科目构成", capsule_dashboard)
+            self.assertIn("柱高为总时长，色块为当日科目", capsule_dashboard)
             self.assertIn("按基础 / 强化阶段分列", capsule_dashboard)
             self.assertIn("SUBJECT_COLORS", capsule_dashboard)
             self.assertNotIn("#6F90C9", capsule_dashboard)
@@ -140,9 +196,7 @@ class DashboardVariantTests(unittest.TestCase):
                 capsule_dashboard,
             )
             expected_label_swaps = [
-                '<div class="tag sky">整体节奏</div><h2 style="margin-top:20px">月度概览</h2>',
-                '<div class="tag lime">柱高为总时长，色块为科目构成</div><h2 style="margin-top:20px">近 14 条记录</h2>',
-                '<div class="tag lime">按学习记录累计</div><h2 style="margin-top:20px">科目投入</h2>',
+                '<div class="tag sky">档案月度口径</div><h2 style="margin-top:20px">月度概览</h2>',
                 '<div class="tag peach">来自最新日志</div><h2 style="margin-top:20px">下一步</h2>',
                 '<div class="tag lavender">按基础 / 强化阶段分列</div><h2 style="margin-top:20px">当前推进</h2>',
                 '<div class="tag yellow">保留原始节奏</div><h2 style="margin-top:20px">最近记录</h2>',
@@ -158,13 +212,34 @@ class DashboardVariantTests(unittest.TestCase):
                 capsule_dashboard,
             )
             self.assertIn(
-                '<span class="phase-chip doing"><em>强化阶段</em><i>第二章 进行中</i></span>',
+                '<span class="phase-chip doing"><em>强化阶段</em><i>强化第二章 进行中</i></span>',
                 capsule_dashboard,
             )
             self.assertIn("phase-chip done", capsule_dashboard)
             self.assertNotIn("0 章完结", capsule_dashboard)
             self.assertNotIn("条形长度为累计投入占比", capsule_dashboard)
             self.assertNotIn("<b>其他</b>", capsule_dashboard)
+            self.assertIn("专业课-操作系统 · 0m", capsule_dashboard)
+            self.assertIn("专业课-计算机网络 · 0m", capsule_dashboard)
+            self.assertIn("政治 · 0m", capsule_dashboard)
+            self.assertIn("未开始 · 0h", capsule_dashboard)
+            self.assertIn("档案累计 · 2026-03 至 2026-08", capsule_dashboard)
+            self.assertIn("近 7 日投入 · 截至 08-01", capsule_dashboard)
+            self.assertIn("数据截至 2026-08-01", capsule_dashboard)
+            self.assertIn('aria-label="上一页"', capsule_dashboard)
+            self.assertIn('aria-live="polite"', capsule_dashboard)
+            self.assertIn("pointerdown", capsule_dashboard)
+            self.assertNotIn("touchstart", capsule_dashboard)
+            self.assertNotIn("https://", capsule_dashboard)
+
+            recent_totals = dict(variants.subject_totals_for_days(data["daily"][-14:]))
+            for name, minutes in recent_totals.items():
+                self.assertIn(
+                    f'{variants.display_subject(name)} · {variants.fmt_minutes(minutes)}',
+                    capsule_dashboard,
+                )
+            self.assertNotIn("数学-线代 · 62h19m", capsule_dashboard)
+            self.assertNotIn("其它 · 55h54m", capsule_dashboard)
 
     def test_subject_stages_parsed_from_progress_index(self):
         stages = variants.enriched_data()["subject_stages"]
@@ -173,6 +248,23 @@ class DashboardVariantTests(unittest.TestCase):
         )
         # 档案用「数学-概统」写表，解析后统一为 canonical 键「数学-概率」。
         self.assertIn({"subject": "数学-概率", "phase": "基础阶段", "status": "完结"}, stages)
+        self.assertIn(
+            {"subject": "专业课-组成原理", "phase": "基础阶段", "status": "进行中"},
+            stages,
+        )
+
+    def test_progress_index_accepts_future_year_months(self):
+        with TemporaryDirectory() as tmp:
+            index = Path(tmp) / "ProgressIndex.md"
+            index.write_text(
+                "## 月度概览\n\n"
+                "| 月份 | 有记录天数 | 总完成时长 | 考研相关 | 课内/其他 |\n"
+                "|---|---:|---:|---:|---:|\n"
+                "| 2027-01 | 2 | 10h | 10h | 0min |\n",
+                encoding="utf-8",
+            )
+            with patch.object(variants, "PROGRESS_INDEX", index):
+                self.assertEqual(variants.parse_progress_index()["months"][0]["month"], "2027-01")
 
 
 if __name__ == "__main__":

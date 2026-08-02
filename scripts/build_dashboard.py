@@ -41,8 +41,6 @@ SUBJECT_COLORS = {
     "政治": "#C09AA7",
 }
 DEFAULT_COLOR = "#9A948D"
-DEFERRED_SUBJECTS = {"政治"}
-WATCH_SUBJECTS = {"英语"}
 GROUP_ORDER = ["数学", "专业课", "英语", "政治", "其他"]
 GROUP_COLORS = {
     "数学": "#7398C6",
@@ -61,15 +59,16 @@ HOME_SUBJECT_LABELS = {
     "专业课-计算机网络": "计算机网络",
 }
 
-# 初试首日（思想政治理论），用于封面倒计时。11408 初试固定在 12 月，2026 年为 12/20-21。
+# 路线规划中的计划初试首日。正式日期发布后需同步更新 Roadmap.md 与此处。
 EXAM_DATE = date(2026, 12, 20)
+EXAM_DATE_CONFIRMED = False
 # 趋势屏只展示最近 N 天，避免长期记录后柱子被压成细线。
 TREND_WINDOW_DAYS = 21
 
 
 def as_minutes(value) -> int | None:
     """Return an integer minute value when explicitly provided."""
-    if isinstance(value, (int, float)):
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
         return int(value)
     return None
 
@@ -134,6 +133,12 @@ def build_home_status(recent: dict, latest_log: dict, phase: str) -> dict[str, s
             for item in (latest_log.get("subjects") or [])
             if item.get("next")
         ]
+    if not next_actions:
+        next_actions = [
+            f'{HOME_SUBJECT_LABELS.get(item.get("subject", ""), item.get("subject", ""))}：{item["chapter"]}'
+            for item in (latest_log.get("progress") or [])
+            if item.get("chapter") and progress_status_active(item.get("status"))
+        ]
     next_nodes = []
     for action in next_actions:
         node = action.rstrip("。；; ")
@@ -163,6 +168,12 @@ def parse_frontmatter(text: str) -> dict | None:
         print(f"  [WARN] YAML parse error: {e}", file=sys.stderr)
         return None
     return data if isinstance(data, dict) else None
+
+
+def progress_status_active(status: object) -> bool:
+    """Return whether a structured progress status describes ongoing work."""
+    value = str(status or "").strip()
+    return value.startswith("进行中") or value == "起步"
 
 
 def load_logs() -> list[dict]:
@@ -221,9 +232,9 @@ def aggregate(logs: list[dict]) -> dict:
             subject_totals[name] = subject_totals.get(name, 0) + t
             group = subject_group(name)
             group_totals[group] = group_totals.get(group, 0) + t
-            group_days.setdefault(group, set()).add(d)
             if t > 0:
                 subject_days[name] = subject_days.get(name, 0) + 1
+                group_days.setdefault(group, set()).add(d)
             day_minutes += t
 
         # Prefer explicit total_minutes; fall back to sum of subjects.
@@ -272,6 +283,9 @@ def aggregate(logs: list[dict]) -> dict:
             "mood": str(log.get("mood") or "").strip(),
             "tags": log.get("tags") or [],
             "subjects": subject_details,
+            "progress": [
+                dict(item) for item in (log.get("progress") or []) if isinstance(item, dict)
+            ],
             "next_actions": clean_list(review.get("next_actions") or log.get("next_actions")),
             "issues": clean_list(review.get("issues") or review.get("blockers") or log.get("issues")),
         }
@@ -293,6 +307,11 @@ def aggregate(logs: list[dict]) -> dict:
     timeline_events = build_timeline_events(progress_rows, timeline)
     current_phase = latest_nonempty(logs, "phase")
     home_status = build_home_status(recent, latest_log or {}, current_phase)
+    active_subjects = {
+        subject
+        for subject, row in latest_chapter.items()
+        if subject in SUBJECT_COLORS and progress_status_active(row.get("status"))
+    }
 
     today = date.today()
     days_to_exam = (EXAM_DATE - today).days
@@ -314,7 +333,8 @@ def aggregate(logs: list[dict]) -> dict:
         "timeline": timeline,
         "timeline_events": timeline_events,
         "recent": recent,
-        "alerts": subject_alerts(daily, subject_totals, recent),
+        "active_subjects": sorted(active_subjects),
+        "alerts": subject_alerts(daily, active_subjects, recent),
         "summary": {
             "total_minutes": total_minutes,
             "studied_days": studied_days,
@@ -325,6 +345,7 @@ def aggregate(logs: list[dict]) -> dict:
             "current_phase": current_phase,
             "latest_focus": (latest_log or {}).get("focus") or "未说明",
             "exam_date": EXAM_DATE.isoformat(),
+            "exam_date_confirmed": EXAM_DATE_CONFIRMED,
             "days_to_exam": days_to_exam,
         },
     }
@@ -373,14 +394,13 @@ def recent_summary(daily: list[dict], window_days: int = 7) -> dict:
     }
 
 
-def subject_alerts(daily: list[dict], subject_totals: dict[str, int], recent: dict) -> list[dict]:
+def subject_alerts(daily: list[dict], active_subjects: set[str], recent: dict) -> list[dict]:
     """Return lightweight balance reminders for subjects that are active now."""
-    active_subjects = (set(subject_totals) | WATCH_SUBJECTS) - DEFERRED_SUBJECTS
     recent_subjects = {
         subject for subject, minutes in recent.get("subject_totals", {}).items() if minutes > 0
     }
     alerts = []
-    for subject in sorted(active_subjects):
+    for subject in sorted(active_subjects & set(SUBJECT_COLORS)):
         if subject in recent_subjects:
             continue
         last_seen = None
@@ -440,9 +460,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>11408 学习看板</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --paper: #F5F0E6;
@@ -459,9 +476,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   --warm: #D97757;
   --sage: #8E9F8A;
   --steel: #8DA5B8;
-  --font-display: "Newsreader", "Noto Serif SC", Georgia, serif;
-  --font-body: "Hanken Grotesk", "Noto Serif SC", "Microsoft YaHei", sans-serif;
-  --font-mono: "DM Mono", ui-monospace, monospace;
+  --font-display: Georgia, "Songti SC", "Noto Serif CJK SC", SimSun, serif;
+  --font-body: system-ui, "Microsoft YaHei", "Noto Sans CJK SC", "PingFang SC", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
 }
 
 * { box-sizing: border-box; }

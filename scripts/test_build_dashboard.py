@@ -1,9 +1,14 @@
 import unittest
 
-from scripts.build_dashboard import SUBJECT_COLORS, aggregate
+from scripts.build_dashboard import SUBJECT_COLORS, aggregate, build_html
 
 
 class DashboardAggregationTests(unittest.TestCase):
+    def test_base_renderer_is_self_contained(self):
+        html = build_html({"daily": []})
+        self.assertNotIn("https://", html)
+        self.assertNotIn("fonts.googleapis.com", html)
+
     def test_null_minutes_are_unknown_not_zero(self):
         data = aggregate([
             {
@@ -36,20 +41,24 @@ class DashboardAggregationTests(unittest.TestCase):
         self.assertEqual(data["subject_days"]["数学-线代"], 1)
         self.assertNotIn("专业课-组成原理", data["subject_totals"])
 
-    def test_recent_window_and_subject_alerts_ignore_deferred_politics(self):
+    def test_subject_alerts_only_track_structured_ongoing_subjects(self):
         data = aggregate([
             {
                 "date": "2026-06-01",
-                "total_minutes": 60,
-                "subjects": [{"name": "英语", "time_min": 60, "detail": "单词"}],
-                "progress": [],
+                "total_minutes": 120,
+                "subjects": [{"name": "专业课-组成原理", "time_min": 120, "detail": "第三章"}],
+                "progress": [
+                    {"subject": "专业课-组成原理", "chapter": "第三章", "status": "进行中"}
+                ],
                 "tags": [],
             },
             {
                 "date": "2026-06-08",
                 "total_minutes": 120,
                 "subjects": [{"name": "数学-高数", "time_min": 120, "detail": "660"}],
-                "progress": [],
+                "progress": [
+                    {"subject": "数学-高数", "chapter": "强化第二章", "status": "进行中"}
+                ],
                 "tags": [],
             },
         ])
@@ -58,8 +67,11 @@ class DashboardAggregationTests(unittest.TestCase):
         self.assertEqual(data["recent"]["total_minutes"], 120)
         self.assertEqual(data["recent"]["avg_minutes"], 120)
         alert_subjects = {a["subject"] for a in data["alerts"]}
-        self.assertIn("英语", alert_subjects)
+        self.assertEqual(data["active_subjects"], ["专业课-组成原理", "数学-高数"])
+        self.assertIn("专业课-组成原理", alert_subjects)
+        self.assertNotIn("英语", alert_subjects)
         self.assertNotIn("政治", alert_subjects)
+        self.assertNotIn("其他", alert_subjects)
 
     def test_timeline_events_are_merged_by_date(self):
         data = aggregate([
@@ -166,6 +178,31 @@ class DashboardAggregationTests(unittest.TestCase):
             data["home_status"]["next"],
             "完成高数第一章严选题 · 继续学习计组 5.4 节",
         )
+
+    def test_home_status_falls_back_to_latest_ongoing_progress(self):
+        data = aggregate([
+            {
+                "date": "2026-08-01",
+                "phase": "强化阶段",
+                "total_minutes": 404,
+                "subjects": [
+                    {"name": "数学-高数", "time_min": 297, "detail": "强化第二章"},
+                    {"name": "专业课-组成原理", "time_min": 107, "detail": "5.6 节"},
+                ],
+                "progress": [
+                    {"subject": "数学-高数", "chapter": "强化第二章", "status": "进行中"},
+                    {"subject": "专业课-组成原理", "chapter": "5.6 节", "status": "进行中"},
+                ],
+                "review": {"next_actions": []},
+                "tags": [],
+            }
+        ])
+
+        self.assertEqual(
+            data["home_status"]["next"],
+            "高数：强化第二章 · 组成原理：5.6 节",
+        )
+        self.assertFalse(data["summary"]["exam_date_confirmed"])
 
 
 if __name__ == "__main__":
