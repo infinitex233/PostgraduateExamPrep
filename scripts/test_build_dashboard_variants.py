@@ -75,6 +75,11 @@ class DashboardVariantTests(unittest.TestCase):
                 capsule_dashboard,
             )
             self.assertNotIn("最近主线：", capsule_dashboard)
+            # 首页「最近一天」面板必须带上最新日志日期与主线，防止后续改动遮蔽 latest_log。
+            latest_log = data["latest_log"]
+            self.assertIn(f'<h2 style="margin-top:18px">{latest_log["date"]}</h2>', capsule_dashboard)
+            self.assertIn(f'<p class="lead">{latest_log["focus"]}</p>', capsule_dashboard)
+            self.assertNotIn("暂无记录", capsule_dashboard)
             self.assertIn(f"{archive_days}天", capsule_dashboard)
             self.assertIn("距初试首日", capsule_dashboard)
             self.assertIn(f'{summary["days_to_exam"]}天', capsule_dashboard)
@@ -122,7 +127,7 @@ class DashboardVariantTests(unittest.TestCase):
             ]:
                 self.assertIn(label, capsule_dashboard)
             self.assertIn("柱高为总时长，色块为科目构成", capsule_dashboard)
-            self.assertIn("条形长度为累计投入占比", capsule_dashboard)
+            self.assertIn("按基础 / 强化阶段分列", capsule_dashboard)
             self.assertIn("SUBJECT_COLORS", capsule_dashboard)
             self.assertNotIn("#6F90C9", capsule_dashboard)
             self.assertIn(
@@ -139,12 +144,35 @@ class DashboardVariantTests(unittest.TestCase):
                 '<div class="tag lime">柱高为总时长，色块为科目构成</div><h2 style="margin-top:20px">近 14 条记录</h2>',
                 '<div class="tag lime">按学习记录累计</div><h2 style="margin-top:20px">科目投入</h2>',
                 '<div class="tag peach">来自最新日志</div><h2 style="margin-top:20px">下一步</h2>',
-                '<div class="tag lavender">条形长度为累计投入占比</div><h2 style="margin-top:20px">当前推进</h2>',
+                '<div class="tag lavender">按基础 / 强化阶段分列</div><h2 style="margin-top:20px">当前推进</h2>',
                 '<div class="tag yellow">保留原始节奏</div><h2 style="margin-top:20px">最近记录</h2>',
                 '<div class="tag violet">章节状态与标签</div><h2 style="margin-top:20px">节点</h2>',
             ]
             for snippet in expected_label_swaps:
                 self.assertIn(snippet, capsule_dashboard)
+
+            # 当前推进：基础/强化阶段徽章分列，含档案期完结科目（数据结构），去掉课内/其他。
+            self.assertIn(
+                '<b>专业课-数据结构</b><div class="phase-chips">'
+                '<span class="phase-chip done"><em>基础阶段</em><i>已完结</i></span>',
+                capsule_dashboard,
+            )
+            self.assertIn(
+                '<span class="phase-chip doing"><em>强化阶段</em><i>第二章 进行中</i></span>',
+                capsule_dashboard,
+            )
+            self.assertIn("phase-chip done", capsule_dashboard)
+            self.assertNotIn("0 章完结", capsule_dashboard)
+            self.assertNotIn("条形长度为累计投入占比", capsule_dashboard)
+            self.assertNotIn("<b>其他</b>", capsule_dashboard)
+
+    def test_subject_stages_parsed_from_progress_index(self):
+        stages = variants.enriched_data()["subject_stages"]
+        self.assertIn(
+            {"subject": "专业课-数据结构", "phase": "基础阶段", "status": "完结"}, stages
+        )
+        # 档案用「数学-概统」写表，解析后统一为 canonical 键「数学-概率」。
+        self.assertIn({"subject": "数学-概率", "phase": "基础阶段", "status": "完结"}, stages)
 
 
 if __name__ == "__main__":

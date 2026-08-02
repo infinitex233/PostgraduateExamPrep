@@ -132,6 +132,7 @@ def parse_progress_index() -> dict:
             "other_total": None,
             "exam_subjects": [],
             "other_subjects": [],
+            "subject_stages": [],
         }
 
     text = PROGRESS_INDEX.read_text(encoding="utf-8")
@@ -157,6 +158,26 @@ def parse_progress_index() -> dict:
             "subjects": parse_monthly_subjects(cells[0]),
         })
 
+    # 科目阶段状态：已完结阶段的快照，键统一为 canonical（数学-概统 -> 数学-概率）。
+    subject_stages = []
+    in_stages = False
+    for line in text.splitlines():
+        if line.startswith("## 科目阶段状态"):
+            in_stages = True
+            continue
+        if in_stages and line.startswith("## "):
+            break
+        if not in_stages or "科目" in line or not line.startswith("| "):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) < 3 or not cells[0]:
+            continue
+        subject_stages.append({
+            "subject": canonical_subject(cells[0]),
+            "phase": cells[1],
+            "status": cells[2],
+        })
+
     obs = re.search(r"补录期总完成时长：([^，]+)，其中考研相关 ([^，]+)，课内/其他 ([^。]+)", text)
     exam_subjects = parse_named_durations(text, r"考研科目投入：([^。]+)")
     other_subjects = parse_named_durations(text, r"课内作业/期末复习及其他累计 [^：]+：([^。]+)")
@@ -167,6 +188,7 @@ def parse_progress_index() -> dict:
         "other_total": parse_duration(obs.group(3)) if obs else None,
         "exam_subjects": exam_subjects,
         "other_subjects": other_subjects,
+        "subject_stages": subject_stages,
     }
 
 
@@ -190,6 +212,7 @@ def enriched_data() -> dict:
             if minutes
         ]
     data["archive"] = archive
+    data["subject_stages"] = archive.get("subject_stages") or []
     if archive["all_total"] is not None:
         data["summary"]["archive_total_minutes"] = archive["all_total"]
         data["summary"]["archive_exam_minutes"] = archive["exam_total"]
@@ -619,17 +642,46 @@ def render_capsule_dashboard(data: dict) -> str:
             for item in (data.get("alerts") or [])[:3]
         )
 
+    # 当前推进：按基础/强化阶段分列状态徽章；科目取档案全期（含数据结构），去掉课内/其他。
+    stage_done: dict[str, set[str]] = {}
+    for item in (data.get("subject_stages") or []):
+        if item.get("status") == "完结" and item.get("phase"):
+            stage_done.setdefault(item["subject"], set()).add(item["phase"])
+    latest_chapter_map = data.get("latest_chapter") or {}
+
+    def phase_chip(phase_label: str, text: str, state: str) -> str:
+        if phase_label:
+            return f'<span class="phase-chip {state}"><em>{esc(phase_label)}</em><i>{esc(text)}</i></span>'
+        return f'<span class="phase-chip {state}">{esc(text)}</span>'
+
     progress_rows = []
-    for name, minutes in subjects:
-        latest_chapter = (data.get("latest_chapter") or {}).get(name) or {}
-        done = (data.get("subject_chapters_done") or {}).get(name, 0)
-        chapter = latest_chapter.get("chapter") or "尚未记录章节进度"
-        status = latest_chapter.get("status") or ""
+    for item in sorted(
+        archive_exam_subjects, key=lambda it: it.get("minutes", 0), reverse=True
+    ):
+        name = item.get("name", "")
+        if name in ("其他", "其它"):
+            continue
+        key = canonical_subject(name)
+        base_done = "基础阶段" in (stage_done.get(key) or set())
+        chapter_row = latest_chapter_map.get(key) or {}
+        chapter = chapter_row.get("chapter") or ""
+        status = chapter_row.get("status") or ""
+        chips = []
+        if base_done:
+            chips.append(phase_chip("基础阶段", "已完结", "done"))
+        elif chapter and "强化" not in chapter:
+            chips.append(phase_chip("基础阶段", f"{chapter} {status}".strip(), "doing"))
+        if "强化" in chapter:
+            strengthen = re.sub(r"^强化", "", chapter)
+            chips.append(phase_chip("强化阶段", f"{strengthen} {status}".strip(), "doing"))
+        elif base_done:
+            chips.append(phase_chip("强化阶段", "未开始", "todo"))
+        if not chips:
+            chips.append(phase_chip("", "无章节进度记录", "todo"))
         progress_rows.append(
             f'<div class="progress-pill" style="--fill:{capsule_color(name)}"><b>{esc(display_subject(name))}</b>'
-            f'<span>{esc(chapter)}{(" · " + esc(status)) if status else ""}</span>'
-            f'<em>{done} 章完结 · {fmt_minutes(minutes)}</em>'
-            f'<div class="mini-track"><i style="width:{pct(minutes, max_subject):.1f}%"></i></div></div>'
+            f'<div class="phase-chips">{"".join(chips)}</div>'
+            f'<em>{fmt_minutes(item.get("minutes"))}</em></div>'
         )
     progress_html = "\n".join(progress_rows) or '<div class="empty-pill">暂无章节进度。</div>'
 
@@ -746,13 +798,18 @@ h3 {{ font-size:38px; line-height:1; }}
 .archive-subject-grid .capsule-track {{ height:42px; }}
 .subject-list,.action-list,.progress-list,.log-list,.node-list {{ display:grid; gap:13px; margin-top:22px; }}
 .subject-pill {{ display:grid; grid-template-columns:190px 1fr 100px; gap:16px; align-items:center; background:var(--white); border-radius:9999px; padding:13px 18px; }}
-.capsule-track,.mini-track {{ height:30px; border:2px solid var(--outline); border-radius:9999px; background:var(--cream); overflow:hidden; }}
-.capsule-track i,.mini-track i {{ display:block; height:100%; background:var(--fill); border-right:2px solid var(--outline); border-radius:9999px; }}
+.capsule-track {{ height:30px; border:2px solid var(--outline); border-radius:9999px; background:var(--cream); overflow:hidden; }}
+.capsule-track i {{ display:block; height:100%; background:var(--fill); border-right:2px solid var(--outline); border-radius:9999px; }}
 .action-pill,.log-pill,.node-pill,.progress-pill {{ background:var(--white); border-radius:9999px; padding:15px 22px; }}
 .action-pill {{ font-size:21px; line-height:1.38; }}
 .muted {{ color:rgba(26,26,26,.62); }}
 .progress-pill {{ display:grid; grid-template-columns:180px 1fr 150px; gap:16px; align-items:center; }}
-.progress-pill .mini-track {{ grid-column:2 / 4; height:16px; }}
+.phase-chips {{ display:flex; flex-wrap:wrap; gap:8px; }}
+.phase-chip {{ display:inline-flex; align-items:center; gap:8px; border:2px solid var(--outline); border-radius:9999px; padding:7px 14px; font-size:14px; font-weight:800; }}
+.phase-chip em {{ color:inherit; font-style:normal; opacity:.7; }}
+.phase-chip.done {{ background:var(--fill); color:var(--ink); }}
+.phase-chip.doing {{ background:var(--white); color:var(--ink); }}
+.phase-chip.todo {{ background:transparent; color:rgba(26,26,26,.62); border-style:dashed; }}
 .log-pill {{ display:grid; grid-template-columns:132px 1fr 90px; gap:16px; align-items:center; }}
 .node-pill {{ display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:center; }}
 .swatches {{ display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }}
@@ -797,7 +854,7 @@ h3 {{ font-size:38px; line-height:1; }}
 </section>
 <section class="slide">
   <div class="chrome"><span>CURRENT PROGRESS</span><span>04 / 05</span></div>
-  <div style="padding-top:34px"><div class="tag lavender">条形长度为累计投入占比</div><h2 style="margin-top:20px">当前推进</h2><div class="progress-list">{progress_html}</div></div>
+  <div style="padding-top:34px"><div class="tag lavender">按基础 / 强化阶段分列</div><h2 style="margin-top:20px">当前推进</h2><div class="progress-list">{progress_html}</div></div>
 </section>
 <section class="slide">
   <div class="chrome"><span>ROUTE LOG</span><span>05 / 05</span></div>
