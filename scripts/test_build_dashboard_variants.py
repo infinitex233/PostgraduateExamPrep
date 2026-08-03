@@ -46,6 +46,8 @@ class DashboardVariantTests(unittest.TestCase):
         summary = data["summary"]
         archive = data["archive"]
         months = archive["months"]
+        latest_date = summary["last_date"]
+        latest_short_date = latest_date[5:]
         archive_days = sum(month["days"] for month in months)
         exam_subjects = {
             item["name"]: item["minutes"] for item in archive["exam_subjects"]
@@ -224,8 +226,8 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("政治 · 0m", capsule_dashboard)
             self.assertIn("未开始 · 0h", capsule_dashboard)
             self.assertIn("档案累计 · 2026-03 至 2026-08", capsule_dashboard)
-            self.assertIn("近 7 日投入 · 截至 08-01", capsule_dashboard)
-            self.assertIn("数据截至 2026-08-01", capsule_dashboard)
+            self.assertIn(f"近 7 日投入 · 截至 {latest_short_date}", capsule_dashboard)
+            self.assertIn(f"数据截至 {latest_date}", capsule_dashboard)
             self.assertIn('aria-label="上一页"', capsule_dashboard)
             self.assertIn('aria-live="polite"', capsule_dashboard)
             self.assertIn("pointerdown", capsule_dashboard)
