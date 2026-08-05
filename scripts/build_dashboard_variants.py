@@ -44,6 +44,7 @@ CAPSULE_SUBJECT_COLORS = {
     "政治": "#D98CB3",
 }
 CAPSULE_DEFAULT_COLOR = "#FFFFFF"
+CAPSULE_OTHER_COLOR = "#9A948D"  # 课内/其他聚合灰，与 build_dashboard.GROUP_COLORS["其他"] 一致
 SUBJECT_ORDER = tuple(build_dashboard.SUBJECT_COLORS)
 SUBJECT_DISPLAY_NAMES = {
     "数学-概率": "数学-概统",
@@ -292,7 +293,42 @@ def split_exam_subjects(data: dict) -> tuple[int, int]:
 
 
 def capsule_color(subject: str) -> str:
+    if subject in {"其它", "其他", "未细分"}:
+        return CAPSULE_OTHER_COLOR
     return CAPSULE_SUBJECT_COLORS.get(subject, CAPSULE_DEFAULT_COLOR)
+
+
+def month_subject_items(month: dict) -> list[dict]:
+    """Return every monthly subject in the same order used by the color bar."""
+    total = int(month.get("total_minutes") or 0)
+    subjects = [
+        {"name": item.get("name") or "未细分", "minutes": int(item.get("minutes") or 0)}
+        for item in (month.get("subjects") or [])
+        if int(item.get("minutes") or 0) > 0
+    ]
+    if not subjects:
+        subjects = [
+            {"name": "考研相关", "minutes": int(month.get("exam_minutes") or 0)},
+            {"name": "其它", "minutes": int(month.get("other_minutes") or 0)},
+        ]
+        subjects = [item for item in subjects if item["minutes"] > 0]
+    accounted = sum(int(item.get("minutes") or 0) for item in subjects)
+    if accounted < total:
+        subjects.append({"name": "未细分", "minutes": total - accounted})
+    return subjects
+
+
+def month_bar_segments(month: dict) -> str:
+    """Return subject segments whose boundaries are laid out by capsule area."""
+    subjects = month_subject_items(month)
+    if not subjects:
+        return ""
+    return "".join(
+        f'<i title="{esc(display_subject(item["name"]))} {fmt_minutes(item.get("minutes"))}" '
+        f'data-minutes="{int(item.get("minutes") or 0)}" '
+        f'style="background:{capsule_color(item["name"])}"></i>'
+        for item in subjects
+    )
 
 
 def render_signal(data: dict) -> str:
@@ -620,35 +656,39 @@ def render_capsule_dashboard(data: dict) -> str:
         height = 12 if day.get("total") is None else max(4, pct(day.get("total") or 0, max_day))
         segments = []
         for subject, minutes in (day.get("subjects") or {}).items():
-            seg_height = (minutes / day["total"] * 100) if day.get("total") else 0
             segments.append(
                 f'<i title="{esc(display_subject(subject))} {fmt_minutes(minutes)}" '
-                f'style="height:{seg_height:.1f}%;background:{capsule_color(subject)}"></i>'
+                f'data-minutes="{int(minutes or 0)}" '
+                f'style="background:{capsule_color(subject)}"></i>'
             )
+        day_label = " · ".join(
+            f"{display_subject(subject)} {fmt_minutes(minutes)}"
+            for subject, minutes in (day.get("subjects") or {}).items()
+            if minutes
+        ) or "无分科记录"
         trend_bars.append(
             f'<div class="stack-col"><span>{fmt_minutes(day.get("total"))}</span>'
-            f'<div class="stack-track" style="height:{height:.1f}%">{"".join(segments)}</div>'
+            f'<div class="stack-track area-stack vertical" role="img" '
+            f'aria-label="{esc(day["date"])}：{esc(day_label)}" '
+            f'style="height:{height:.1f}%">{"".join(segments)}</div>'
             f'<em>{esc(day["date"][5:])}</em></div>'
-    )
+        )
     trend_html = "\n".join(trend_bars) or '<div class="empty-pill">暂无近 14 条记录。</div>'
 
     def month_subject_summary(month: dict) -> str:
-        subjects = month.get("subjects") or []
-        if not subjects:
-            subjects = [
-                {"name": "考研相关", "minutes": month.get("exam_minutes")},
-                {"name": "其它", "minutes": month.get("other_minutes")},
-            ]
         return " · ".join(
             f'{esc(display_subject(item["name"]))} {fmt_minutes(item.get("minutes"))}'
-            for item in subjects[:3]
-            if item.get("minutes")
+            for item in month_subject_items(month)
         )
 
     month_cards = "\n".join(
         f'<div class="month-pill"><div><b>{esc(m["month"])}</b><span>{m["days"]} 天</span></div>'
         f'<strong>{fmt_minutes(m["total_minutes"])}</strong>'
-        f'<div class="capsule-track"><i style="width:{pct(m["total_minutes"], max_month):.1f}%"></i></div>'
+        f'<div class="capsule-track" role="img" aria-label="{esc(m["month"])} 科目时间构成">'
+        f'<span class="capsule-fill area-stack horizontal" '
+        f'data-fill-ratio="{pct(m["total_minutes"], max_month) / 100:.8f}" '
+        f'style="width:{pct(m["total_minutes"], max_month):.2f}%">'
+        f'{month_bar_segments(m)}</span></div>'
         f'<p>{month_subject_summary(m)}</p></div>'
         for m in months
     ) or '<div class="empty-pill">暂无月度概览。</div>'
@@ -839,10 +879,9 @@ h3 {{ font-size:38px; line-height:1; }}
 .trend-grid {{ height:610px; display:grid; grid-template-columns:repeat(14,1fr); gap:13px; align-items:end; }}
 .stack-col {{ height:100%; display:grid; grid-template-rows:32px 1fr 28px; gap:10px; text-align:center; font-size:15px; color:rgba(26,26,26,.62); }}
 .stack-col > span,.stack-col > em {{ font-family:var(--display); font-style:normal; font-weight:500; }}
-.stack-track {{ align-self:end; min-height:10px; display:flex; flex-direction:column-reverse; overflow:hidden; background:var(--white); border:2px solid var(--outline); border-radius:9999px; box-shadow:4px 4px 0 var(--shadow); }}
-.stack-track i {{ display:block; width:100%; border-top:2px solid rgba(30,30,30,.86); }}
+.stack-track {{ position:relative; align-self:end; min-height:10px; overflow:hidden; background:var(--white); border:2px solid var(--outline); border-radius:9999px; box-shadow:4px 4px 0 var(--shadow); }}
 .legend-row {{ display:flex; flex-wrap:wrap; gap:10px; }}
-.legend-pill {{ display:inline-flex; align-items:center; gap:8px; background:var(--white); padding:8px 14px; font-family:var(--display); font-size:14px; font-weight:650; }}
+.legend-pill {{ display:inline-flex; align-items:center; gap:8px; background:var(--white); padding:8px 14px; font-family:var(--body); font-size:14px; font-weight:650; }}
 .overview-grid {{ display:grid; grid-template-columns:.82fr 1.18fr; gap:34px; padding-top:30px; }}
 .overview-grid h2 {{ font-size:50px; }}
 .overview-grid .trend-grid {{ height:545px; gap:10px; }}
@@ -864,6 +903,11 @@ h3 {{ font-size:38px; line-height:1; }}
 .subject-pill.zero .capsule-track {{ border-style:dashed; background:transparent; }}
 .capsule-track {{ height:30px; border:2px solid var(--outline); border-radius:9999px; background:var(--cream); overflow:hidden; }}
 .capsule-track i {{ display:block; height:100%; background:var(--fill); border-right:2px solid var(--outline); border-radius:9999px; }}
+.area-stack {{ position:relative; background:var(--white); }}
+.capsule-fill {{ display:block; height:100%; overflow:hidden; border-radius:9999px; }}
+.area-stack i {{ position:absolute; display:block; margin:0; border:0; border-radius:0; }}
+.area-stack.horizontal i {{ top:0; height:100%; }}
+.area-stack.vertical i {{ left:0; width:100%; }}
 .action-pill,.log-pill,.node-pill,.progress-pill {{ background:var(--white); border-radius:9999px; padding:15px 22px; }}
 .action-pill {{ font-size:21px; line-height:1.38; }}
 .muted {{ color:rgba(26,26,26,.62); }}
@@ -974,7 +1018,8 @@ h3 {{ font-size:38px; line-height:1; }}
 <div class="deck-controls" aria-label="页面导航"><button id="prev" type="button" aria-label="上一页" title="上一页">‹</button><span class="counter" id="counter" role="status" aria-live="polite">01 / 05</span><button id="next" type="button" aria-label="下一页" title="下一页">›</button></div>
 <script type="application/json" id="dashboard-data">{html_json(capsule_data)}</script>
 <script>const SUBJECT_COLORS = {subject_color_json}; const CAPSULE_COLOR_NAMES = {json.dumps(color_vars, ensure_ascii=False)};</script>
-<script>{controller_js()}</script>
+<script>{capsule_area_layout_js()}
+{controller_js()}</script>
 </body>
 </html>"""
 
@@ -1215,6 +1260,133 @@ def radar_points(subjects: list[tuple[str, int]], maximum: int) -> str:
             f'<div class="dial-label" style="left:{lx:.1f}%;top:{ly:.1f}%">{esc(name)} · {fmt_minutes(minutes)}</div>'
         )
     return "\n".join(points)
+
+
+def capsule_area_layout_js() -> str:
+    return """
+(() => {
+  function paddingBoxSize(element) {
+    const style = getComputedStyle(element);
+    const width = parseFloat(style.width)
+      - parseFloat(style.borderLeftWidth) - parseFloat(style.borderRightWidth);
+    const height = parseFloat(style.height)
+      - parseFloat(style.borderTopWidth) - parseFloat(style.borderBottomWidth);
+    return { width: Math.max(0, width), height: Math.max(0, height) };
+  }
+
+  function roundedRectAreaAt(position, axisLength, crossLength) {
+    const axis = Math.max(0, axisLength);
+    const cross = Math.max(0, crossLength);
+    const radius = Math.min(axis, cross) / 2;
+    const total = axis * cross - (4 - Math.PI) * radius * radius;
+    const x = Math.max(0, Math.min(axis, position));
+    if (!axis || !cross || !radius || x <= 0) return 0;
+    if (x >= axis) return total;
+    const capArea = (distance) => {
+      const u = distance - radius;
+      const root = Math.sqrt(Math.max(0, radius * radius - u * u));
+      const curved = u * root + radius * radius * Math.asin(u / radius)
+        + Math.PI * radius * radius / 2;
+      return (cross - 2 * radius) * distance + curved;
+    };
+    if (x < radius) return capArea(x);
+    if (x <= axis - radius) {
+      return capArea(radius) + (x - radius) * cross;
+    }
+    return total - capArea(axis - x);
+  }
+
+  function positionForArea(fraction, axisLength, crossLength) {
+    const targetFraction = Math.max(0, Math.min(1, fraction));
+    const totalArea = roundedRectAreaAt(axisLength, axisLength, crossLength);
+    let low = 0;
+    let high = axisLength;
+    for (let step = 0; step < 48; step += 1) {
+      const middle = (low + high) / 2;
+      if (roundedRectAreaAt(middle, axisLength, crossLength) < totalArea * targetFraction) {
+        low = middle;
+      } else {
+        high = middle;
+      }
+    }
+    return (low + high) / 2;
+  }
+
+  function lengthForRoundedRectArea(fraction, maximumLength, crossLength) {
+    const targetFraction = Math.max(0, Math.min(1, fraction));
+    const targetArea = roundedRectAreaAt(maximumLength, maximumLength, crossLength)
+      * targetFraction;
+    let low = 0;
+    let high = maximumLength;
+    for (let step = 0; step < 48; step += 1) {
+      const middle = (low + high) / 2;
+      const middleArea = roundedRectAreaAt(middle, middle, crossLength);
+      if (middleArea < targetArea) low = middle;
+      else high = middle;
+    }
+    return (low + high) / 2;
+  }
+
+  function sizeMonthlyFill(fill) {
+    const track = fill.parentElement;
+    if (!track) return;
+    const ratio = Math.max(0, Math.min(1, Number(fill.dataset.fillRatio) || 0));
+    const trackSize = paddingBoxSize(track);
+    const width = lengthForRoundedRectArea(ratio, trackSize.width, trackSize.height);
+    fill.style.width = `${width}px`;
+  }
+
+  function layout(track) {
+    const horizontal = track.classList.contains('horizontal');
+    const size = paddingBoxSize(track);
+    const axisLength = horizontal ? size.width : size.height;
+    const crossLength = horizontal ? size.height : size.width;
+    const segments = [...track.querySelectorAll(':scope > i[data-minutes]')];
+    const totalMinutes = segments.reduce(
+      (sum, segment) => sum + Math.max(0, Number(segment.dataset.minutes) || 0),
+      0,
+    );
+    if (!axisLength || !crossLength || !segments.length || !totalMinutes) return;
+
+    let elapsed = 0;
+    let start = 0;
+    segments.forEach((segment, index) => {
+      elapsed += Math.max(0, Number(segment.dataset.minutes) || 0);
+      const end = index === segments.length - 1
+        ? axisLength
+        : positionForArea(elapsed / totalMinutes, axisLength, crossLength);
+      if (horizontal) {
+        segment.style.left = `${start}px`;
+        segment.style.width = `${Math.max(0, end - start)}px`;
+      } else {
+        segment.style.bottom = `${start}px`;
+        segment.style.height = `${Math.max(0, end - start)}px`;
+      }
+      start = end;
+    });
+  }
+
+  const stacks = [...document.querySelectorAll('.area-stack')];
+  const layoutStack = (stack) => {
+    if (stack.classList.contains('capsule-fill')) sizeMonthlyFill(stack);
+    layout(stack);
+  };
+  const layoutAll = () => stacks.forEach(layoutStack);
+  requestAnimationFrame(layoutAll);
+  window.addEventListener('resize', layoutAll);
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver((entries) => entries.forEach((entry) => layoutStack(entry.target)));
+    stacks.forEach((stack) => observer.observe(stack));
+  }
+  window.CapsuleAreaLayout = {
+    paddingBoxSize,
+    roundedRectAreaAt,
+    positionForArea,
+    lengthForRoundedRectArea,
+    layout,
+  };
+})();
+"""
 
 
 def controller_js() -> str:

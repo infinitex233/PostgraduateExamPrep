@@ -41,6 +41,29 @@ class DashboardVariantTests(unittest.TestCase):
             variants.parse_monthly_subjects("2026-03"),
         )
 
+    def test_month_bar_segments_store_minutes_instead_of_linear_widths(self):
+        month = {
+            "total_minutes": 100,
+            "subjects": [
+                {"name": "数学-高数", "minutes": 60},
+                {"name": "英语", "minutes": 30},
+            ],
+        }
+        html = variants.month_bar_segments(month)
+
+        self.assertEqual(
+            [item["name"] for item in variants.month_subject_items(month)],
+            ["数学-高数", "英语", "未细分"],
+        )
+        self.assertIn('data-minutes="60" style="background:#E85D4E"', html)
+        self.assertIn('data-minutes="30" style="background:#A8E6CF"', html)
+        self.assertIn('title="未细分 10m" data-minutes="10"', html)
+        self.assertLess(html.index("数学-高数"), html.index("英语"))
+        self.assertLess(html.index("英语"), html.index("未细分"))
+        self.assertIn(f"background:{variants.CAPSULE_OTHER_COLOR}", html)
+        self.assertNotIn("width:", html)
+        self.assertEqual(variants.month_bar_segments({"total_minutes": 0}), "")
+
     def test_variant_renderer_outputs_single_capsule_dashboard(self):
         data = variants.enriched_data()
         summary = data["summary"]
@@ -151,6 +174,13 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("数学-高数 60h8m", capsule_dashboard)
             self.assertIn("专业课-数据结构 29h16m", capsule_dashboard)
             self.assertIn("专业课-组成原理 24h16m", capsule_dashboard)
+            for month in months:
+                complete_summary = " · ".join(
+                    f'{variants.display_subject(item["name"])} '
+                    f'{variants.fmt_minutes(item["minutes"])}'
+                    for item in variants.month_subject_items(month)
+                )
+                self.assertIn(f"<p>{complete_summary}</p>", capsule_dashboard)
             self.assertNotIn("考研 102h2m", capsule_dashboard)
             self.assertNotIn("考研 71h26m", capsule_dashboard)
             self.assertIn(
@@ -185,6 +215,13 @@ class DashboardVariantTests(unittest.TestCase):
             ]:
                 self.assertIn(label, capsule_dashboard)
             self.assertIn("柱高为总时长，色块为当日科目", capsule_dashboard)
+            self.assertIn('class="stack-track area-stack vertical"', capsule_dashboard)
+            self.assertIn('class="capsule-fill area-stack horizontal"', capsule_dashboard)
+            self.assertIn("function roundedRectAreaAt", capsule_dashboard)
+            self.assertIn("function positionForArea", capsule_dashboard)
+            self.assertIn("function lengthForRoundedRectArea", capsule_dashboard)
+            self.assertNotIn(".stack-track i:first-child", capsule_dashboard)
+            self.assertNotIn(".month-pill .capsule-track i:last-child", capsule_dashboard)
             self.assertIn("按基础 / 强化阶段分列", capsule_dashboard)
             self.assertIn("SUBJECT_COLORS", capsule_dashboard)
             self.assertNotIn("#6F90C9", capsule_dashboard)
