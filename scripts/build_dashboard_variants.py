@@ -992,7 +992,7 @@ h3 {{ font-size:38px; line-height:1; }}
   <div class="chrome"><span>MONTHLY AND RECENT TREND</span><span>02 / 05</span></div>
   <div class="overview-grid">
     <div><div class="tag sky">档案月度口径</div><h2 style="margin-top:20px">月度概览</h2><div class="month-grid">{month_cards}</div></div>
-    <div><div class="tag lime">柱高为总时长，色块为当日科目</div><h2 style="margin-top:20px">近 14 条记录 · 截至 {esc(cutoff_short)}</h2><div class="trend-grid">{trend_html}</div><div class="legend-row">{legend_html}</div></div>
+    <div><div class="tag lime">柱高为总时长，色块为当日科目</div><h2 style="margin-top:20px">近 14 条记录</h2><div class="trend-grid">{trend_html}</div><div class="legend-row">{legend_html}</div></div>
   </div>
 </section>
 <section class="slide" aria-label="科目投入与下一步">
