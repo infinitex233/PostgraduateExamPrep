@@ -251,7 +251,7 @@ class DashboardVariantTests(unittest.TestCase):
                 capsule_dashboard,
             )
             self.assertIn(
-                '<span class="phase-chip doing"><em>强化阶段</em><i>强化第二章 进行中</i></span>',
+                '<span class="phase-chip doing"><em>强化阶段</em><i>强化第二章 完结</i></span>',
                 capsule_dashboard,
             )
             self.assertIn("phase-chip done", capsule_dashboard)
