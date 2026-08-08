@@ -14,9 +14,12 @@ This file is the concise Claude Code entry point for this repository.
 `AGENTS.md` is the authoritative source for repository policy and overrides this file. Read it before changing files, followed by the relevant operational guide:
 
 - `StudyProgress/README.md` for daily logs, reviews, progress indexes, and dashboard work
-- `StudyMaterials/README.md` for textbook lookup, OCR caches, book notes, and English materials
+- `StudyMaterials/README.md` for the materials directory map and shared rules
+- `StudyMaterials/Library/README.md` for textbook lookup, OCR caches, and English materials
+- `StudyMaterials/BookNotes/README.md` for rolling textbook notes
+- `StudyMaterials/MistakeBook/README.md` for subject-level mistake books
 
-When the user asks what a textbook says, where a concept appears, or how a definition is stated, search `StudyMaterials/Cache/**/*.docling.json` first with `scripts/query.py`. Open the source PDF when the cache is missing or ambiguous, or when exact wording, formulas, diagrams, examples, or printed page numbers matter.
+When the user asks what a textbook says, where a concept appears, or how a definition is stated, search `StudyMaterials/Library/Cache/**/*.docling.json` first with `scripts/query.py`. Open the source PDF when the cache is missing or ambiguous, or when exact wording, formulas, diagrams, examples, or printed page numbers matter.
 
 ## Repository Scope
 
@@ -39,7 +42,7 @@ python scripts/query.py "二叉树" --book "高数" --context 2
 python scripts/query.py --list-books
 
 # Build or resume primary page-level OCR caches
-python scripts/page_ocr.py "StudyMaterials/Math/Intensive/某书.pdf"
+python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
 python scripts/page_ocr.py --all
 ```
 
@@ -63,7 +66,7 @@ Concrete subjects use `subject_colors`; aggregate groups use `group_colors` (`�
 
 ## Textbook Retrieval
 
-`scripts/query.py` recursively reads categorized caches under `StudyMaterials/Cache/` and supports both page-level JSON and legacy Docling JSON.
+`scripts/query.py` recursively reads categorized caches under `StudyMaterials/Library/Cache/` and supports both page-level JSON and legacy Docling JSON.
 
 Cache matches identify candidate PDF pages only. For textbook-specific claims:
 
@@ -75,6 +78,10 @@ Cache matches identify candidate PDF pages only. For textbook-specific claims:
 ## Book Notes
 
 Keep one rolling Markdown note per book under `StudyMaterials/BookNotes/`. Update only the chapter under review, merge incrementally, preserve the user's manual edits, separate verified textbook content from supplements, and retain page references where possible.
+
+## Mistake Books
+
+Keep one rolling Markdown mistake book per concrete subject under `StudyMaterials/MistakeBook/`. Use headings only for chapters, sections, and knowledge points. Each question remains body content with the question, answer, analysis, and a final source blockquote beginning with `> 来源：`. Follow `StudyMaterials/MistakeBook/README.md` for the full maintenance rules.
 
 ## Safety and Handoff
 

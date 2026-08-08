@@ -20,6 +20,7 @@ The workspace covers all four parts of the 11408 track:
 - Generates a single Capsule-style HTML dashboard from the study records.
 - Searches local textbook OCR caches before opening multi-hundred-megabyte PDFs.
 - Keeps one rolling, chapter-by-chapter Markdown note for each reviewed textbook.
+- Keeps one chapter-organized Markdown mistake book for each concrete subject.
 - Stores English study sources and derived review artifacts separately from progress logs.
 
 Source PDFs remain local. Git may track verified OCR caches together with the scripts, study records, notes, documentation, and suitable derived artifacts needed to maintain the system.
@@ -52,14 +53,18 @@ PostgraduateExamPrep/
     Roadmap.md                   # Goals and stage planning
     dashboard.html               # Generated Capsule dashboard
   StudyMaterials/
-    README.md                    # English materials workflow
-    README.zh-CN.md              # Simplified Chinese materials workflow
-    408/                         # Local 408 textbook PDFs
-    Math/Basic/                  # Local foundation-stage math PDFs
-    Math/Intensive/              # Local intensive-stage math PDFs
-    Cache/                       # Local categorized OCR caches
+    README.md                    # English materials index
+    README.zh-CN.md              # Simplified Chinese materials index
+    Library/                     # Textbooks, OCR caches, and English materials
+      README.md                  # English library workflow
+      README.zh-CN.md            # Simplified Chinese library workflow
+      408/                       # Local 408 textbook PDFs
+      Math/Basic/                # Local foundation-stage math PDFs
+      Math/Intensive/            # Local intensive-stage math PDFs
+      Cache/                     # Local categorized OCR caches
+      English/                   # English sources and review artifacts
     BookNotes/                   # Rolling textbook notes
-    English/                     # English sources and review artifacts
+    MistakeBook/                 # Subject-level mistake books
 ```
 
 ## Daily Progress
@@ -93,13 +98,13 @@ python scripts/query.py "极限" --book "高数" --page-only
 Build or resume page-level caches with the primary OCR pipeline:
 
 ```bash
-python scripts/page_ocr.py "StudyMaterials/Math/Intensive/某书.pdf"
+python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
 python scripts/page_ocr.py --all
 ```
 
 Cache hits locate candidate PDF pages; they are not final evidence. Exact wording, formulas, diagrams, examples, and printed page numbers must be checked against the source PDF. Page citations distinguish the printed book page from the PDF page.
 
-See the [StudyMaterials guide](StudyMaterials/README.md) for cache formats, evidence rules, and book-note workflow.
+See the [Study Library guide](StudyMaterials/Library/README.md) for cache formats and evidence rules. The [StudyMaterials guide](StudyMaterials/README.md) links to the separate book-note and mistake-book workflows.
 
 ## Dashboard Checks
 
@@ -120,7 +125,7 @@ The following content must not be committed:
 - Python bytecode, test caches, rendered PDF pages, screenshots, diagnostics, and temporary files
 - Credentials, browser profiles, cookies, and machine-specific data
 
-Verified OCR cache JSON under `StudyMaterials/Cache/` may be committed so textbook lookup works without rebuilding every cache. Keeping PDFs and transient artifacts out of Git avoids publishing copyrighted source material or machine-specific clutter.
+Verified OCR cache JSON under `StudyMaterials/Library/Cache/` may be committed so textbook lookup works without rebuilding every cache. Keeping PDFs and transient artifacts out of Git avoids publishing copyrighted source material or machine-specific clutter.
 
 ## Working With Agents
 
@@ -129,6 +134,6 @@ Read the documentation in this order before changing files:
 1. `AGENTS.md`
 2. This README
 3. `StudyProgress/README.md` for logs, reviews, or dashboard work
-4. `StudyMaterials/README.md` for textbooks, caches, book notes, or English materials
+4. `StudyMaterials/README.md`, then the relevant `Library/`, `BookNotes/`, or `MistakeBook/` guide for materials work
 
 `AGENTS.md` is authoritative. `CLAUDE.md` is a concise command and architecture reference.

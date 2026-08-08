@@ -3,6 +3,9 @@
 from pathlib import Path
 
 SUBJECTS = ("Math", "408")
+REPO_ROOT = Path(__file__).resolve().parent.parent
+LIBRARY_DIR = REPO_ROOT / "StudyMaterials" / "Library"
+CACHE_DIR = LIBRARY_DIR / "Cache"
 
 
 def find_pdfs(books_dir: Path) -> list[Path]:

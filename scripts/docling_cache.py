@@ -4,8 +4,9 @@ Usage:
     python scripts/docling_cache.py          # convert all uncached PDFs
     python scripts/docling_cache.py --force  # re-convert all PDFs
 
-Reads PDFs recursively from StudyMaterials/Math/ and StudyMaterials/408/.
-Writes caches to the matching category below StudyMaterials/Cache/.
+Reads PDFs recursively from StudyMaterials/Library/Math/ and
+StudyMaterials/Library/408/.
+Writes caches to the matching category below StudyMaterials/Library/Cache/.
 """
 
 import argparse
@@ -25,7 +26,13 @@ from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 
-from cache_layout import cache_dir_for_pdf, find_pdfs, legacy_cache_path
+from cache_layout import (
+    CACHE_DIR,
+    LIBRARY_DIR,
+    cache_dir_for_pdf,
+    find_pdfs,
+    legacy_cache_path,
+)
 
 
 def make_converter() -> DocumentConverter:
@@ -82,14 +89,13 @@ def main():
     parser.add_argument("--force", action="store_true", help="Re-convert even if cache exists")
     args = parser.parse_args()
 
-    repo = Path(__file__).resolve().parent.parent
-    books_dir = repo / "StudyMaterials"
-    cache_root = books_dir / "Cache"
+    books_dir = LIBRARY_DIR
+    cache_root = CACHE_DIR
     cache_root.mkdir(parents=True, exist_ok=True)
 
     pdfs = find_pdfs(books_dir)
     if not pdfs:
-        print("No PDFs found in StudyMaterials/{Math,408}/")
+        print("No PDFs found in StudyMaterials/Library/{Math,408}/")
         return
 
     print(f"Found {len(pdfs)} PDF(s)\n")

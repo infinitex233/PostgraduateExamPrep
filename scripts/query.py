@@ -16,7 +16,7 @@ import json
 import sys
 from pathlib import Path
 
-CACHE_DIR = Path(__file__).resolve().parent.parent / "StudyMaterials" / "Cache"
+from cache_layout import CACHE_DIR
 
 
 def find_cache_files() -> list[Path]:

@@ -5,7 +5,7 @@ Processes one page at a time, periodically recreates the OCR engine to prevent
 memory fragmentation, and saves intermediate results every 10 pages.
 
 Usage:
-    python scripts/page_ocr.py "StudyMaterials/Math/Intensive/某书.pdf"
+    python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
     python scripts/page_ocr.py --all   # process all uncached PDFs
 """
 
@@ -19,9 +19,14 @@ from pathlib import Path
 import fitz  # PyMuPDF
 from rapidocr import RapidOCR
 
-from cache_layout import cache_dir_for_pdf, find_pdfs, legacy_cache_path
+from cache_layout import (
+    CACHE_DIR,
+    LIBRARY_DIR,
+    cache_dir_for_pdf,
+    find_pdfs,
+    legacy_cache_path,
+)
 
-CACHE_DIR = Path(__file__).resolve().parent.parent / "StudyMaterials" / "Cache"
 ENGINE_REFRESH_INTERVAL = 20  # recreate OCR engine every N pages to avoid memory issues
 IMAGE_DPI = 120  # sufficient for printed text while keeping scanned books practical
 OCR_PARAMS = {
@@ -131,7 +136,7 @@ def main():
     parser.add_argument("--all", action="store_true", help="Process all PDFs")
     args = parser.parse_args()
 
-    books_dir = Path(__file__).resolve().parent.parent / "StudyMaterials"
+    books_dir = LIBRARY_DIR
 
     if args.pdf:
         pdfs = [Path(args.pdf)]

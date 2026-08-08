@@ -2,15 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-This directory holds the high-value textbooks, local OCR caches, rolling textbook notes, and English study materials that need repeated retrieval during 11408 preparation. It is a curated working library, not a complete archive of every resource.
-
-For repository-wide policy, read `../AGENTS.md` first. This guide owns the operational details for textbook lookup, cache generation, evidence verification, book notes, and English artifacts.
-
-## Version Control Policy
-
-Textbook PDFs are large and may be copyrighted. Keep them in the appropriate local directories and do not commit them. Verified OCR cache files under `Cache/` are derived data that may be committed so local textbook lookup works without a full rebuild.
-
-Git may also track scripts, Markdown notes, documentation, and suitable review artifacts such as the HTML writing-template deck.
+This directory separates reusable study sources from the notes and mistake books derived from them. Repository-wide policy remains in [AGENTS.md](../AGENTS.md).
 
 ## Directory Layout
 
@@ -18,137 +10,23 @@ Git may also track scripts, Markdown notes, documentation, and suitable review a
 StudyMaterials/
   README.md
   README.zh-CN.md
-  408/                         # Local 408 textbook PDFs
-  Math/
-    Basic/                     # Foundation-stage Mathematics I PDFs
-    Intensive/                 # Intensive-stage Mathematics I PDFs
-  Cache/                       # Categorized OCR caches; may be tracked
-    408/
-    Math/
-      Basic/
-      Intensive/
-  BookNotes/                   # Rolling notes grouped by subject family
-    Math/                      # Mathematics textbook notes
-    408/                       # 408 textbook notes
-  English/
-    WritingTemplates/
-      index.html               # Tracked browser version
-      index.pdf                # Local generated PDF
+  Library/                     # Textbooks, OCR caches, and English materials
+  BookNotes/                   # Rolling notes organized by textbook
+  MistakeBook/                 # Rolling mistake books organized by subject
 ```
 
-The cache category mirrors the source category, including nested parent directories. For example, a PDF under `Math/Intensive/SetA/` writes its cache under `Cache/Math/Intensive/SetA/`. Both cache builders reuse `scripts/cache_layout.py` for this mapping.
+## Guides
 
-## Cache Formats
+- [Study Library](Library/README.md): local textbooks, OCR caches, textbook lookup, cache generation, evidence verification, and English materials.
+- [Book Notes](BookNotes/README.md): one rolling Markdown note per textbook, maintained chapter by chapter.
+- [Mistake Books](MistakeBook/README.md): one rolling Markdown mistake book per concrete subject, organized by chapter and knowledge point.
 
-The primary page-level format is:
+Read this file first, then follow the guide that owns the target directory. Keep source materials in `Library/`, textbook notes in `BookNotes/`, and mistake questions in `MistakeBook/`.
 
-```json
-{
-  "book": "book name",
-  "total_pages": 100,
-  "pages": [
-    {"page_no": 1, "text": "..."}
-  ]
-}
-```
+## Shared Rules
 
-`scripts/query.py` recursively reads `StudyMaterials/Cache/**/*.docling.json` and supports both this format and legacy Docling JSON containing structured `texts` entries.
-
-## Query the Cache
-
-When a user asks what a textbook says, where a concept appears, or how a definition is stated, search the local cache first:
-
-```bash
-python scripts/query.py "关键词"
-python scripts/query.py "关键词" --book "数据结构"
-python scripts/query.py "关键词" --book "线代" --page-only
-python scripts/query.py "关键词" --book "高数" --context 2
-python scripts/query.py --list-books
-```
-
-A cache miss does not prove that the book lacks the material. Try synonyms, shorter terms, and split queries before inspecting likely PDF pages or reporting that the current cache did not confirm it.
-
-## Build the Cache
-
-Use the page-level PyMuPDF + RapidOCR pipeline by default:
-
-```bash
-python scripts/page_ocr.py "StudyMaterials/408/某书.pdf"
-python scripts/page_ocr.py "StudyMaterials/Math/Intensive/某书.pdf"
-python scripts/page_ocr.py --all
-```
-
-It discovers PDFs recursively, uses embedded text when available, falls back to OCR for scanned pages, resumes incomplete JSON checkpoints, and skips complete caches.
-
-`scripts/docling_cache.py` is a legacy-compatible alternative that writes both Docling JSON and Markdown. Keep it for existing cache compatibility, but do not present it as the default page-level workflow.
-
-Full-cache generation can process gigabytes of local PDFs. Do not run it as a routine documentation or pre-commit check.
-
-## Current Intensive Mathematics Cache
-
-The following local Mathematics I intensive-stage additions were fully cached and verified on 2026-07-13:
-
-| Source PDF | Cache JSON | Page coverage |
-| --- | --- | ---: |
-| `27版李林880题《数一解析册》.pdf` | `27版李林880题《数一解析册》.docling.json` | 416 / 416 |
-| `张宇100题_数一_解析册.pdf` | `张宇100题_数一_解析册.docling.json` | 568 / 568 |
-| `张宇1000题_数一_试题册.pdf` | `张宇1000题_数一_试题册.docling.json` | 195 / 195 |
-
-The source files live under `Math/Intensive/`, and the corresponding caches live under `Cache/Math/Intensive/`. Six pages across the first two books contain no OCR text; visual inspection confirmed that they are blank or text-free transition pages, so the caches still provide complete PDF-page coverage. The PDFs remain local-only, while the verified cache JSON may be committed.
-
-## Evidence and Page Numbers
-
-OCR cache matches identify candidate **PDF pages** only. They are not final evidence.
-
-Open the source PDF when the answer depends on:
-
-- Exact wording or a direct quotation
-- Formulas, symbols, tables, or diagrams
-- Worked-example details
-- Printed book page numbers
-- A conclusion whose OCR text is ambiguous
-
-A textbook-specific answer should identify the book and section when possible, and distinguish:
-
-- `书内印刷页码`: the page number printed in the book
-- `PDF 页码`: the page index in the PDF viewer/cache
-
-If either value cannot be confirmed, state that explicitly. Never invent textbook wording, page locations, examples, formulas, or conclusions from memory.
-
-## Chapter-by-Chapter Book Notes
-
-`BookNotes/` groups rolling textbook notes by subject family: mathematics notes live under `BookNotes/Math/`, and 408 notes live under `BookNotes/408/`. Keep one rolling Markdown note per textbook and update it during review, chapter by chapter, instead of summarizing an entire book in one pass.
-
-When a chapter is requested:
-
-1. Locate the corresponding source PDF and relevant pages.
-2. Open or create `BookNotes/Math/<book name>.md` or `BookNotes/408/<book name>.md`.
-3. Update only the chapter currently under review.
-4. Merge verified material into an existing chapter rather than replacing it wholesale.
-5. Preserve the user's additions, deletions, ordering, annotations, and personal wording.
-6. Separate verified textbook content from explanations or supplements.
-7. Keep page references for definitions, formulas, theorems, examples, key conclusions, and common mistakes when possible.
-
-Prioritize knowledge structure, key definitions, exam patterns, error traps, and useful problem-entry points. The note is a review aid, not a reproduction of the source book.
-
-## English Materials
-
-`English/` stores English I source material and derived review artifacts. The current writing-template outputs are:
-
-```text
-English/WritingTemplates/
-  index.html
-  index.pdf
-```
-
-When transcribing screenshots or PDFs, preserve source order and useful study content while omitting watermarks, platform chrome, correction-interface decoration, screenshot noise, and OCR diagnostics.
-
-If `WritingTemplates/index.html` changes and the user requests a PDF version, regenerate `WritingTemplates/index.pdf` so both formats remain aligned. The PDF remains local because all PDFs below `StudyMaterials/` are ignored.
-
-## Cleanup and Safety
-
-- Never rename, move, or delete source PDFs unless the user explicitly requests it.
-- Keep source materials separate from derived notes.
-- Do not commit PDFs. Cache files may be committed after verifying their structure, completeness, and contents.
-- Delete rendered PDF pages, screenshots, OCR diagnostics, temporary services, PID files, and other one-off artifacts after use.
-- If source evidence is missing or unclear, report the limitation instead of filling the gap.
+- Keep every PDF below `StudyMaterials/` local and out of Git.
+- Verified OCR cache JSON under `Library/Cache/` may be tracked after checking completeness and contents.
+- Preserve user-authored notes, mistake entries, annotations, ordering, and personal wording.
+- Do not rename, move, edit, or delete source materials unless explicitly requested.
+- Keep source evidence separate from derived notes and report missing evidence instead of inventing details.

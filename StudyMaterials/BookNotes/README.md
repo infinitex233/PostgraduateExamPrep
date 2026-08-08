@@ -13,7 +13,7 @@ Update one textbook note chapter by chapter. Preserve user annotations and order
 
 - Note: [高数强化笔记.md](Math/高数强化笔记.md)
 - Source textbook: `27武忠祥高数辅导讲义-强化`
-- Source PDF: [27武忠祥高数辅导讲义-强化.pdf](../Math/Intensive/27武忠祥高数辅导讲义-强化.pdf)
+- Source PDF: [27武忠祥高数辅导讲义-强化.pdf](../Library/Math/Intensive/27武忠祥高数辅导讲义-强化.pdf)
 - Update order: follow the textbook chapter sequence and only organize chapters that have been studied and verified.
 - Example policy: do not reproduce full example questions; extract reusable conclusions, methods, and common mistakes as knowledge points.
 - Page references: use `printed book page / PDF page`. The PDF page is the actual page index shown by the reader.

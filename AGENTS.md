@@ -25,8 +25,11 @@ Before changing files:
 2. Read the root `README.md` for the repository overview.
 3. For study progress work, read `StudyProgress/README.md` and inspect the
    target records.
-4. For textbook lookup, book notes, OCR caches, or material organization, read
-   `StudyMaterials/README.md` and inspect the relevant source files.
+4. For materials work, read `StudyMaterials/README.md`, then the relevant
+   subdirectory guide: `StudyMaterials/Library/README.md` for textbooks, OCR
+   caches, or English materials; `StudyMaterials/BookNotes/README.md` for book
+   notes; or `StudyMaterials/MistakeBook/README.md` for mistake books. Inspect
+   the relevant source files before editing.
 5. Check `git status --short` before editing. Preserve unrelated worktree
    changes and work with overlapping changes.
 6. Preserve user-authored notes, logs, templates, plans, and source materials.
@@ -39,16 +42,17 @@ Before changing files:
 - `StudyProgress/Summaries/Monthly/` contains optional monthly subject summaries
   used by archive views.
 - `StudyProgress/Imports/` contains raw exports used for historical backfill.
-- `StudyMaterials/408/` contains local 408 textbook PDFs.
-- `StudyMaterials/Math/Basic/` contains foundation-stage mathematics PDFs.
-- `StudyMaterials/Math/Intensive/` contains intensive-stage mathematics PDFs.
-- `StudyMaterials/Cache/408/` contains page-level caches for 408 books.
-- `StudyMaterials/Cache/Math/Basic/` contains mathematics foundation caches.
-- `StudyMaterials/Cache/Math/Intensive/` contains mathematics intensive caches.
+- `StudyMaterials/Library/408/` contains local 408 textbook PDFs.
+- `StudyMaterials/Library/Math/Basic/` contains foundation-stage mathematics PDFs.
+- `StudyMaterials/Library/Math/Intensive/` contains intensive-stage mathematics PDFs.
+- `StudyMaterials/Library/Cache/408/` contains page-level caches for 408 books.
+- `StudyMaterials/Library/Cache/Math/Basic/` contains mathematics foundation caches.
+- `StudyMaterials/Library/Cache/Math/Intensive/` contains mathematics intensive caches.
+- `StudyMaterials/Library/English/` contains English source materials and review
+  artifacts.
 - `StudyMaterials/BookNotes/` contains textbook notes updated chapter by
   chapter.
-- `StudyMaterials/English/` contains English source materials and review
-  artifacts.
+- `StudyMaterials/MistakeBook/` contains subject-level mistake books.
 - `scripts/` contains cache, lookup, dashboard, test, and maintenance tools.
 
 ## Documentation policy
@@ -185,7 +189,7 @@ be pasted into Typora and rendered directly:
   or rewrite them. Stage explicit paths when the worktree is mixed.
 - Textbook PDFs under `StudyMaterials/` are local-only files. Never stage or
   commit them.
-- OCR caches under `StudyMaterials/Cache/` are derived data that may be staged
+- OCR caches under `StudyMaterials/Library/Cache/` are derived data that may be staged
   and committed. Before staging them, verify that the cache files are complete,
   readable, and free of temporary or diagnostic artifacts.
 - Do not commit credentials, tokens, cookies, browser profiles, personal export
@@ -283,7 +287,7 @@ python scripts/query.py "keyword" --book "book name" --context 2
 ```
 
 `scripts/query.py` recursively reads
-`StudyMaterials/Cache/**/*.docling.json`. The page-level format is:
+`StudyMaterials/Library/Cache/**/*.docling.json`. The page-level format is:
 
 ```json
 {
@@ -344,13 +348,30 @@ When updating a chapter:
 - Prefer frameworks, definitions, exam patterns, error traps, and useful entry
   points over reproducing the book.
 
+## Mistake book workflow
+
+Keep one rolling Markdown mistake book per concrete subject under
+`StudyMaterials/MistakeBook/`. Follow the paired README files in that directory.
+
+- Keep the Typora `[TOC]` marker at the top and use the full subject name as
+  the H1.
+- Use headings only for chapters, sections, and knowledge points. Record each
+  question as normal body content, not as a heading.
+- Record only the question, answer, analysis, and source. Put the source at the
+  end of the entry in a Markdown blockquote beginning with `> 来源：`.
+- Verify exact wording, formulas, diagrams, question numbers, and page numbers
+  against the source PDF. Distinguish the printed book page from the PDF page,
+  and write `未确认` for details that cannot be confirmed.
+- Preserve existing questions, annotations, ordering, and personal wording.
+  Do not add review schedules, mastery states, YAML metadata, or daily-log links.
+
 ## English materials workflow
 
 Keep English materials and generated review artifacts under
-`StudyMaterials/English/`. Current writing-template artifacts live at:
+`StudyMaterials/Library/English/`. Current writing-template artifacts live at:
 
 ```text
-StudyMaterials/English/WritingTemplates/
+StudyMaterials/Library/English/WritingTemplates/
   index.html
   index.pdf
 ```

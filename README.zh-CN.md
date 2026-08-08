@@ -20,6 +20,7 @@
 - 根据学习记录生成唯一的 Capsule 风格 HTML 看板。
 - 打开数百 MB 的教材 PDF 前，先检索本地 OCR 缓存。
 - 每本教材维护一份按复习章节滚动更新的 Markdown 笔记。
+- 每个具体科目维护一份按章节归类的 Markdown 错题本。
 - 将英语学习源资料和派生复习成品与进度日志分开保存。
 
 教材源 PDF 仅保存在本地。通过校验的 OCR 缓存可以与维护系统所需的脚本、学习记录、笔记、说明文档和适合版本控制的派生成品一同由 Git 跟踪。
@@ -52,14 +53,18 @@ PostgraduateExamPrep/
     Roadmap.md                   # 目标与阶段规划
     dashboard.html               # 生成后的 Capsule 看板
   StudyMaterials/
-    README.md                    # 英文资料工作流
-    README.zh-CN.md              # 简体中文资料工作流
-    408/                         # 本地 408 教材 PDF
-    Math/Basic/                  # 本地数学基础阶段 PDF
-    Math/Intensive/              # 本地数学强化阶段 PDF
-    Cache/                       # 本地分类 OCR 缓存
+    README.md                    # 英文资料索引
+    README.zh-CN.md              # 简体中文资料索引
+    Library/                     # 教材、OCR 缓存和英语资料
+      README.md                  # 英文资料库工作流
+      README.zh-CN.md            # 简体中文资料库工作流
+      408/                       # 本地 408 教材 PDF
+      Math/Basic/                # 本地数学基础阶段 PDF
+      Math/Intensive/            # 本地数学强化阶段 PDF
+      Cache/                     # 本地分类 OCR 缓存
+      English/                   # 英语源资料与复习成品
     BookNotes/                   # 滚动更新的教材笔记
-    English/                     # 英语源资料与复习成品
+    MistakeBook/                 # 按具体科目组织的错题本
 ```
 
 ## 每日进度
@@ -93,13 +98,13 @@ python scripts/query.py "极限" --book "高数" --page-only
 使用主要 OCR 流程生成或续跑逐页缓存：
 
 ```bash
-python scripts/page_ocr.py "StudyMaterials/Math/Intensive/某书.pdf"
+python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
 python scripts/page_ocr.py --all
 ```
 
 缓存命中只用于定位候选 PDF 页，不是最终证据。精确原文、公式、图表、例题和书内印刷页码仍须核对源 PDF；引用页码时应区分书内印刷页码与 PDF 页码。
 
-缓存格式、查书纪律和教材笔记规则见 [StudyMaterials 工作流](StudyMaterials/README.zh-CN.md)。
+缓存格式和查书纪律见[学习资料库说明](StudyMaterials/Library/README.zh-CN.md)；教材笔记与错题本入口见 [StudyMaterials 说明](StudyMaterials/README.zh-CN.md)。
 
 ## 看板检查
 
@@ -120,7 +125,7 @@ python scripts/build_dashboard.py
 - Python 字节码、测试缓存、PDF 渲染页、截图、诊断信息和临时文件
 - 凭据、浏览器配置、Cookie 和机器专用数据
 
-`StudyMaterials/Cache/` 下通过校验的 OCR 缓存 JSON 可以提交，使教材检索无需在每台机器上重新构建全部缓存。PDF 和一次性产物仍不得进入 Git，以避免发布版权源材料或机器专用杂项。
+`StudyMaterials/Library/Cache/` 下通过校验的 OCR 缓存 JSON 可以提交，使教材检索无需在每台机器上重新构建全部缓存。PDF 和一次性产物仍不得进入 Git，以避免发布版权源材料或机器专用杂项。
 
 ## Agent 使用入口
 
@@ -129,6 +134,6 @@ python scripts/build_dashboard.py
 1. `AGENTS.md`
 2. 本 README
 3. 处理日志、复盘或看板时阅读 `StudyProgress/README.md`
-4. 处理教材、缓存、教材笔记或英语资料时阅读 `StudyMaterials/README.md`
+4. 处理学习资料时先阅读 `StudyMaterials/README.md`，再阅读对应的 `Library/`、`BookNotes/` 或 `MistakeBook/` 说明
 
 `AGENTS.md` 是权威规则；`CLAUDE.md` 是精简的命令和架构参考。
