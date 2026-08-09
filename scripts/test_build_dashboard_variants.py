@@ -7,11 +7,6 @@ from scripts import build_dashboard_variants as variants
 
 
 class DashboardVariantTests(unittest.TestCase):
-    def test_bundled_source_serif_font_is_valid_woff2(self):
-        self.assertTrue(variants.SOURCE_SERIF_FONT.is_file())
-        self.assertEqual(variants.SOURCE_SERIF_FONT.read_bytes()[:4], b"wOF2")
-        self.assertLess(variants.SOURCE_SERIF_FONT.stat().st_size, 150_000)
-
     def test_all_renderers_are_self_contained(self):
         data = variants.enriched_data()
         for html in (
@@ -149,12 +144,14 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertNotIn(f"{archive_days} 天", capsule_dashboard)
             self.assertNotIn(f'{summary["days_to_exam"]} 天', capsule_dashboard)
             self.assertIn("grid-template-columns:repeat(5,1fr)", capsule_dashboard)
-            self.assertIn('font-family:"Source Serif 4 Dashboard"', capsule_dashboard)
-            self.assertIn("data:font/woff2;base64,", capsule_dashboard)
-            self.assertIn('--display:"Source Serif 4 Dashboard",Georgia', capsule_dashboard)
+            self.assertIn('--display:"Anthropic Serif Display",Georgia', capsule_dashboard)
+            self.assertIn('--body:"Anthropic Serif Text",Georgia', capsule_dashboard)
+            self.assertIn('--ui:system-ui,"Microsoft YaHei"', capsule_dashboard)
+            self.assertNotIn("data:font/woff2;base64,", capsule_dashboard)
             self.assertIn("font-variant-numeric:lining-nums proportional-nums", capsule_dashboard)
             self.assertIn('font-feature-settings:"lnum" 1,"pnum" 1', capsule_dashboard)
-            self.assertIn('font-variation-settings:"opsz" 12', capsule_dashboard)
+            self.assertIn("font-synthesis:none", capsule_dashboard)
+            self.assertNotIn("Source Serif 4 Dashboard", capsule_dashboard)
             self.assertNotIn("tabular-nums", capsule_dashboard)
             self.assertNotIn('font-family:var(--metric)', capsule_dashboard)
             self.assertIn(".subject-pill > span,.latest-pill > em", capsule_dashboard)

@@ -8,7 +8,6 @@ This script generates the sole dashboard artifact:
 
 from __future__ import annotations
 
-import base64
 import json
 import re
 import sys
@@ -23,7 +22,6 @@ from scripts import build_dashboard
 OUT_DIR = ROOT / "StudyProgress"
 PROGRESS_INDEX = ROOT / "StudyProgress" / "ProgressIndex.md"
 MONTHLY_SUMMARY_DIR = ROOT / "StudyProgress" / "Summaries" / "Monthly"
-SOURCE_SERIF_FONT = ROOT / "scripts" / "assets" / "fonts" / "SourceSerif4Variable-LatinSubset.woff2"
 DASHBOARD_OUT = "dashboard.html"
 STALE_DASHBOARD_FILES = [
     "dashboard_signal.html",
@@ -260,11 +258,6 @@ def subject_totals_for_days(days: list[dict]) -> list[tuple[str, int]]:
 
 def html_json(data: dict) -> str:
     return json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
-
-
-def embedded_source_serif() -> str:
-    """Return the bundled Source Serif 4 font as a self-contained data URI."""
-    return base64.b64encode(SOURCE_SERIF_FONT.read_bytes()).decode("ascii")
 
 
 def pct(value: int | float, maximum: int | float) -> float:
@@ -802,7 +795,6 @@ def render_capsule_dashboard(data: dict) -> str:
     ) or '<div class="empty-pill">暂无近期记录。</div>'
 
     subject_color_json = json.dumps(CAPSULE_SUBJECT_COLORS, ensure_ascii=False)
-    source_serif_data = embedded_source_serif()
     color_swatches = "\n".join(
         f'<span style="--fill:{color}">{esc(display_subject(name))}</span>'
         for name, color in CAPSULE_SUBJECT_COLORS.items()
@@ -821,52 +813,47 @@ def render_capsule_dashboard(data: dict) -> str:
 <meta name="screen-orientation" content="landscape">
 <title>11408 Capsule Dashboard Horizontal</title>
 <style>
-@font-face {{
-  font-family:"Source Serif 4 Dashboard";
-  src:url("data:font/woff2;base64,{source_serif_data}") format("woff2");
-  font-style:normal;
-  font-weight:200 900;
-  font-display:swap;
-}}
 :root {{
   --cream:#F5F5F0; --ink:#1A1A1A; --outline:#1E1E1E; --white:#FFFFFF;
   --coral:#E85D4E; --lime:#C4D94E; --lavender:#C5B5E0; --sky:#8BB4F7;
   --violet:#A06CE8; --yellow:#F2D160; --peach:#F5B895; --mint:#A8E6CF;
-  --shadow:rgba(26,26,26,.08); --display:"Source Serif 4 Dashboard",Georgia,"Songti SC","Noto Serif CJK SC",SimSun,serif;
-  --body:system-ui,"Microsoft YaHei","Noto Sans CJK SC","PingFang SC",sans-serif;
+  --shadow:rgba(26,26,26,.08);
+  --display:"Anthropic Serif Display",Georgia,"Source Serif Pro",Charter,"Songti SC","Noto Serif CJK SC",SimSun,serif;
+  --body:"Anthropic Serif Text",Georgia,"Source Serif Pro",Charter,"Songti SC","Noto Serif CJK SC",SimSun,serif;
+  --ui:system-ui,"Microsoft YaHei","Noto Sans CJK SC","PingFang SC",sans-serif;
 }}
 * {{ box-sizing:border-box; }}
-html,body {{ width:100%; height:100%; margin:0; overflow:hidden; background:#ecece5; font-variant-numeric:lining-nums proportional-nums; font-feature-settings:"lnum" 1,"pnum" 1; font-optical-sizing:none; font-variation-settings:"opsz" 12; }}
+html,body {{ width:100%; height:100%; margin:0; overflow:hidden; background:#ecece5; font-variant-numeric:lining-nums proportional-nums; font-feature-settings:"lnum" 1,"pnum" 1; font-synthesis:none; }}
 .deck-viewport {{ position:fixed; inset:0; overflow:hidden; background:#ecece5; }}
 .deck-stage {{ position:absolute; left:0; top:0; width: 1920px; height: 1080px; overflow:hidden; transform-origin:0 0; background:var(--cream); }}
-.slide {{ position:absolute; inset:0; width: 1920px; height: 1080px; overflow:hidden; display:block; visibility:hidden; opacity:0; pointer-events:none; padding:58px 78px 70px; color:var(--ink); font-family:var(--body); touch-action:pan-y; background:
+.slide {{ position:absolute; inset:0; width: 1920px; height: 1080px; overflow:hidden; display:block; visibility:hidden; opacity:0; pointer-events:none; padding:58px 78px 70px; color:var(--ink); font-family:var(--body); font-weight:400; touch-action:pan-y; background:
   radial-gradient(ellipse at 10% 12%, rgba(232,93,78,.12), transparent 34%),
   radial-gradient(ellipse at 88% 18%, rgba(139,180,247,.13), transparent 34%),
   radial-gradient(ellipse at 76% 96%, rgba(196,217,78,.12), transparent 36%),
   var(--cream); }}
 .slide.active,.slide.visible {{ visibility:visible; opacity:1; pointer-events:auto; z-index:1; }}
 .grain {{ position:fixed; inset:0; pointer-events:none; opacity:.04; mix-blend-mode:multiply; z-index:3000; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E"); }}
-.chrome {{ display:flex; justify-content:space-between; align-items:center; height:42px; font-family:var(--display); font-size:16px; font-weight:500; letter-spacing:0; color:rgba(26,26,26,.72); }}
+.chrome {{ display:flex; justify-content:space-between; align-items:center; height:42px; font-family:var(--ui); font-size:16px; font-weight:500; letter-spacing:0; color:rgba(26,26,26,.72); }}
 .tag,.mini-tag,.pill-card,.metric-pill,.latest-pill,.subject-pill,.action-pill,.progress-pill,.log-pill,.node-pill,.legend-pill,.month-pill,.empty-pill,.deck-controls button,.counter {{ border:2px solid var(--outline); box-shadow:4px 4px 0 var(--shadow); }}
 .tag,.mini-tag,.legend-pill,.empty-pill,.deck-controls button,.counter {{ border-radius:9999px; }}
-.tag {{ display:inline-flex; align-items:center; justify-content:center; padding:12px 28px; background:var(--yellow); color:var(--ink); font-weight:800; letter-spacing:0; font-size:14px; }}
-.mini-tag {{ display:inline-flex; padding:8px 18px; background:var(--lavender); font-size:12px; font-weight:800; color:rgba(26,26,26,.72); }}
+.tag {{ display:inline-flex; align-items:center; justify-content:center; padding:12px 28px; background:var(--yellow); color:var(--ink); font-family:var(--ui); font-weight:700; letter-spacing:0; font-size:14px; }}
+.mini-tag {{ display:inline-flex; padding:8px 18px; background:var(--lavender); font-family:var(--ui); font-size:12px; font-weight:700; color:rgba(26,26,26,.72); }}
 .pill-card {{ background:var(--white); border-radius:32px; padding:26px; box-shadow:8px 8px 0 var(--shadow); }}
-h1,h2,h3 {{ margin:0; font-family:var(--display); font-weight:675; letter-spacing:0; color:var(--ink); }}
+h1,h2,h3 {{ margin:0; font-family:var(--display); font-weight:600; letter-spacing:0; color:var(--ink); }}
 h1 {{ font-size:94px; line-height:.94; }}
 h2 {{ font-size:58px; line-height:.98; }}
 h3 {{ font-size:38px; line-height:1; }}
 .lead {{ margin:18px 0 0; font-size:22px; line-height:1.58; color:rgba(26,26,26,.66); }}
 .home-status {{ margin-top:20px; color:rgba(26,26,26,.66); font-size:22px; line-height:1.5; }}
 .home-status p {{ margin:5px 0; }}
-.home-status .status-phase {{ color:var(--ink); font-weight:800; }}
-.home-status b {{ color:var(--ink); }}
+.home-status .status-phase {{ color:var(--ink); font-weight:600; }}
+.home-status b {{ color:var(--ink); font-weight:600; }}
 .home-grid {{ display:grid; grid-template-columns:1.18fr .82fr; gap:38px; padding-top:36px; }}
 .metric-grid {{ display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:28px; }}
 .metric-pill {{ display:flex; flex-direction:column; background:var(--white); border-radius:32px; padding:22px; min-height:150px; }}
-.metric-pill b {{ display:block; order:2; font-family:var(--display); font-size:44px; line-height:1; margin-top:14px; white-space:nowrap; font-weight:675; }}
-.metric-pill > span {{ order:1; color:rgba(26,26,26,.68); font-size:15px; font-weight:800; }}
-.latest-pill em,.subject-pill span,.progress-pill em,.log-pill em {{ color:rgba(26,26,26,.62); font-weight:800; }}
+.metric-pill b {{ display:block; order:2; font-family:var(--display); font-size:44px; line-height:1; margin-top:14px; white-space:nowrap; font-weight:600; }}
+.metric-pill > span {{ order:1; color:rgba(26,26,26,.68); font-family:var(--ui); font-size:15px; font-weight:700; }}
+.latest-pill em,.subject-pill span,.progress-pill em,.log-pill em {{ color:rgba(26,26,26,.62); font-weight:600; }}
 .coral {{ color:#B13B30; }} .lime {{ color:#586800; }} .sky {{ color:#35679E; }} .peach {{ color:#945033; }} .violet {{ color:#7342B3; }}
 .tag.sky,.tag.lime,.tag.peach,.tag.violet,.tag.lavender,.tag.yellow {{ color:var(--ink); }}
 .latest-panel {{ display:grid; grid-template-rows:auto auto 1fr; min-height:520px; align-self:start; }}
@@ -881,16 +868,16 @@ h3 {{ font-size:38px; line-height:1; }}
 .stack-col > span,.stack-col > em {{ font-family:var(--display); font-style:normal; font-weight:500; }}
 .stack-track {{ position:relative; align-self:end; min-height:10px; overflow:hidden; background:var(--white); border:2px solid var(--outline); border-radius:9999px; box-shadow:4px 4px 0 var(--shadow); }}
 .legend-row {{ display:flex; flex-wrap:wrap; gap:10px; }}
-.legend-pill {{ display:inline-flex; align-items:center; gap:8px; background:var(--white); padding:8px 14px; font-family:var(--body); font-size:14px; font-weight:650; }}
+.legend-pill {{ display:inline-flex; align-items:center; gap:8px; background:var(--white); padding:8px 14px; font-family:var(--ui); font-size:14px; font-weight:600; }}
 .overview-grid {{ display:grid; grid-template-columns:.82fr 1.18fr; gap:34px; padding-top:30px; }}
 .overview-grid h2 {{ font-size:50px; }}
 .overview-grid .trend-grid {{ height:545px; gap:10px; }}
 .overview-grid .legend-row {{ margin-top:4px; }}
 .month-grid {{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }}
 .month-pill {{ background:var(--white); border-radius:24px; padding:14px 16px; min-width:0; }}
-.month-pill div:first-child {{ display:flex; justify-content:space-between; align-items:center; font-family:var(--display); font-weight:650; color:rgba(26,26,26,.64); }}
-.month-pill strong {{ display:block; font-family:var(--display); font-size:32px; line-height:1; margin:10px 0; color:#B13B30; font-weight:650; }}
-.month-pill p {{ margin:9px 0 0; min-height:38px; color:rgba(26,26,26,.72); font-size:14px; line-height:1.35; font-weight:700; }}
+.month-pill div:first-child {{ display:flex; justify-content:space-between; align-items:center; font-family:var(--display); font-weight:600; color:rgba(26,26,26,.64); }}
+.month-pill strong {{ display:block; font-family:var(--display); font-size:32px; line-height:1; margin:10px 0; color:#B13B30; font-weight:600; }}
+.month-pill p {{ margin:9px 0 0; min-height:38px; color:rgba(26,26,26,.72); font-size:14px; line-height:1.35; font-weight:400; }}
 .two-col {{ display:grid; grid-template-columns:.94fr 1.06fr; gap:38px; padding-top:34px; }}
 .archive-subject-grid {{ display:grid; grid-template-columns:1fr; gap:20px; margin-top:22px; }}
 .archive-subject-grid .subject-list {{ margin-top:0; gap:9px; }}
@@ -898,7 +885,7 @@ h3 {{ font-size:38px; line-height:1; }}
 .archive-subject-grid .capsule-track {{ height:28px; }}
 .subject-list,.action-list,.progress-list,.log-list,.node-list {{ display:grid; gap:13px; margin-top:22px; }}
 .subject-pill {{ display:grid; grid-template-columns:190px 1fr 100px; gap:16px; align-items:center; background:var(--white); border-radius:9999px; padding:13px 18px; }}
-.subject-pill > span,.latest-pill > em,.progress-pill > em,.log-pill > em {{ font-family:var(--display); font-style:normal; font-weight:650; }}
+.subject-pill > span,.latest-pill > em,.progress-pill > em,.log-pill > em {{ font-family:var(--display); font-style:normal; font-weight:600; }}
 .subject-pill.zero {{ color:rgba(26,26,26,.58); }}
 .subject-pill.zero .capsule-track {{ border-style:dashed; background:transparent; }}
 .capsule-track {{ height:30px; border:2px solid var(--outline); border-radius:9999px; background:var(--cream); overflow:hidden; }}
@@ -914,16 +901,16 @@ h3 {{ font-size:38px; line-height:1; }}
 .progress-list {{ gap:9px; }}
 .progress-pill {{ display:grid; grid-template-columns:180px 1fr 150px; gap:16px; align-items:center; padding:11px 20px; }}
 .phase-chips {{ display:flex; flex-wrap:wrap; gap:8px; }}
-.phase-chip {{ display:inline-flex; align-items:center; gap:8px; border:2px solid var(--outline); border-radius:9999px; padding:7px 14px; font-size:14px; font-weight:800; }}
+.phase-chip {{ display:inline-flex; align-items:center; gap:8px; border:2px solid var(--outline); border-radius:9999px; padding:7px 14px; font-family:var(--ui); font-size:14px; font-weight:700; }}
 .phase-chip em {{ color:inherit; font-style:normal; opacity:.7; }}
 .phase-chip.done {{ background:var(--fill); color:var(--ink); }}
 .phase-chip.doing {{ background:var(--white); color:var(--ink); }}
 .phase-chip.todo {{ background:transparent; color:rgba(26,26,26,.62); border-style:dashed; }}
 .log-pill {{ display:grid; grid-template-columns:132px 1fr 90px; gap:16px; align-items:center; }}
 .node-pill {{ display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:center; }}
-.log-pill > b,.node-pill > b {{ font-family:var(--display); font-weight:650; }}
+.log-pill > b,.node-pill > b {{ font-family:var(--display); font-weight:600; }}
 .swatches {{ display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }}
-.swatches span {{ display:inline-flex; border:2px solid var(--outline); border-radius:9999px; background:var(--fill); padding:6px 12px; font-size:12px; font-weight:800; }}
+.swatches span {{ display:inline-flex; border:2px solid var(--outline); border-radius:9999px; background:var(--fill); padding:6px 12px; font-family:var(--ui); font-size:12px; font-weight:700; }}
 .empty-pill {{ display:inline-flex; align-items:center; background:var(--white); padding:18px 24px; color:rgba(26,26,26,.62); }}
 .rotate-hint {{ position:fixed; inset:0; display:none; z-index:4000; overflow:auto; background:var(--cream); color:var(--ink); font-family:var(--body); padding:24px; }}
 .mobile-panel {{ width:min(100%,620px); margin:0 auto; padding-bottom:44px; }}
@@ -933,18 +920,18 @@ h3 {{ font-size:38px; line-height:1; }}
 .mobile-panel p {{ color:rgba(26,26,26,.72); line-height:1.55; }}
 .mobile-nav {{ position:sticky; top:-24px; z-index:2; display:flex; gap:18px; overflow-x:auto; margin:24px -24px 0; padding:10px 24px; border-bottom:2px solid var(--outline); background:rgba(245,245,240,.96); scrollbar-width:none; }}
 .mobile-nav::-webkit-scrollbar {{ display:none; }}
-.mobile-nav a {{ flex:0 0 auto; display:flex; align-items:center; min-height:44px; color:var(--ink); text-decoration:none; font-weight:800; }}
+.mobile-nav a {{ flex:0 0 auto; display:flex; align-items:center; min-height:44px; color:var(--ink); text-decoration:none; font-family:var(--ui); font-weight:700; }}
 .mobile-nav a:focus-visible {{ outline:3px solid #35679E; outline-offset:2px; }}
 .mobile-section {{ padding:28px 0; border-top:2px solid rgba(30,30,30,.24); scroll-margin-top:66px; }}
 .mobile-section:first-of-type {{ border-top:0; }}
 .mobile-metrics {{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }}
 .mobile-metrics div,.mobile-subjects div {{ display:flex; justify-content:space-between; gap:12px; border:2px solid var(--outline); border-radius:18px; background:var(--white); padding:14px 16px; }}
-.mobile-metrics b,.mobile-subjects span {{ color:#B13B30; font-family:var(--display); font-weight:650; }}
+.mobile-metrics b,.mobile-subjects span {{ color:#B13B30; font-family:var(--display); font-weight:600; }}
 .mobile-subjects {{ display:grid; gap:8px; margin-top:12px; }}
 .mobile-month-grid {{ grid-template-columns:1fr; margin-top:0; }}
 .mobile-recent-list {{ display:grid; border-top:2px solid var(--outline); }}
 .mobile-recent-row {{ display:grid; grid-template-columns:1fr auto; gap:6px 14px; padding:13px 2px; border-bottom:1px solid rgba(30,30,30,.28); }}
-.mobile-recent-row b,.mobile-recent-row strong {{ font-family:var(--display); font-weight:650; }}
+.mobile-recent-row b,.mobile-recent-row strong {{ font-family:var(--display); font-weight:600; }}
 .mobile-recent-row span {{ grid-column:1 / -1; color:rgba(26,26,26,.68); font-size:14px; line-height:1.4; }}
 .mobile-archive .subject-list,.mobile-progress .progress-list,.mobile-logs .log-list,.mobile-nodes .node-list {{ margin-top:0; }}
 .mobile-archive .subject-pill {{ grid-template-columns:1fr auto; gap:10px 14px; border-radius:18px; padding:14px 16px; }}
@@ -959,11 +946,11 @@ h3 {{ font-size:38px; line-height:1; }}
 @media (max-width:900px) {{ .rotate-hint {{ display:block; }} .deck-controls {{ display:none!important; }} }}
 @media (max-width:430px) {{ .mobile-metrics {{ grid-template-columns:1fr; }} }}
 .deck-controls {{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:3500; }}
-.deck-controls button {{ width:48px; height:48px; background:var(--white); margin:0 5px; font-family:var(--body); font-weight:800; cursor:pointer; }}
+.deck-controls button {{ width:48px; height:48px; background:var(--white); margin:0 5px; font-family:var(--ui); font-weight:700; cursor:pointer; }}
 .deck-controls button:active {{ transform:scale(.96); }}
 .deck-controls button:disabled {{ opacity:.38; cursor:default; }}
 .deck-controls button:focus-visible {{ outline:4px solid #35679E; outline-offset:3px; }}
-.counter {{ display:inline-flex; align-items:center; height:48px; padding:0 16px; background:var(--yellow); font-family:var(--display); font-weight:650; }}
+.counter {{ display:inline-flex; align-items:center; height:48px; padding:0 16px; background:var(--yellow); font-family:var(--display); font-weight:600; }}
 @media print {{ html,body{{width:1920px;height:auto;overflow:visible;background:#fff}} .deck-viewport{{position:static;overflow:visible;background:#fff}} .deck-stage{{position:static;width:auto;height:auto;transform:none!important;background:none}} .slide{{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always}} .deck-controls,.rotate-hint{{display:none!important}} }}
 @media (prefers-reduced-motion:reduce) {{ *,*::before,*::after{{animation:none!important;transition:none!important}} }}
 @media (prefers-contrast:more) {{ .metric-pill,.pill-card,.subject-pill,.action-pill,.progress-pill,.log-pill,.node-pill,.month-pill{{box-shadow:none;border-width:3px}} }}
