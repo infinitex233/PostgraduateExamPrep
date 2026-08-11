@@ -110,7 +110,9 @@ compatible Python 3 interpreter.
 - Never commit credentials, tokens, cookies, browser profiles, personal
   exports, or machine-specific diagnostics.
 - Do not commit or push unless the user asks. In a mixed worktree, stage only
-  explicit paths after inspecting the staged diff.
+  explicit paths after inspecting the staged diff. The sole exception is
+  study-report logging, which must be committed and pushed automatically per
+  the Study progress workflow.
 - Do not use destructive Git commands such as `git reset --hard` or
   `git checkout --` unless explicitly requested.
 - At the end of a task, remove `tmp/`, `__pycache__/`, `.pytest_cache/`,
@@ -133,6 +135,13 @@ chapter status, completion, mood, or plans from prose.
 it as the only source, create parallel dashboard variants, or change dashboard
 schema keys, colors, layout, or interaction behavior without an explicit
 request. Run the regression tests and rebuild after dashboard-code changes.
+
+After every study-report logging run, commit the resulting changes and push
+them to the remote. Stage only the paths touched by the logging run (log
+records, `ProgressIndex.md`, `dashboard.html`, and any other files updated by
+that run) after inspecting the staged diff. Use a concise commit message
+matching the repo style, such as `log: <date> study report`. If the push fails,
+report the failure instead of silently leaving it.
 
 ### Textbook lookup and library materials
 
