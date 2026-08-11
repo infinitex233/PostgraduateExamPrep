@@ -204,6 +204,55 @@ class DashboardAggregationTests(unittest.TestCase):
         )
         self.assertFalse(data["summary"]["exam_date_confirmed"])
 
+    def test_home_status_excludes_completed_subjects_from_main_line(self):
+        data = aggregate([
+            {
+                "date": "2026-08-09",
+                "phase": "强化阶段",
+                "total_minutes": 382,
+                "subjects": [
+                    {"name": "数学-高数", "time_min": 202, "detail": "强化学习"},
+                    {"name": "专业课-组成原理", "time_min": 99, "detail": "基础阶段完结"},
+                ],
+                "progress": [
+                    {"subject": "专业课-组成原理", "chapter": "基础阶段", "status": "完结"},
+                    {"subject": "专业课-操作系统", "chapter": "起步", "status": "起步"},
+                ],
+                "tags": [],
+            },
+            {
+                "date": "2026-08-10",
+                "phase": "强化阶段",
+                "total_minutes": 349,
+                "subjects": [
+                    {"name": "数学-高数", "time_min": 254, "detail": "第二章严选题"},
+                    {"name": "专业课-操作系统", "time_min": 95, "detail": "1.2 节"},
+                ],
+                "progress": [
+                    {"subject": "数学-高数", "chapter": "强化第二章严选题", "status": "进行中"},
+                    {"subject": "专业课-操作系统", "chapter": "1.2 节", "status": "进行中"},
+                ],
+                "tags": [],
+            },
+        ])
 
+        self.assertEqual(data["home_status"]["main"], "高数强化 × 操作系统")
+
+    def test_home_status_falls_back_to_minutes_without_progress_rows(self):
+        data = aggregate([
+            {
+                "date": "2026-08-10",
+                "phase": "强化阶段",
+                "total_minutes": 349,
+                "subjects": [
+                    {"name": "数学-高数", "time_min": 254, "detail": "第二章严选题"},
+                    {"name": "专业课-组成原理", "time_min": 95, "detail": "复习"},
+                ],
+                "progress": [],
+                "tags": [],
+            }
+        ])
+
+        self.assertEqual(data["home_status"]["main"], "高数强化 × 组成原理")
 if __name__ == "__main__":
     unittest.main()

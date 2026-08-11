@@ -819,7 +819,7 @@ def render_capsule_dashboard(data: dict) -> str:
   --violet:#A06CE8; --yellow:#F2D160; --peach:#F5B895; --mint:#A8E6CF;
   --shadow:rgba(26,26,26,.08);
   --display:"Anthropic Serif Display",Georgia,"Source Serif Pro",Charter,"Songti SC","Noto Serif CJK SC",SimSun,serif;
-  --body:"Anthropic Serif Text",Georgia,"Source Serif Pro",Charter,"Songti SC","Noto Serif CJK SC",SimSun,serif;
+  --body:system-ui,"Microsoft YaHei","Noto Sans CJK SC","PingFang SC",sans-serif;
   --ui:system-ui,"Microsoft YaHei","Noto Sans CJK SC","PingFang SC",sans-serif;
 }}
 * {{ box-sizing:border-box; }}
@@ -865,7 +865,7 @@ h3 {{ font-size:38px; line-height:1; }}
 .stack-layout {{ display:grid; grid-template-rows:auto 1fr auto; gap:22px; padding-top:28px; }}
 .trend-grid {{ height:610px; display:grid; grid-template-columns:repeat(14,1fr); gap:13px; align-items:end; }}
 .stack-col {{ height:100%; display:grid; grid-template-rows:32px 1fr 28px; gap:10px; text-align:center; font-size:15px; color:rgba(26,26,26,.62); }}
-.stack-col > span,.stack-col > em {{ font-family:var(--display); font-style:normal; font-weight:500; }}
+.stack-col > span,.stack-col > em {{ font-family:var(--ui); font-style:normal; font-weight:500; }}
 .stack-track {{ position:relative; align-self:end; min-height:10px; overflow:hidden; background:var(--white); border:2px solid var(--outline); border-radius:9999px; box-shadow:4px 4px 0 var(--shadow); }}
 .legend-row {{ display:flex; flex-wrap:wrap; gap:10px; }}
 .legend-pill {{ display:inline-flex; align-items:center; gap:8px; background:var(--white); padding:8px 14px; font-family:var(--ui); font-size:14px; font-weight:600; }}
@@ -875,7 +875,7 @@ h3 {{ font-size:38px; line-height:1; }}
 .overview-grid .legend-row {{ margin-top:4px; }}
 .month-grid {{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }}
 .month-pill {{ background:var(--white); border-radius:24px; padding:14px 16px; min-width:0; }}
-.month-pill div:first-child {{ display:flex; justify-content:space-between; align-items:center; font-family:var(--display); font-weight:600; color:rgba(26,26,26,.64); }}
+.month-pill div:first-child {{ display:flex; justify-content:space-between; align-items:center; font-family:var(--ui); font-weight:600; color:rgba(26,26,26,.64); }}
 .month-pill strong {{ display:block; font-family:var(--display); font-size:32px; line-height:1; margin:10px 0; color:#B13B30; font-weight:600; }}
 .month-pill p {{ margin:9px 0 0; min-height:38px; color:rgba(26,26,26,.72); font-size:14px; line-height:1.35; font-weight:400; }}
 .two-col {{ display:grid; grid-template-columns:.94fr 1.06fr; gap:38px; padding-top:34px; }}
@@ -885,7 +885,7 @@ h3 {{ font-size:38px; line-height:1; }}
 .archive-subject-grid .capsule-track {{ height:28px; }}
 .subject-list,.action-list,.progress-list,.log-list,.node-list {{ display:grid; gap:13px; margin-top:22px; }}
 .subject-pill {{ display:grid; grid-template-columns:190px 1fr 100px; gap:16px; align-items:center; background:var(--white); border-radius:9999px; padding:13px 18px; }}
-.subject-pill > span,.latest-pill > em,.progress-pill > em,.log-pill > em {{ font-family:var(--display); font-style:normal; font-weight:600; }}
+.subject-pill > span,.latest-pill > em,.progress-pill > em,.log-pill > em {{ font-family:var(--ui); font-style:normal; font-weight:600; }}
 .subject-pill.zero {{ color:rgba(26,26,26,.58); }}
 .subject-pill.zero .capsule-track {{ border-style:dashed; background:transparent; }}
 .capsule-track {{ height:30px; border:2px solid var(--outline); border-radius:9999px; background:var(--cream); overflow:hidden; }}
@@ -908,7 +908,7 @@ h3 {{ font-size:38px; line-height:1; }}
 .phase-chip.todo {{ background:transparent; color:rgba(26,26,26,.62); border-style:dashed; }}
 .log-pill {{ display:grid; grid-template-columns:132px 1fr 90px; gap:16px; align-items:center; }}
 .node-pill {{ display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:center; }}
-.log-pill > b,.node-pill > b {{ font-family:var(--display); font-weight:600; }}
+.log-pill > b,.node-pill > b {{ font-family:var(--ui); font-weight:600; }}
 .swatches {{ display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }}
 .swatches span {{ display:inline-flex; border:2px solid var(--outline); border-radius:9999px; background:var(--fill); padding:6px 12px; font-family:var(--ui); font-size:12px; font-weight:700; }}
 .empty-pill {{ display:inline-flex; align-items:center; background:var(--white); padding:18px 24px; color:rgba(26,26,26,.62); }}
@@ -926,12 +926,12 @@ h3 {{ font-size:38px; line-height:1; }}
 .mobile-section:first-of-type {{ border-top:0; }}
 .mobile-metrics {{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }}
 .mobile-metrics div,.mobile-subjects div {{ display:flex; justify-content:space-between; gap:12px; border:2px solid var(--outline); border-radius:18px; background:var(--white); padding:14px 16px; }}
-.mobile-metrics b,.mobile-subjects span {{ color:#B13B30; font-family:var(--display); font-weight:600; }}
+.mobile-metrics b,.mobile-subjects span {{ color:#B13B30; font-family:var(--ui); font-weight:600; }}
 .mobile-subjects {{ display:grid; gap:8px; margin-top:12px; }}
 .mobile-month-grid {{ grid-template-columns:1fr; margin-top:0; }}
 .mobile-recent-list {{ display:grid; border-top:2px solid var(--outline); }}
 .mobile-recent-row {{ display:grid; grid-template-columns:1fr auto; gap:6px 14px; padding:13px 2px; border-bottom:1px solid rgba(30,30,30,.28); }}
-.mobile-recent-row b,.mobile-recent-row strong {{ font-family:var(--display); font-weight:600; }}
+.mobile-recent-row b,.mobile-recent-row strong {{ font-family:var(--ui); font-weight:600; }}
 .mobile-recent-row span {{ grid-column:1 / -1; color:rgba(26,26,26,.68); font-size:14px; line-height:1.4; }}
 .mobile-archive .subject-list,.mobile-progress .progress-list,.mobile-logs .log-list,.mobile-nodes .node-list {{ margin-top:0; }}
 .mobile-archive .subject-pill {{ grid-template-columns:1fr auto; gap:10px 14px; border-radius:18px; padding:14px 16px; }}
@@ -950,7 +950,7 @@ h3 {{ font-size:38px; line-height:1; }}
 .deck-controls button:active {{ transform:scale(.96); }}
 .deck-controls button:disabled {{ opacity:.38; cursor:default; }}
 .deck-controls button:focus-visible {{ outline:4px solid #35679E; outline-offset:3px; }}
-.counter {{ display:inline-flex; align-items:center; height:48px; padding:0 16px; background:var(--yellow); font-family:var(--display); font-weight:600; }}
+.counter {{ display:inline-flex; align-items:center; height:48px; padding:0 16px; background:var(--yellow); font-family:var(--ui); font-weight:600; }}
 @media print {{ html,body{{width:1920px;height:auto;overflow:visible;background:#fff}} .deck-viewport{{position:static;overflow:visible;background:#fff}} .deck-stage{{position:static;width:auto;height:auto;transform:none!important;background:none}} .slide{{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always}} .deck-controls,.rotate-hint{{display:none!important}} }}
 @media (prefers-reduced-motion:reduce) {{ *,*::before,*::after{{animation:none!important;transition:none!important}} }}
 @media (prefers-contrast:more) {{ .metric-pill,.pill-card,.subject-pill,.action-pill,.progress-pill,.log-pill,.node-pill,.month-pill{{box-shadow:none;border-width:3px}} }}

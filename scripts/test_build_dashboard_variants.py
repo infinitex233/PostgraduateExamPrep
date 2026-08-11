@@ -70,9 +70,6 @@ class DashboardVariantTests(unittest.TestCase):
         exam_subjects = {
             item["name"]: item["minutes"] for item in archive["exam_subjects"]
         }
-        latest_probability_day = next(
-            day for day in reversed(data["daily"]) if "数学-概率" in day["subjects"]
-        )
 
         with TemporaryDirectory() as tmp:
             out_dir = Path(tmp)
@@ -145,7 +142,7 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertNotIn(f'{summary["days_to_exam"]} 天', capsule_dashboard)
             self.assertIn("grid-template-columns:repeat(5,1fr)", capsule_dashboard)
             self.assertIn('--display:"Anthropic Serif Display",Georgia', capsule_dashboard)
-            self.assertIn('--body:"Anthropic Serif Text",Georgia', capsule_dashboard)
+            self.assertIn('--body:system-ui,"Microsoft YaHei"', capsule_dashboard)
             self.assertIn('--ui:system-ui,"Microsoft YaHei"', capsule_dashboard)
             self.assertNotIn("data:font/woff2;base64,", capsule_dashboard)
             self.assertIn("font-variant-numeric:lining-nums proportional-nums", capsule_dashboard)
@@ -188,11 +185,15 @@ class DashboardVariantTests(unittest.TestCase):
                 f'数学-概统 · {variants.fmt_minutes(exam_subjects["数学-概率"])}',
                 capsule_dashboard,
             )
-            self.assertIn(
-                'title="数学-概统 '
-                f'{variants.fmt_minutes(latest_probability_day["subjects"]["数学-概率"])}"',
-                capsule_dashboard,
-            )
+            # 近 14 条趋势柱必须为每天每个有投入的科目渲染带时长的 title。
+            for day in data["daily"][-14:]:
+                for subject, minutes in (day.get("subjects") or {}).items():
+                    if minutes:
+                        self.assertIn(
+                            f'title="{variants.display_subject(subject)} '
+                            f'{variants.fmt_minutes(minutes)}"',
+                            capsule_dashboard,
+                        )
             self.assertIn('"数学-概率": "#C5B5E0"', capsule_dashboard)
             self.assertIn('"政治": "#D98CB3"', capsule_dashboard)
             self.assertIn("archive-subject-grid { display:grid; grid-template-columns:1fr", capsule_dashboard)
@@ -285,7 +286,11 @@ class DashboardVariantTests(unittest.TestCase):
         # 档案用「数学-概统」写表，解析后统一为 canonical 键「数学-概率」。
         self.assertIn({"subject": "数学-概率", "phase": "基础阶段", "status": "完结"}, stages)
         self.assertIn(
-            {"subject": "专业课-组成原理", "phase": "基础阶段", "status": "进行中"},
+            {"subject": "专业课-组成原理", "phase": "基础阶段", "status": "完结"},
+            stages,
+        )
+        self.assertIn(
+            {"subject": "专业课-操作系统", "phase": "基础阶段", "status": "进行中"},
             stages,
         )
 

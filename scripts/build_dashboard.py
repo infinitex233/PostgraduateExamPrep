@@ -102,7 +102,9 @@ def latest_nonempty(logs: list[dict], key: str) -> str:
     return "未说明"
 
 
-def build_home_status(recent: dict, latest_log: dict, phase: str) -> dict[str, str]:
+def build_home_status(
+    recent: dict, latest_log: dict, phase: str, active_subjects: set[str] | None = None
+) -> dict[str, str]:
     """Build the compact, record-driven status shown on the dashboard home."""
     if not phase or phase == "未说明":
         phase_status = "阶段待记录"
@@ -119,6 +121,10 @@ def build_home_status(recent: dict, latest_log: dict, phase: str) -> dict[str, s
         ),
         key=lambda item: (-item[1], item[0]),
     )
+    if active_subjects:
+        ongoing = [(subject, minutes) for subject, minutes in ranked_subjects if subject in active_subjects]
+        if ongoing:
+            ranked_subjects = ongoing
     main_labels = []
     for subject, _ in ranked_subjects[:2]:
         label = HOME_SUBJECT_LABELS.get(subject, subject)
@@ -303,15 +309,16 @@ def aggregate(logs: list[dict]) -> dict:
             chapters_done.setdefault(row["subject"], set()).add(row["chapter"])
     subject_chapters_done = {s: len(c) for s, c in chapters_done.items()}
 
-    recent = recent_summary(daily, window_days=7)
-    timeline_events = build_timeline_events(progress_rows, timeline)
-    current_phase = latest_nonempty(logs, "phase")
-    home_status = build_home_status(recent, latest_log or {}, current_phase)
     active_subjects = {
         subject
         for subject, row in latest_chapter.items()
         if subject in SUBJECT_COLORS and progress_status_active(row.get("status"))
     }
+
+    recent = recent_summary(daily, window_days=7)
+    timeline_events = build_timeline_events(progress_rows, timeline)
+    current_phase = latest_nonempty(logs, "phase")
+    home_status = build_home_status(recent, latest_log or {}, current_phase, active_subjects)
 
     today = date.today()
     days_to_exam = (EXAM_DATE - today).days
