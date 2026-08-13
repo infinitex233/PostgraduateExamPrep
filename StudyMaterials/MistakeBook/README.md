@@ -23,12 +23,12 @@ MistakeBook/
 
 ## Entry Format
 
-Keep the Typora `[TOC]` marker at the top of every mistake book, followed by an H1 using the full subject name. Use headings only to organize chapters, sections, and knowledge points. A single question is normal document content and must not be added as a heading.
+Keep the Typora `[TOC]` marker at the top of every mistake book, followed by an H1 using the full subject name. Use headings only to organize chapters, sections, and knowledge points, numbered like the `BookNotes` files (for example `## 1. 函数极限连续`, `### 1.1 数列与函数极限`). A single question is normal document content and must not be added as a heading.
 
 Use the following structure for each question:
 
 ```markdown
-**题目 1**
+**1.1.1**
 
 题目内容。
 
@@ -43,7 +43,7 @@ Use the following structure for each question:
 > 来源：《教材完整名称》，对应章节，第 xx 题，书内第 xx 页 / PDF 第 xx 页。
 ```
 
-Number questions locally within the surrounding section when numbering is useful. Place the source as the final paragraph of the entry and always format it as a Markdown blockquote beginning with `> 来源：`.
+Label questions sequentially within each section using the section number plus a running index: the first question under section 1.1 is `**1.1.1**`, the second is `**1.1.2**`. The label is bold body text, never a heading, and must not reuse the source book's question number — the original number is recorded only in the source blockquote. Place the source as the final paragraph of the entry and always format it as a Markdown blockquote beginning with `> 来源：`.
 
 ## Maintenance Rules
 
@@ -53,7 +53,7 @@ Number questions locally within the surrounding section when numbering is useful
 - Preserve the source order of conditions and choices. Keep formulas, symbols, tables, and diagrams accurate; use relative links when a local supporting image is genuinely required.
 - Keep answers concise and put derivations, method explanations, and cautions in the analysis.
 - Follow the repository's Typora-compatible mathematical notation rules. Display formulas use standalone `$$` delimiter lines and must not be placed in headings or blockquotes.
-- Match the spacing style of `BookNotes`: leave three blank lines before the next heading after a populated leaf section, and do not append a blank paragraph after the final line.
+- Match the spacing style of `BookNotes`: leave three blank lines before the next heading after a populated leaf section, and leave three blank lines between adjacent questions in the same section. Do not append a blank paragraph after the final line.
 
 ## Source Verification
 
