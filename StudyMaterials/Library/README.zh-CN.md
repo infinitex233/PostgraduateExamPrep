@@ -73,21 +73,37 @@ python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
 python scripts/page_ocr.py --all
 ```
 
-构建器会递归发现 PDF，优先提取内嵌文本，对扫描页回退到 OCR，能够续跑未完成的 JSON 检查点，并跳过完整缓存。
+构建器会递归发现 PDF，优先提取内嵌文本，对扫描页回退到 OCR，能够续跑未完成的 JSON 检查点，并跳过完整缓存。内嵌文本层会先做乱码检测（私有区字形、替换符、可读字符占比），损坏的文本层（如 `f(x)` 提取成 `f  x `）会被弃用并改用 OCR，避免污染缓存。
+
+对扫描版数学书（公式密集、RapidOCR 会丢失积分号与分式结构），使用视觉模型构建器获得高保真转写：
+
+```bash
+python scripts/vision_cache.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
+python scripts/vision_cache.py "某书.pdf" --first 6 --last 219 --batch 2   # 解析册/讲义建议 batch 2
+python scripts/vision_cache.py "某书.pdf" --chain-offset 3                  # 多流并发时错开起始 key
+python scripts/vision_cache.py --all
+```
+
+该脚本用视觉模型（gpt-5.6-terra → gpt-5.6-luna，key 链自动失败切换）逐页转写为 LaTeX 公式的 Markdown，按批断点续跑（checkpoint 为 `<缓存目录>/<书名>.vision-ckpt.json`），整段完成后自动合并进 `.docling.json` 并删除 checkpoint；模型未返回内容的页保留旧文本，中断后重跑同命令即可续跑。依赖 `multimodal-vision` 工具包（默认路径 `/home/infinitex/code/multimodal-vision`，可用环境变量 `MULTIMODAL_VISION_DIR` 覆盖）。
 
 `scripts/docling_cache.py` 是兼容旧缓存的替代流程，会生成 Docling JSON 和 Markdown。保留它是为了兼容已有缓存，但不要将其描述为默认流程。完整缓存构建可能处理数 GB 的本地 PDF，不应作为普通文档检查或提交前检查运行。
 
 ## 已核验的数学强化缓存
 
-以下数学一强化阶段缓存已于 2026-07-13 完成并通过校验：
+以下数学一强化阶段缓存已于 2026-08-14 用视觉模型构建器（`scripts/vision_cache.py`）重建并通过校验：
 
 | 源 PDF | 缓存 JSON | 页数覆盖 |
 | --- | --- | ---: |
+| `27武忠祥《高等数学辅导讲义.严选题》.pdf` | `27武忠祥《高等数学辅导讲义.严选题》.docling.json` | 219 / 219 |
+| `27武忠祥高数辅导讲义-强化.pdf` | `27武忠祥高数辅导讲义-强化.docling.json` | 315 / 315 |
 | `27版李林880题《数一解析册》.pdf` | `27版李林880题《数一解析册》.docling.json` | 416 / 416 |
-| `张宇100题_数一_解析册.pdf` | `张宇100题_数一_解析册.docling.json` | 568 / 568 |
+| `27线代杨《满分线性代数》强化讲义.pdf` | `27线代杨《满分线性代数》强化讲义.docling.json` | 318 / 318 |
+| `【A4紧凑版】李林880数一线概篇做题本.pdf` | `【A4紧凑版】李林880数一线概篇做题本.docling.json` | 82 / 82 |
+| `【A4紧凑版】李林880数一高数篇做题本.pdf` | `【A4紧凑版】李林880数一高数篇做题本.docling.json` | 98 / 98 |
 | `张宇1000题_数一_试题册.pdf` | `张宇1000题_数一_试题册.docling.json` | 195 / 195 |
+| `张宇100题_数一_解析册.pdf` | `张宇100题_数一_解析册.docling.json` | 568 / 568 |
 
-源文件位于 `Math/Intensive/`，对应缓存位于 `Cache/Math/Intensive/`。前两本书共有 6 个页面没有 OCR 文本；目视核验确认它们是空白页或无正文的过渡页，因此缓存仍覆盖全部 PDF 页面。
+源文件位于 `Math/Intensive/`，对应缓存位于 `Cache/Math/Intensive/`。这些书共有 9 个页面没有转写文本；目视核验确认均为空白页、封底或无正文的过渡页，因此缓存仍覆盖全部 PDF 页面。公式以 LaTeX 转写，`$` / `$$` 分隔符全部配平，且无未解决的 `[?]` 标记。
 
 ## 证据与页码
 

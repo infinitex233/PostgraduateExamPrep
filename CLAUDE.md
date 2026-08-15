@@ -44,6 +44,9 @@ python scripts/query.py --list-books
 # Build or resume primary page-level OCR caches
 python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
 python scripts/page_ocr.py --all
+
+# High-fidelity vision-model caches for scanned math books (batch 2 for dense books)
+python scripts/vision_cache.py "StudyMaterials/Library/Math/Intensive/某书.pdf" --batch 2
 ```
 
 `scripts/docling_cache.py` is a legacy-compatible alternative cache builder, not the default workflow. Full OCR builds are expensive and should not be used as routine verification.

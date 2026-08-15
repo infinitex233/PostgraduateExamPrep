@@ -4,6 +4,12 @@ Uses embedded PDF text when available and falls back to OCR for scanned pages.
 Processes one page at a time, periodically recreates the OCR engine to prevent
 memory fragmentation, and saves intermediate results every 10 pages.
 
+Embedded text layers are checked for broken font mappings (private-use glyphs,
+replacement chars, unreadable ratios) and rejected when corrupt — such layers
+were the source of garbled formulas in old caches. For scanned books whose math
+layout needs high fidelity, prefer scripts/vision_cache.py, which transcribes
+pages with a vision model.
+
 Usage:
     python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
     python scripts/page_ocr.py --all   # process all uncached PDFs
@@ -28,11 +34,68 @@ from cache_layout import (
 )
 
 ENGINE_REFRESH_INTERVAL = 20  # recreate OCR engine every N pages to avoid memory issues
-IMAGE_DPI = 120  # sufficient for printed text while keeping scanned books practical
+IMAGE_DPI = 160  # sufficient for printed text while keeping scanned books practical
 OCR_PARAMS = {
     "EngineConfig.onnxruntime.intra_op_num_threads": 8,
     "EngineConfig.onnxruntime.inter_op_num_threads": 1,
 }
+
+# Reject embedded text when more than this fraction of chars is unreadable.
+_MAX_PUA_RATIO = 0.02        # 私有区/替换符占比上限(做题本损坏层约 4.6%)
+_MAX_IPA_JUNK = 5            # IPA 区+排版垃圾字符数量上限(严选题损坏层采样到 27 个)
+_MIN_READABLE_RATIO = 0.4
+_MIN_EMBEDDED_LEN = 200
+# Chars that essentially never appear in a healthy Chinese math text layer but
+# show up when ToUnicode maps glyphs to the wrong codepoints (`f(x)` → `ʃτe''°'`).
+_JUNK_CHARS = set("∙´˚ºʹʺ")  # IPA block U+0250–U+02AF is checked by code point
+_SAMPLE_INDICES = (0, 0.25, 0.5, 0.75, 1.0)
+
+
+def _embedded_page_text_ok(text: str) -> bool:
+    """Per-page shortcut: very short fragments are usually watermarks or labels."""
+    return len(text) >= 40
+
+
+def _embedded_layer_ok(doc) -> bool:
+    """Decide whether a PDF's embedded text layer is trustworthy.
+
+    Samples several pages spread across the book and rejects the layer when
+    private-use glyphs are frequent (`f(x)` → `f  x `) or IPA/junk codepoints
+    appear at all (`/(ʃ) = ʃlan ∙τe''°'`). When rejected, every page falls back
+    to OCR so the corrupted layer cannot pollute the cache. Scanned books with
+    no text layer are treated the same way. The two signals were tuned against
+    the whole local library: healthy embedded layers have zero IPA junk and
+    sparse or no PUA chars.
+    """
+    n = len(doc)
+    idxs = sorted({min(max(int(n * f), 0), n - 1) for f in _SAMPLE_INDICES})
+    pua = 0
+    ipa_junk = 0
+    readable = 0
+    total = 0
+    for i in idxs:
+        try:
+            text = doc[i].get_text("text", sort=True).strip()
+        except Exception:
+            continue
+        for ch in text:
+            o = ord(ch)
+            total += 1
+            if 0xE000 <= o <= 0xF8FF or ch == "\ufffd":
+                pua += 1
+            elif 0x0250 <= o <= 0x02AF or ch in _JUNK_CHARS:
+                ipa_junk += 1
+            elif ch.isspace() or 0x20 <= o < 0x7F or "\u4e00" <= ch <= "\u9fff":
+                readable += 1
+    if total < _MIN_EMBEDDED_LEN:
+        return False  # 几乎没有内嵌文本 → 走 OCR
+    if pua / total > _MAX_PUA_RATIO:
+        return False
+    if ipa_junk >= _MAX_IPA_JUNK:
+        return False
+    if readable / total < _MIN_READABLE_RATIO:
+        return False
+    return True
 
 
 def process_pdf(pdf_path: Path, cache_dir: Path, resume_from: int = 0) -> Path | None:
@@ -58,6 +121,9 @@ def process_pdf(pdf_path: Path, cache_dir: Path, resume_from: int = 0) -> Path |
     t0 = time.time()
     engine = None
     ocr_pages_since_refresh = 0
+    use_native = _embedded_layer_ok(doc)
+    if not use_native:
+        print("  [warn] 内嵌文本层疑似损坏(乱码字形),整书改用 OCR", flush=True)
 
     for i in range(resume_from, total):
         try:
@@ -77,10 +143,13 @@ def process_pdf(pdf_path: Path, cache_dir: Path, resume_from: int = 0) -> Path |
             print(f"  p.{i+1} text extraction fail, trying OCR: {e}", flush=True)
             native_text = ""
 
-        if len(native_text) >= 100:
+        if use_native and _embedded_page_text_ok(native_text):
             text = native_text
         else:
-            # Short embedded fragments are often only watermarks or page labels.
+            if native_text.strip() and use_native:
+                print(f"  p.{i+1} 内嵌文本层疑似乱码(已弃用,改用 OCR)", flush=True)
+            # Broken embedded fragments are only watermarks, page labels, or
+            # corrupted glyph mappings — never mix them into the OCR result.
             try:
                 if engine is None:
                     engine = RapidOCR(params=OCR_PARAMS)
@@ -88,8 +157,7 @@ def process_pdf(pdf_path: Path, cache_dir: Path, resume_from: int = 0) -> Path |
                 pix = page.get_pixmap(dpi=IMAGE_DPI)
                 img_bytes = pix.tobytes("png")
                 output = engine(img_bytes)
-                ocr_text = "\n".join(output.txts) if output.txts else ""
-                text = "\n".join(part for part in (native_text, ocr_text) if part)
+                text = "\n".join(output.txts) if output.txts else ""
                 ocr_pages_since_refresh += 1
                 del pix, img_bytes, output
             except Exception as e:

@@ -73,21 +73,43 @@ python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
 python scripts/page_ocr.py --all
 ```
 
-The builder discovers PDFs recursively, uses embedded text when available, falls back to OCR for scanned pages, resumes incomplete JSON checkpoints, and skips complete caches.
+The builder discovers PDFs recursively, uses embedded text when available, falls back to OCR for scanned pages, resumes incomplete JSON checkpoints, and skips complete caches. Embedded text layers are screened for garbled font mappings first (private-use glyphs, replacement chars, unreadable ratios); a corrupt layer such as `f(x)` extracting as `f  x ` is discarded in favor of OCR so it cannot pollute the cache.
+
+For scanned math books whose dense formulas RapidOCR cannot preserve (lost integral signs, broken fractions), use the vision-model builder for high-fidelity transcription:
+
+```bash
+python scripts/vision_cache.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
+python scripts/vision_cache.py "某书.pdf" --first 6 --last 219 --batch 2   # batch 2 for lecture/answer books
+python scripts/vision_cache.py "某书.pdf" --chain-offset 3                  # offset keys when running streams in parallel
+python scripts/vision_cache.py --all
+```
+
+It transcribes each page into LaTeX-formula Markdown via a vision model (gpt-5.6-terra → gpt-5.6-luna with automatic key failover), checkpoints every batch to `<cache-dir>/<stem>.vision-ckpt.json`, merges the range into the `.docling.json` cache once complete, and removes the checkpoint. Pages the model returns nothing for keep their old text, and re-running the same command resumes after interruption. It depends on the `multimodal-vision` toolkit (default path `/home/infinitex/code/multimodal-vision`, overridable with `MULTIMODAL_VISION_DIR`).
 
 `scripts/docling_cache.py` is a legacy-compatible alternative that writes Docling JSON and Markdown. Keep it for compatibility, but do not present it as the default workflow. Full-cache generation can process gigabytes of local PDFs and should not be used as a routine documentation or pre-commit check.
 
 ## Verified Intensive Mathematics Cache
 
-The following intensive-stage Mathematics I caches were complete and verified on 2026-07-13:
+The following intensive-stage Mathematics I caches were rebuilt with the
+vision-model builder (`scripts/vision_cache.py`) and verified on 2026-08-14:
 
 | Source PDF | Cache JSON | Page coverage |
 | --- | --- | ---: |
+| `27武忠祥《高等数学辅导讲义.严选题》.pdf` | `27武忠祥《高等数学辅导讲义.严选题》.docling.json` | 219 / 219 |
+| `27武忠祥高数辅导讲义-强化.pdf` | `27武忠祥高数辅导讲义-强化.docling.json` | 315 / 315 |
 | `27版李林880题《数一解析册》.pdf` | `27版李林880题《数一解析册》.docling.json` | 416 / 416 |
-| `张宇100题_数一_解析册.pdf` | `张宇100题_数一_解析册.docling.json` | 568 / 568 |
+| `27线代杨《满分线性代数》强化讲义.pdf` | `27线代杨《满分线性代数》强化讲义.docling.json` | 318 / 318 |
+| `【A4紧凑版】李林880数一线概篇做题本.pdf` | `【A4紧凑版】李林880数一线概篇做题本.docling.json` | 82 / 82 |
+| `【A4紧凑版】李林880数一高数篇做题本.pdf` | `【A4紧凑版】李林880数一高数篇做题本.docling.json` | 98 / 98 |
 | `张宇1000题_数一_试题册.pdf` | `张宇1000题_数一_试题册.docling.json` | 195 / 195 |
+| `张宇100题_数一_解析册.pdf` | `张宇100题_数一_解析册.docling.json` | 568 / 568 |
 
-The source files live under `Math/Intensive/`, and their caches live under `Cache/Math/Intensive/`. Six pages across the first two books contain no OCR text; visual inspection confirmed that they are blank or text-free transition pages, so the caches still cover every PDF page.
+The source files live under `Math/Intensive/`, and their caches live under
+`Cache/Math/Intensive/`. Nine pages across these books contain no transcribed
+text; visual inspection confirmed that each is a blank page, back cover, or
+text-free transition page, so the caches still cover every PDF page. Formulas
+are transcribed as LaTeX with balanced `$` / `$$` delimiters and no unresolved
+`[?]` markers.
 
 ## Evidence And Page Numbers
 

@@ -152,9 +152,12 @@ examples, or ambiguous OCR. When reporting a location, distinguish both
 `书内印刷页码` and `PDF 页码`; state when either cannot be confirmed. Never
 fabricate textbook content, locations, examples, formulas, or conclusions.
 
-Use `scripts/page_ocr.py` as the primary cache builder and
-`scripts/docling_cache.py` only as the legacy-compatible alternative. Both
-must use the source-relative layout defined by `scripts/cache_layout.py`.
+Use `scripts/page_ocr.py` as the primary offline cache builder and
+`scripts/docling_cache.py` only as the legacy-compatible alternative. For
+scanned math books whose dense formulas need high-fidelity transcription, use
+`scripts/vision_cache.py` (vision-model page transcription with batch
+checkpointing; see `StudyMaterials/Library/README.md`). All three must use the
+source-relative layout defined by `scripts/cache_layout.py`.
 
 ### Book notes
 
