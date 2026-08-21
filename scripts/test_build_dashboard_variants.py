@@ -256,7 +256,7 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertNotIn("0 章完结", capsule_dashboard)
             self.assertNotIn("条形长度为累计投入占比", capsule_dashboard)
             self.assertNotIn("<b>其他</b>", capsule_dashboard)
-            self.assertIn("专业课-操作系统 · 0m", capsule_dashboard)
+            self.assertIn("专业课-操作系统 · 8h20m", capsule_dashboard)
             self.assertIn("专业课-计算机网络 · 0m", capsule_dashboard)
             self.assertIn("政治 · 0m", capsule_dashboard)
             self.assertIn("未开始 · 0h", capsule_dashboard)
@@ -306,6 +306,19 @@ class DashboardVariantTests(unittest.TestCase):
             )
             with patch.object(variants, "PROGRESS_INDEX", index):
                 self.assertEqual(variants.parse_progress_index()["months"][0]["month"], "2027-01")
+
+    def test_enriched_data_aggregates_all_months_including_operating_systems(self):
+        data = variants.enriched_data()
+        exam_subjects = {
+            item["name"]: item["minutes"] for item in data["archive"]["exam_subjects"]
+        }
+        self.assertEqual(exam_subjects.get("专业课-操作系统"), 500)
+        self.assertEqual(exam_subjects.get("数学-高数"), 18627)
+        self.assertEqual(exam_subjects.get("专业课-组成原理"), 5285)
+        self.assertEqual(exam_subjects.get("英语"), 2607)
+        self.assertEqual(data["summary"]["archive_total_minutes"], 43049)
+        self.assertEqual(data["summary"]["archive_exam_minutes"], 38335)
+        self.assertEqual(data["summary"]["archive_other_minutes"], 4714)
 
 
 if __name__ == "__main__":

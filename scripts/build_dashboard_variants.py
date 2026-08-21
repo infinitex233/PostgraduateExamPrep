@@ -223,6 +223,27 @@ def enriched_data() -> dict:
             if minutes
         ]
     data["archive"] = archive
+    if archive.get("months"):
+        all_subject_totals: dict[str, int] = {}
+        for month in archive["months"]:
+            for item in month.get("subjects", []):
+                name = canonical_subject(item.get("name", ""))
+                all_subject_totals[name] = all_subject_totals.get(name, 0) + int(item.get("minutes") or 0)
+
+        archive["all_total"] = sum(int(m.get("total_minutes") or 0) for m in archive["months"])
+        archive["exam_total"] = sum(
+            minutes for name, minutes in all_subject_totals.items()
+            if name in SUBJECT_ORDER
+        )
+        archive["other_total"] = sum(
+            minutes for name, minutes in all_subject_totals.items()
+            if name not in SUBJECT_ORDER
+        )
+        archive["exam_subjects"] = [
+            {"name": name, "minutes": all_subject_totals.get(name, 0)}
+            for name in SUBJECT_ORDER
+            if all_subject_totals.get(name, 0) > 0
+        ]
     data["subject_stages"] = archive.get("subject_stages") or []
     if archive["all_total"] is not None:
         data["summary"]["archive_total_minutes"] = archive["all_total"]
