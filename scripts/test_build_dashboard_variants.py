@@ -315,13 +315,13 @@ class DashboardVariantTests(unittest.TestCase):
         exam_subjects = {
             item["name"]: item["minutes"] for item in data["archive"]["exam_subjects"]
         }
-        self.assertEqual(exam_subjects.get("专业课-操作系统"), 869)
-        self.assertEqual(exam_subjects.get("数学-高数"), 19328)
+        self.assertEqual(exam_subjects.get("专业课-操作系统"), 1104)
+        self.assertEqual(exam_subjects.get("数学-高数"), 19625)
         self.assertEqual(exam_subjects.get("专业课-组成原理"), 5285)
         self.assertEqual(exam_subjects.get("英语"), 3124)
-        self.assertEqual(data["summary"]["archive_total_minutes"], 44864)
-        self.assertEqual(data["summary"]["archive_exam_minutes"], 39922)
-        self.assertEqual(data["summary"]["archive_other_minutes"], 4942)
+        self.assertEqual(data["summary"]["archive_total_minutes"], 45690)
+        self.assertEqual(data["summary"]["archive_exam_minutes"], 40454)
+        self.assertEqual(data["summary"]["archive_other_minutes"], 5236)
 
 
 if __name__ == "__main__":
