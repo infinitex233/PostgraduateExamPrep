@@ -164,6 +164,7 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("2026-06", capsule_dashboard)
             self.assertIn("2026-07", capsule_dashboard)
             self.assertIn("2026-08", capsule_dashboard)
+            self.assertIn("2026-09", capsule_dashboard)
             self.assertEqual(capsule_dashboard.count('class="month-pill"'), len(months) * 2)
             self.assertIn("数学-高数 60h8m", capsule_dashboard)
             self.assertIn("专业课-数据结构 29h16m", capsule_dashboard)
@@ -263,7 +264,7 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("专业课-计算机网络 · 0m", capsule_dashboard)
             self.assertIn("政治 · 0m", capsule_dashboard)
             self.assertIn("未开始 · 0h", capsule_dashboard)
-            self.assertIn("档案累计 · 2026-03 至 2026-08", capsule_dashboard)
+            self.assertIn("档案累计 · 2026-03 至 2026-09", capsule_dashboard)
             self.assertIn(f"近 7 日投入 · 截至 {latest_short_date}", capsule_dashboard)
             self.assertIn(f"数据截至 {latest_date}", capsule_dashboard)
             self.assertIn('aria-label="上一页"', capsule_dashboard)
@@ -315,13 +316,13 @@ class DashboardVariantTests(unittest.TestCase):
         exam_subjects = {
             item["name"]: item["minutes"] for item in data["archive"]["exam_subjects"]
         }
-        self.assertEqual(exam_subjects.get("专业课-操作系统"), 1308)
-        self.assertEqual(exam_subjects.get("数学-高数"), 20190)
+        self.assertEqual(exam_subjects.get("专业课-操作系统"), 1603)
+        self.assertEqual(exam_subjects.get("数学-高数"), 20786)
         self.assertEqual(exam_subjects.get("专业课-组成原理"), 5285)
         self.assertEqual(exam_subjects.get("英语"), 3124)
-        self.assertEqual(data["summary"]["archive_total_minutes"], 46881)
-        self.assertEqual(data["summary"]["archive_exam_minutes"], 41223)
-        self.assertEqual(data["summary"]["archive_other_minutes"], 5658)
+        self.assertEqual(data["summary"]["archive_total_minutes"], 48444)
+        self.assertEqual(data["summary"]["archive_exam_minutes"], 42114)
+        self.assertEqual(data["summary"]["archive_other_minutes"], 6330)
 
 
 if __name__ == "__main__":
