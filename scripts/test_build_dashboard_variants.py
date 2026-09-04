@@ -320,9 +320,9 @@ class DashboardVariantTests(unittest.TestCase):
         self.assertEqual(exam_subjects.get("数学-高数"), 20786)
         self.assertEqual(exam_subjects.get("专业课-组成原理"), 5285)
         self.assertEqual(exam_subjects.get("英语"), 3124)
-        self.assertEqual(data["summary"]["archive_total_minutes"], 48444)
+        self.assertEqual(data["summary"]["archive_total_minutes"], 48820)
         self.assertEqual(data["summary"]["archive_exam_minutes"], 42114)
-        self.assertEqual(data["summary"]["archive_other_minutes"], 6330)
+        self.assertEqual(data["summary"]["archive_other_minutes"], 6706)
 
 
 if __name__ == "__main__":
