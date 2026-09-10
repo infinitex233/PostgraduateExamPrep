@@ -75,23 +75,20 @@ python scripts/page_ocr.py --all
 
 The builder discovers PDFs recursively, uses embedded text when available, falls back to OCR for scanned pages, resumes incomplete JSON checkpoints, and skips complete caches. Embedded text layers are screened for garbled font mappings first (private-use glyphs, replacement chars, unreadable ratios); a corrupt layer such as `f(x)` extracting as `f  x ` is discarded in favor of OCR so it cannot pollute the cache.
 
-For scanned math books whose dense formulas RapidOCR cannot preserve (lost integral signs, broken fractions), use the vision-model builder for high-fidelity transcription:
+For scanned math books whose dense formulas RapidOCR cannot preserve (lost integral signs, broken fractions), re-transcribe the affected pages at high fidelity by rendering them and reading them directly:
 
 ```bash
-python scripts/vision_cache.py "StudyMaterials/Library/Math/Intensive/某书.pdf"
-python scripts/vision_cache.py "某书.pdf" --first 6 --last 219 --batch 2   # batch 2 for lecture/answer books
-python scripts/vision_cache.py "某书.pdf" --chain-offset 3                  # offset keys when running streams in parallel
-python scripts/vision_cache.py --all
+pdftoppm -f 161 -l 188 -r 180 -png "StudyMaterials/Library/408/某书.pdf" /tmp/vision-pages/p
 ```
 
-It transcribes each page into LaTeX-formula Markdown via a vision model (gpt-5.6-terra → gpt-5.6-luna with automatic key failover), checkpoints every batch to `<cache-dir>/<stem>.vision-ckpt.json`, merges the range into the `.docling.json` cache once complete, and removes the checkpoint. Pages the model returns nothing for keep their old text, and re-running the same command resumes after interruption. It depends on the `multimodal-vision` toolkit (default path `/home/infinitex/code/multimodal-vision`, overridable with `MULTIMODAL_VISION_DIR`).
+Read the rendered page images in batches, transcribe each page into LaTeX-formula Markdown, then merge only that page range into the `.docling.json` cache while preserving `total_pages` and the page-level structure. Repair just the pages that need it and leave the rest of the cache untouched.
 
 `scripts/docling_cache.py` is a legacy-compatible alternative that writes Docling JSON and Markdown. Keep it for compatibility, but do not present it as the default workflow. Full-cache generation can process gigabytes of local PDFs and should not be used as a routine documentation or pre-commit check.
 
 ## Verified Intensive Mathematics Cache
 
-The following intensive-stage Mathematics I caches were rebuilt with the
-vision-model builder (`scripts/vision_cache.py`) and verified on 2026-08-14:
+The following intensive-stage Mathematics I caches were rebuilt with a
+vision-model transcription pipeline and verified on 2026-08-14:
 
 | Source PDF | Cache JSON | Page coverage |
 | --- | --- | ---: |

@@ -7,8 +7,8 @@ memory fragmentation, and saves intermediate results every 10 pages.
 Embedded text layers are checked for broken font mappings (private-use glyphs,
 replacement chars, unreadable ratios) and rejected when corrupt — such layers
 were the source of garbled formulas in old caches. For scanned books whose math
-layout needs high fidelity, prefer scripts/vision_cache.py, which transcribes
-pages with a vision model.
+layout needs high fidelity, re-render the affected pages and transcribe them
+directly, then merge that range into the page-level cache.
 
 Usage:
     python scripts/page_ocr.py "StudyMaterials/Library/Math/Intensive/某书.pdf"

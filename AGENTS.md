@@ -154,10 +154,10 @@ fabricate textbook content, locations, examples, formulas, or conclusions.
 
 Use `scripts/page_ocr.py` as the primary offline cache builder and
 `scripts/docling_cache.py` only as the legacy-compatible alternative. For
-scanned math books whose dense formulas need high-fidelity transcription, use
-`scripts/vision_cache.py` (vision-model page transcription with batch
-checkpointing; see `StudyMaterials/Library/README.md`). All three must use the
-source-relative layout defined by `scripts/cache_layout.py`.
+scanned math books whose dense formulas need high-fidelity transcription,
+re-render the affected pages and read them directly; see
+`StudyMaterials/Library/README.md`. Both builders must use the source-relative
+layout defined by `scripts/cache_layout.py`.
 
 ### Book notes
 
