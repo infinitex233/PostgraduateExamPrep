@@ -136,6 +136,19 @@ it as the only source, create parallel dashboard variants, or change dashboard
 schema keys, colors, layout, or interaction behavior without an explicit
 request. Run the regression tests and rebuild after dashboard-code changes.
 
+Before committing any study-report logging run, always run the regression
+suite, even when only `DailyLogs/`, `ProgressIndex.md`, and `dashboard.html`
+changed:
+
+```bash
+python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
+python scripts/build_dashboard.py
+```
+
+The suite cross-checks `ProgressIndex.md` against the daily logs, so a stale
+monthly overview or an inconsistent archive total fails the run. Fix the data
+before pushing; never push with a failing suite.
+
 After every study-report logging run, commit the resulting changes and push
 them to the remote. Stage only the paths touched by the logging run (log
 records, `ProgressIndex.md`, `dashboard.html`, and any other files updated by

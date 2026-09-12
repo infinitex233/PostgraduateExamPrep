@@ -31,10 +31,22 @@ class DashboardVariantTests(unittest.TestCase):
             variants.MONTHLY_SUMMARY_DIR,
             variants.ROOT / "StudyProgress" / "Summaries" / "Monthly",
         )
-        self.assertIn(
-            {"name": "数学-高数", "minutes": 3608},
-            variants.parse_monthly_subjects("2026-03"),
-        )
+        subjects = variants.parse_monthly_subjects("2026-03")
+        self.assertIn("数学-高数", [item["name"] for item in subjects])
+        self.assertIn("其它", [item["name"] for item in subjects])
+        self.assertTrue(all(item["minutes"] > 0 for item in subjects))
+        # 月度小结的分科之和必须等于月度概览声明的总时长。
+        declared = {
+            month["month"]: month["total_minutes"]
+            for month in variants.parse_progress_index()["months"]
+        }
+        for month, total in declared.items():
+            monthly = variants.parse_monthly_subjects(month)
+            if not monthly:
+                continue
+            self.assertEqual(
+                sum(item["minutes"] for item in monthly), total, month
+            )
 
     def test_month_bar_segments_store_minutes_instead_of_linear_widths(self):
         month = {
@@ -160,15 +172,10 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn(".metric-pill b { display:block; order:2;", capsule_dashboard)
             self.assertIn(".metric-pill > span { order:1;", capsule_dashboard)
             self.assertIn("月度概览", capsule_dashboard)
-            self.assertIn("2026-03", capsule_dashboard)
-            self.assertIn("2026-06", capsule_dashboard)
-            self.assertIn("2026-07", capsule_dashboard)
-            self.assertIn("2026-08", capsule_dashboard)
-            self.assertIn("2026-09", capsule_dashboard)
+            # 月份卡片随日志增长，逐个断言而不是写死具体月份。
+            for month in months:
+                self.assertIn(month["month"], capsule_dashboard)
             self.assertEqual(capsule_dashboard.count('class="month-pill"'), len(months) * 2)
-            self.assertIn("数学-高数 60h8m", capsule_dashboard)
-            self.assertIn("专业课-数据结构 29h16m", capsule_dashboard)
-            self.assertIn("专业课-组成原理 24h16m", capsule_dashboard)
             for month in months:
                 complete_summary = " · ".join(
                     f'{variants.display_subject(item["name"])} '
@@ -178,14 +185,12 @@ class DashboardVariantTests(unittest.TestCase):
                 self.assertIn(f"<p>{complete_summary}</p>", capsule_dashboard)
             self.assertNotIn("考研 102h2m", capsule_dashboard)
             self.assertNotIn("考研 71h26m", capsule_dashboard)
-            self.assertIn(
-                f'数学-高数 · {variants.fmt_minutes(exam_subjects["数学-高数"])}',
-                capsule_dashboard,
-            )
-            self.assertIn(
-                f'数学-概统 · {variants.fmt_minutes(exam_subjects["数学-概率"])}',
-                capsule_dashboard,
-            )
+            for name in ("数学-高数", "数学-概率"):
+                self.assertIn(
+                    f'{variants.display_subject(name)} · '
+                    f'{variants.fmt_minutes(exam_subjects[name])}',
+                    capsule_dashboard,
+                )
             # 近 14 条趋势柱必须为每天每个有投入的科目渲染带时长的 title。
             for day in data["daily"][-14:]:
                 for subject, minutes in (day.get("subjects") or {}).items():
@@ -244,27 +249,58 @@ class DashboardVariantTests(unittest.TestCase):
                 self.assertIn(snippet, capsule_dashboard)
 
             # 当前推进：基础/强化阶段徽章分列，含档案期完结科目（数据结构），去掉课内/其他。
+            done_stage = next(
+                item
+                for item in data["subject_stages"]
+                if item["subject"] == "专业课-数据结构" and item["status"] == "完结"
+            )
             self.assertIn(
-                '<b>专业课-数据结构</b><div class="phase-chips">'
-                '<span class="phase-chip done"><em>基础阶段</em><i>已完结</i></span>',
+                f'<b>专业课-数据结构</b><div class="phase-chips">'
+                f'<span class="phase-chip done"><em>{variants.esc(done_stage["phase"])}</em>'
+                f'<i>已完结</i></span>',
                 capsule_dashboard,
             )
             self.assertIn(
                 '<span class="phase-chip doing"><em>强化阶段</em>',
                 capsule_dashboard,
             )
+            # 进行中科目必须回显 latest_chapter 的当前章节，而不是历史章节。
+            # 注意：不要求一定存在进行中章节（全部完结是合法状态）。
+            ongoing_chapters = [
+                row
+                for row in (data.get("latest_chapter") or {}).values()
+                if variants.progress_status_class(row.get("status")) == "doing"
+                and row.get("chapter")
+            ]
+            for row in ongoing_chapters:
+                self.assertIn(
+                    f'<i>{variants.esc(row["chapter"] + " " + row["status"])}</i>',
+                    capsule_dashboard,
+                )
+                self.assertNotIn(
+                    f'<span class="phase-chip doing"><em>{variants.esc(row["chapter"])}</em>',
+                    capsule_dashboard,
+                )
             self.assertIn("phase-chip done", capsule_dashboard)
             self.assertNotIn("0 章完结", capsule_dashboard)
             self.assertNotIn("条形长度为累计投入占比", capsule_dashboard)
             self.assertNotIn("<b>其他</b>", capsule_dashboard)
-            self.assertIn(
-                f"专业课-操作系统 · {variants.fmt_minutes(exam_subjects['专业课-操作系统'])}",
-                capsule_dashboard,
+            # 科目投入列表按累计时长渲染；零投入科目走“未开始”分支。
+            for name in variants.SUBJECT_ORDER:
+                label = variants.display_subject(name)
+                minutes = exam_subjects.get(name, 0)
+                if minutes:
+                    self.assertIn(f"{label} · {variants.fmt_minutes(minutes)}", capsule_dashboard)
+                else:
+                    self.assertIn(f"{label} · 0m", capsule_dashboard)
+            self.assertTrue(
+                any(not exam_subjects.get(name) for name in variants.SUBJECT_ORDER)
+                or len(variants.SUBJECT_ORDER) == len(exam_subjects),
+                "零投入科目必须渲染为未开始，全科目有投入时该项无意义",
             )
-            self.assertIn("专业课-计算机网络 · 0m", capsule_dashboard)
-            self.assertIn("政治 · 0m", capsule_dashboard)
             self.assertIn("未开始 · 0h", capsule_dashboard)
-            self.assertIn("档案累计 · 2026-03 至 2026-09", capsule_dashboard)
+            archive_range = f'{months[0]["month"]} 至 {months[-1]["month"]}'
+            self.assertIn(f"档案累计 · {archive_range}", capsule_dashboard)
             self.assertIn(f"近 7 日投入 · 截至 {latest_short_date}", capsule_dashboard)
             self.assertIn(f"数据截至 {latest_date}", capsule_dashboard)
             self.assertIn('aria-label="上一页"', capsule_dashboard)
@@ -279,8 +315,20 @@ class DashboardVariantTests(unittest.TestCase):
                     f'{variants.display_subject(name)} · {variants.fmt_minutes(minutes)}',
                     capsule_dashboard,
                 )
-            self.assertNotIn("数学-线代 · 62h19m", capsule_dashboard)
-            self.assertNotIn("其它 · 55h54m", capsule_dashboard)
+            # 图例只反映近 14 天窗口，近 14 天没有投入的科目不得出现在图例中
+            # （历史上曾误用档案累计值填充图例）。
+            for name in variants.SUBJECT_ORDER:
+                if name in recent_totals:
+                    continue
+                self.assertNotIn(
+                    f'class="legend-pill" style="--fill:{variants.capsule_color(name)}">'
+                    f'{variants.display_subject(name)} · ',
+                    capsule_dashboard,
+                )
+            self.assertNotIn(
+                f'class="legend-pill" style="--fill:{variants.CAPSULE_OTHER_COLOR}">其它 · ',
+                capsule_dashboard,
+            )
 
     def test_subject_stages_parsed_from_progress_index(self):
         stages = variants.enriched_data()["subject_stages"]
@@ -312,17 +360,122 @@ class DashboardVariantTests(unittest.TestCase):
                 self.assertEqual(variants.parse_progress_index()["months"][0]["month"], "2027-01")
 
     def test_enriched_data_aggregates_all_months_including_operating_systems(self):
+        """档案聚合必须自洽；累计值随日志增长，因此校验关系而不是具体数字。"""
         data = variants.enriched_data()
-        exam_subjects = {
-            item["name"]: item["minutes"] for item in data["archive"]["exam_subjects"]
-        }
-        self.assertEqual(exam_subjects.get("专业课-操作系统"), 2013)
-        self.assertEqual(exam_subjects.get("数学-高数"), 21930)
-        self.assertEqual(exam_subjects.get("专业课-组成原理"), 5285)
-        self.assertEqual(exam_subjects.get("英语"), 3597)
-        self.assertEqual(data["summary"]["archive_total_minutes"], 50847)
-        self.assertEqual(data["summary"]["archive_exam_minutes"], 44141)
-        self.assertEqual(data["summary"]["archive_other_minutes"], 6706)
+        archive = data["archive"]
+        months = archive["months"]
+        exam_subjects = {item["name"]: item["minutes"] for item in archive["exam_subjects"]}
+
+        # 每个月：分科之和等于月总时长，两栏相加也等于月总时长。
+        for month in months:
+            self.assertEqual(
+                sum(item["minutes"] for item in month["subjects"]),
+                month["total_minutes"],
+                month["month"],
+            )
+            self.assertEqual(
+                month["exam_minutes"] + month["other_minutes"],
+                month["total_minutes"],
+                month["month"],
+            )
+
+        # 档案累计由月度概览聚合而来，且考研与课内两栏覆盖全部时长。
+        self.assertEqual(archive["all_total"], sum(m["total_minutes"] for m in months))
+        exam_total_from_months = sum(
+            item["minutes"]
+            for month in months
+            for item in month["subjects"]
+            if variants.canonical_subject(item["name"]) in variants.SUBJECT_ORDER
+        )
+        other_total_from_months = sum(
+            item["minutes"]
+            for month in months
+            for item in month["subjects"]
+            if variants.canonical_subject(item["name"]) not in variants.SUBJECT_ORDER
+        )
+        self.assertEqual(archive["exam_total"], exam_total_from_months)
+        self.assertEqual(archive["other_total"], other_total_from_months)
+        self.assertEqual(archive["exam_total"] + archive["other_total"], archive["all_total"])
+
+        # 科目投入列表按规范科目顺序给出所有已投入科目。
+        self.assertEqual(
+            [item["name"] for item in archive["exam_subjects"]],
+            [name for name in variants.SUBJECT_ORDER if exam_subjects.get(name)],
+        )
+        self.assertTrue(archive["exam_subjects"])
+
+        # 每个考研科目的累计必须等于各月分科之和；操作系统曾因漏聚合而不显示。
+        for name in variants.SUBJECT_ORDER:
+            expected = sum(
+                item["minutes"]
+                for month in months
+                for item in month["subjects"]
+                if variants.canonical_subject(item["name"]) == name
+            )
+            self.assertEqual(exam_subjects.get(name, 0), expected, name)
+        self.assertGreater(exam_subjects.get("专业课-操作系统", 0), 0)
+
+        # summary 的三项档案累计必须与 archive 保持一致。
+        self.assertEqual(data["summary"]["archive_total_minutes"], archive["all_total"])
+        self.assertEqual(data["summary"]["archive_exam_minutes"], archive["exam_total"])
+        self.assertEqual(data["summary"]["archive_other_minutes"], archive["other_total"])
+
+    def test_progress_index_months_reconcile_with_daily_logs(self):
+        """月度概览必须与逐日日志一致，避免每次记录后手工同步漏改。"""
+        from scripts import build_dashboard as base
+
+        index = variants.parse_progress_index()
+        by_month: dict[str, dict] = {}
+        for log in base.load_logs():
+            month = str(log.get("date") or "")[:7]
+            if not month:
+                continue
+            subjects = log.get("subjects") or []
+            values = [int(subject.get("time_min") or 0) for subject in subjects]
+            declared = log.get("total_minutes")
+            if declared is None and not any(values):
+                continue
+            bucket = by_month.setdefault(
+                month, {"days": 0, "total": 0, "exam": 0, "other": 0}
+            )
+            bucket["days"] += 1
+            bucket["total"] += int(declared) if declared is not None else sum(values)
+            for subject, value in zip(subjects, values):
+                key = variants.canonical_subject(subject.get("name", ""))
+                bucket["exam" if key in variants.SUBJECT_ORDER else "other"] += value
+
+        for month in index["months"]:
+            bucket = by_month.get(month["month"])
+            if bucket is None:
+                continue  # 3-5 月只做月度补录，没有逐日日志
+            self.assertEqual(bucket["days"], month["days"], month["month"])
+            self.assertEqual(bucket["total"], month["total_minutes"], month["month"])
+            self.assertEqual(bucket["exam"], month["exam_minutes"], month["month"])
+            self.assertEqual(bucket["other"], month["other_minutes"], month["month"])
+
+        # 反向：有逐日日志的月份必须在月度概览中出现，防止漏登一个月。
+        declared_months = {month["month"] for month in index["months"]}
+        self.assertFalse(set(by_month) - declared_months)
+
+    def test_daily_log_totals_match_their_subjects(self):
+        """每天的 total_minutes 必须等于各科之和；未知的结构化值写 null。"""
+        from scripts import build_dashboard as base
+
+        for log in base.load_logs():
+            subjects = log.get("subjects") or []
+            subtotal = sum(int(subject.get("time_min") or 0) for subject in subjects)
+            declared = log.get("total_minutes")
+            if declared is None:
+                continue
+            self.assertEqual(int(declared), subtotal, log.get("date"))
+            # 带科目前缀的条目必须是规范考研科目，防止 frontmatter 写入
+            # “数学-概统”“操作系统”这类非规范键而被看板静默丢掉。
+            for subject in subjects:
+                log_date = log.get("date")
+                name = str(subject.get("name") or "").strip()
+                self.assertTrue(name, log_date)
+                if name.startswith(("数学-", "专业课-")):
+                    self.assertIn(name, variants.SUBJECT_ORDER, log_date)
 
 
 if __name__ == "__main__":

@@ -46,8 +46,9 @@ StudyProgress/
 4. 只记录有依据的事实：完成事项、明确给出的时长或数量、当前状态、问题和下一步。
 5. 时长使用整数分钟，科目使用下方标准名称。未知的结构化值写 `null`，未知的正文描述写 `未说明`。
 6. 不臆造时长、任务数量、章节状态、完成度、情绪或计划。
-7. 在 `ProgressIndex.md` 中添加或更新简洁记录。
-8. 运行 `python scripts/build_dashboard.py` 重新生成 `dashboard.html`。
+7. 在 `ProgressIndex.md` 中添加或更新简洁记录；同时更新同文件中的月度概览（有记录天数、总时长、考研相关、课内/其他），保持与新日志一致。
+8. 运行 `python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants`；若月度概览或档案累计与每日日志不一致，测试会失败。
+9. 运行 `python scripts/build_dashboard.py` 重新生成 `dashboard.html`。
 
 示例汇报：
 
@@ -117,6 +118,8 @@ python scripts/build_dashboard.py
 python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
 python scripts/build_dashboard.py
 ```
+
+每次提交学习记录前也要运行同一套回归测试，即使只改动了每日日志、`ProgressIndex.md` 和 `dashboard.html`。该测试会将 `ProgressIndex.md` 的月度概览与每日日志 frontmatter 交叉比对，因此漏改月度概览或档案累计不一致都会导致测试失败；请先修正数据再推送。
 
 视觉或交互发生变化时，还需检查生成后的 HTML。
 

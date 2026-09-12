@@ -46,8 +46,9 @@ For each report:
 4. Record only supported facts: completed work, stated time or quantity, current state, problems, and next actions.
 5. Use integer minutes and the canonical subject names below. Use `null` for unknown structured values and `未说明` for unknown narrative fields.
 6. Never invent durations, task counts, chapter status, completion, mood, or plans.
-7. Add a concise row or update to `ProgressIndex.md`.
-8. Run `python scripts/build_dashboard.py` to regenerate `dashboard.html`.
+7. Add a concise row or update to `ProgressIndex.md`; keep the monthly overview in the same file consistent with the new log (recorded days, total, exam-related, and other minutes).
+8. Run `python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants`; it fails when the monthly overview or an archive total disagrees with the daily logs.
+9. Run `python scripts/build_dashboard.py` to regenerate `dashboard.html`.
 
 Example report:
 
@@ -117,6 +118,12 @@ After changing dashboard code, run the regression suite first:
 python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
 python scripts/build_dashboard.py
 ```
+
+Run the same suite before every study-report logging commit, even when only the
+daily logs, `ProgressIndex.md`, and `dashboard.html` changed. The suite
+cross-checks the monthly overview in `ProgressIndex.md` against the daily-log
+frontmatter, so a forgotten overview update or an inconsistent archive total
+fails the run. Fix the data before pushing.
 
 Inspect the generated HTML after visual or interaction changes.
 
