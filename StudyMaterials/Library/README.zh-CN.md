@@ -51,6 +51,8 @@ Library/
 
 ## 查询缓存
 
+解释器按根 README「运行环境」执行：Windows 直接用 `python`（或 `py -3`）；WSL/Linux 优先 `./.venv/bin/python`，否则 `python3`。
+
 打开大型 PDF 前，先检索本地缓存：
 
 ```bash
@@ -75,10 +77,10 @@ python scripts/page_ocr.py --all
 
 构建器会递归发现 PDF，优先提取内嵌文本，对扫描页回退到 OCR，能够续跑未完成的 JSON 检查点，并跳过完整缓存。内嵌文本层会先做乱码检测（私有区字形、替换符、可读字符占比），损坏的文本层（如 `f(x)` 提取成 `f  x `）会被弃用并改用 OCR，避免污染缓存。
 
-对扫描版数学书（公式密集、RapidOCR 会丢失积分号与分式结构），把问题页渲染成图片后直接阅读，重新转写为高保真文本：
+对扫描版数学书（公式密集、RapidOCR 会丢失积分号与分式结构），把问题页渲染成图片后直接阅读，重新转写为高保真文本。输出目录需先创建（例如 `mkdir -p tmp/vision-pages`）；渲染页属一次性产物，用后删除：
 
 ```bash
-pdftoppm -f 161 -l 188 -r 180 -png "StudyMaterials/Library/408/某书.pdf" /tmp/vision-pages/p
+pdftoppm -f 161 -l 188 -r 180 -png "StudyMaterials/Library/408/某书.pdf" tmp/vision-pages/p
 ```
 
 分批读取渲染出的页面图片，逐页转写为 LaTeX 公式的 Markdown，然后把该页范围合并回 `.docling.json` 缓存，保留 `total_pages` 与页级结构。只修复需要修复的页面，缓存其余部分保持不动。

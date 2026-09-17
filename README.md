@@ -67,6 +67,15 @@ PostgraduateExamPrep/
     MistakeBook/                 # Subject-level mistake books
 ```
 
+## Runtime Environment
+
+The `python` in the command examples means the active Python 3 interpreter of the current operating system:
+
+- Native Windows (current setup): use the system Python directly, `python` or `py -3`; no virtual environment is required. On Windows the `python3` alias is a non-functional Microsoft Store stub.
+- WSL/Linux: prefer `./.venv/bin/python` when a repository-root `.venv` exists, otherwise `python3`.
+
+A fresh interpreter installs dependencies on demand: dashboard builds need `pyyaml`, page-level OCR needs `pymupdf` and `rapidocr`, and the legacy Docling builder needs `docling`.
+
 ## Daily Progress
 
 A natural-language report is normalized into:

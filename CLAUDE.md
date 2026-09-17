@@ -20,6 +20,8 @@ This is a personal study-management workspace for China's 11408 postgraduate ent
 
 ## Common Commands
 
+Run the commands with the active Python 3 interpreter: on Windows use `python` (or `py -3`; the `python3` alias is a non-functional Store stub); on WSL/Linux prefer `./.venv/bin/python` when a repository-root `.venv` exists, otherwise `python3`. See the Python environment section in `AGENTS.md`.
+
 ```bash
 # Regenerate the dashboard after progress-data changes
 python scripts/build_dashboard.py

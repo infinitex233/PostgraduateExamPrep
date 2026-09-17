@@ -106,6 +106,8 @@ DailyLogs frontmatter + archive summaries
 
 ## Build and Test
 
+Interpreter follows the root README "Runtime Environment" section: on Windows run `python` (or `py -3`) directly; on WSL/Linux prefer `./.venv/bin/python` when present, otherwise `python3`.
+
 Regenerate the dashboard after any daily-log, progress-index, monthly-summary, or dashboard-code change:
 
 ```bash

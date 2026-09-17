@@ -51,6 +51,8 @@ The primary page-level format is:
 
 ## Query The Cache
 
+Interpreter follows the root README "Runtime Environment" section: on Windows run `python` (or `py -3`) directly; on WSL/Linux prefer `./.venv/bin/python` when present, otherwise `python3`.
+
 Search the local cache before opening a large PDF:
 
 ```bash
@@ -75,10 +77,10 @@ python scripts/page_ocr.py --all
 
 The builder discovers PDFs recursively, uses embedded text when available, falls back to OCR for scanned pages, resumes incomplete JSON checkpoints, and skips complete caches. Embedded text layers are screened for garbled font mappings first (private-use glyphs, replacement chars, unreadable ratios); a corrupt layer such as `f(x)` extracting as `f  x ` is discarded in favor of OCR so it cannot pollute the cache.
 
-For scanned math books whose dense formulas RapidOCR cannot preserve (lost integral signs, broken fractions), re-transcribe the affected pages at high fidelity by rendering them and reading them directly:
+For scanned math books whose dense formulas RapidOCR cannot preserve (lost integral signs, broken fractions), re-transcribe the affected pages at high fidelity by rendering them and reading them directly. Create the output directory first (for example `mkdir -p tmp/vision-pages`); rendered pages are one-off artifacts and must be deleted afterwards:
 
 ```bash
-pdftoppm -f 161 -l 188 -r 180 -png "StudyMaterials/Library/408/某书.pdf" /tmp/vision-pages/p
+pdftoppm -f 161 -l 188 -r 180 -png "StudyMaterials/Library/408/某书.pdf" tmp/vision-pages/p
 ```
 
 Read the rendered page images in batches, transcribe each page into LaTeX-formula Markdown, then merge only that page range into the `.docling.json` cache while preserving `total_pages` and the page-level structure. Repair just the pages that need it and leave the rest of the cache untouched.

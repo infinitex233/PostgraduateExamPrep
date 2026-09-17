@@ -67,6 +67,15 @@ PostgraduateExamPrep/
     MistakeBook/                 # 按具体科目组织的错题本
 ```
 
+## 运行环境
+
+命令示例中的 `python` 指当前操作系统正在使用的 Python 3 解释器：
+
+- Windows（当前环境）：直接使用系统 Python，`python` 或 `py -3`，无需虚拟环境；Windows 上 `python3` 是 Microsoft Store 占位程序，不可用。
+- WSL/Linux：若仓库根存在 `.venv`，优先用 `./.venv/bin/python`，否则用 `python3`。
+
+全新解释器按需安装依赖：看板构建需要 `pyyaml`，逐页 OCR 需要 `pymupdf` 与 `rapidocr`，旧版 Docling 构建器需要 `docling`。
+
 ## 每日进度
 
 自然语言汇报会整理到：

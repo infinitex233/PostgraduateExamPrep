@@ -106,6 +106,8 @@ DailyLogs frontmatter + 历史汇总
 
 ## 生成与测试
 
+解释器按根 README「运行环境」执行：Windows 直接用 `python`（或 `py -3`）；WSL/Linux 优先 `./.venv/bin/python`，否则 `python3`。
+
 修改每日日志、进度索引、月度汇总或看板代码后，重新生成看板：
 
 ```bash
