@@ -4,6 +4,9 @@ StudyMaterials/**/*.pdf
 # Claude Code internal files
 .claude/
 
+# ZCode internal files
+.zcode/
+
 # Common local clutter
 Thumbs.db
 .DS_Store
