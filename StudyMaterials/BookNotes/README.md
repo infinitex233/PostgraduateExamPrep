@@ -28,9 +28,18 @@ Update one textbook note chapter by chapter. Preserve user annotations and order
 - When editing a chapter, bring nearby supplemental explanations into this blockquote format without reformatting unrelated primary content.
 - Prefer reusable frameworks, definitions, exam patterns, error traps, and useful entry points over reproducing the textbook.
 
+## Emphasis Marks
+
+- Use `**...**` bold for three things: named theorems, formulas, methods, and core concepts wherever they appear in prose (such as `**格林公式**`, `**洛必达法则**`); short lead-in labels at the start of a bullet or paragraph that end with a full-width colon, including numbered labels where the number is bolded together with the label (such as `**1. 换元积分法**：`); and recurring section labels such as 教材提炼, bolded consistently throughout the note.
+- Use `==...==` highlight only for error-trap phrases inside caution blockquotes. Keep at most one highlight per leaf heading, and choose the phrase deliberately as a complete clause instead of applying it mechanically.
+- Never place emphasis marks inside `$...$` inline math, `$$` display blocks, headings, or table rows. Keep each marker pair on a single line. Do not nest marks inside an existing bold span and avoid adjacent `****`.
+- Emphasis marks are additive formatting only and never override the content-layer rules above: primary textbook content stays in the body, and supplemental explanation stays in blockquotes.
+
 ## Maintenance
 
 - Keep the Typora `[TOC]` marker at the top of long notes instead of maintaining a duplicate manual outline.
 - After the content of each leaf heading, keep three blank lines before the next heading, matching the reference note format. Do not append a blank paragraph after the final line of the file.
 - Add page references for definitions, formulas, theorems, important conclusions, and common mistakes when possible.
 - Update only the chapter currently under review. Preserve the user's additions, deletions, annotations, ordering, and personal wording, and merge around them instead of replacing the note wholesale.
+- Apply the emphasis conventions above to new chapter content as it is written. Do not restyle existing unrelated chapters wholesale without an explicit request.
+- Before finishing, check that math segments contain no `**` or `==`, that marker pairs are balanced, and that no `***` or `****` sequences were introduced.
