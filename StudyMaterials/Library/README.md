@@ -110,6 +110,19 @@ text-free transition page, so the caches still cover every PDF page. Formulas
 are transcribed as LaTeX with balanced `$` / `$$` delimiters and no unresolved
 `[?]` markers.
 
+## Partially Verified Basic Mathematics Cache
+
+`27张宇基础30讲高数.docling.json` was partially rebuilt with the
+vision-transcription pipeline on 2026-09-19: PDF pages 1-284 are high-fidelity
+LaTeX transcriptions (handwritten margin notes included; formulas and `$` /
+`$$` delimiters verified), while pages 285-586 still hold the original
+RapidOCR text and may contain broken formulas. When a query hits page 285 or
+later, verify formulas against the source PDF.
+
+The caches for `27张宇基础30讲线代`, `27张宇基础30讲概率`, and the four 408
+books remain unfixed: body prose is mostly usable, but figure regions and
+formulas may still contain OCR errors.
+
 ## Evidence And Page Numbers
 
 OCR cache matches identify candidate PDF pages only. Open the source PDF when an answer depends on:
