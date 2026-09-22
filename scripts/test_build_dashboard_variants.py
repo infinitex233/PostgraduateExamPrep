@@ -342,7 +342,10 @@ class DashboardVariantTests(unittest.TestCase):
             stages,
         )
         self.assertIn(
-            {"subject": "专业课-操作系统", "phase": "基础阶段", "status": "进行中"},
+            {"subject": "专业课-操作系统", "phase": "基础阶段", "status": "完结"}, stages
+        )
+        self.assertIn(
+            {"subject": "专业课-计算机网络", "phase": "基础阶段", "status": "进行中"},
             stages,
         )
 
