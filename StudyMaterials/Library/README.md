@@ -119,9 +119,29 @@ LaTeX transcriptions (handwritten margin notes included; formulas and `$` /
 RapidOCR text and may contain broken formulas. When a query hits page 285 or
 later, verify formulas against the source PDF.
 
-The caches for `27张宇基础30讲线代`, `27张宇基础30讲概率`, and the four 408
-books remain unfixed: body prose is mostly usable, but figure regions and
+The caches for `27张宇基础30讲线代`, `27张宇基础30讲概率`, and the four 王道
+408 books remain unfixed: body prose is mostly usable, but figure regions and
 formulas may still contain OCR errors.
+
+## Verified 408 Recitation Handbook Cache
+
+`27计算机网络背诵手册(公众号：里昂408考研）.docling.json` was rebuilt from its
+scanned source PDF (`408/27计算机网络背诵手册(公众号：里昂408考研）.pdf`, 125
+pages of 192 ppi page bitmaps with no text layer) with the vision pipeline and
+verified on 2026-09-22; it covers 125 / 125 pages.
+
+Printed headings, tables, formulas, footnotes, exam-question boxes, and figure
+captions are transcribed as printed. Figure interiors are recorded as a list of
+the labels visible in the figure followed by a short description of what the
+figure shows. Watermarks, QR codes, and footer page numbers are omitted, and a
+table continued from the previous page is marked as such. Page numbering:
+`书内印刷页码 + 5 = PDF 页码` (印刷 20 = PDF 25); PDF pages 2-5 hold the table
+of contents and PDF page 125 is the 艾宾浩斯遗忘曲线 appendix, and neither
+carries a printed number.
+
+Per-position bit sequences inside the waveform and framing figures 图 2.3, 图
+2.4, 图 3.3, and 图 3.12 fall below the source bitmap's resolution; those figure
+blocks list only the labels that are legible instead of digit-by-digit values.
 
 ## Evidence And Page Numbers
 
