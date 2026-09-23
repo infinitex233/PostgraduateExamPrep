@@ -293,12 +293,10 @@ class DashboardVariantTests(unittest.TestCase):
                     self.assertIn(f"{label} · {variants.fmt_minutes(minutes)}", capsule_dashboard)
                 else:
                     self.assertIn(f"{label} · 0m", capsule_dashboard)
-            self.assertTrue(
-                any(not exam_subjects.get(name) for name in variants.SUBJECT_ORDER)
-                or len(variants.SUBJECT_ORDER) == len(exam_subjects),
-                "零投入科目必须渲染为未开始，全科目有投入时该项无意义",
-            )
-            self.assertIn("未开始 · 0h", capsule_dashboard)
+            if any(not exam_subjects.get(name) for name in variants.SUBJECT_ORDER):
+                self.assertIn("未开始 · 0h", capsule_dashboard)
+            else:
+                self.assertNotIn("未开始 · 0h", capsule_dashboard)
             archive_range = f'{months[0]["month"]} 至 {months[-1]["month"]}'
             self.assertIn(f"档案累计 · {archive_range}", capsule_dashboard)
             self.assertIn(f"近 7 日投入 · 截至 {latest_short_date}", capsule_dashboard)
