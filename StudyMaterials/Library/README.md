@@ -15,6 +15,7 @@ Library/
     Basic/                     # Foundation-stage Mathematics I PDFs
     Intensive/                 # Intensive-stage Mathematics I PDFs
   Cache/                       # Categorized OCR caches; may be tracked
+    STATUS.md                  # Dated verification records
     408/
     Math/
       Basic/
@@ -27,9 +28,7 @@ Library/
 
 ## Version Control Policy
 
-Textbook and generated PDF files may be large or copyrighted. Keep every PDF below `StudyMaterials/` local and do not commit it. Verified OCR cache JSON under `Cache/` is derived data and may be tracked. Suitable English review artifacts such as `English/WritingTemplates/index.html` may also be tracked.
-
-Before staging cache files, confirm that they are complete, readable, and free of temporary or diagnostic content. Never commit credentials, cookies, browser profiles, personal exports, or machine-specific diagnostics.
+Follow [AGENTS.md](../../AGENTS.md) for source-PDF and Git safety. Verified OCR cache JSON under `Cache/` is derived data that may be tracked after checking completeness, readability, and diagnostic content. Suitable English review artifacts such as `English/WritingTemplates/index.html` may also be tracked.
 
 ## Cache Layout And Format
 
@@ -51,7 +50,7 @@ The primary page-level format is:
 
 ## Query The Cache
 
-Interpreter follows the root README "Runtime Environment" section: on Windows run `python` (or `py -3`) directly; on WSL/Linux prefer `./.venv/bin/python` when present, otherwise `python3`.
+Use the interpreter selected under the root README's [Runtime Environment](../../README.md#runtime-environment) rules for the commands below.
 
 Search the local cache before opening a large PDF:
 
@@ -77,7 +76,7 @@ python scripts/page_ocr.py --all
 
 The builder discovers PDFs recursively, uses embedded text when available, falls back to OCR for scanned pages, resumes incomplete JSON checkpoints, and skips complete caches. Embedded text layers are screened for garbled font mappings first (private-use glyphs, replacement chars, unreadable ratios); a corrupt layer such as `f(x)` extracting as `f  x ` is discarded in favor of OCR so it cannot pollute the cache.
 
-For scanned math books whose dense formulas RapidOCR cannot preserve (lost integral signs, broken fractions), re-transcribe the affected pages at high fidelity by rendering them and reading them directly. Create the output directory first (for example `mkdir -p tmp/vision-pages`); rendered pages are one-off artifacts and must be deleted afterwards:
+For scanned math books whose dense formulas RapidOCR cannot preserve (lost integral signs, broken fractions), re-transcribe the affected pages at high fidelity by rendering them and reading them directly. Create the output directory first (for example `mkdir -p tmp/vision-pages`); remove only the rendered pages created by this task afterwards:
 
 ```bash
 pdftoppm -f 161 -l 188 -r 180 -png "StudyMaterials/Library/408/某书.pdf" tmp/vision-pages/p
@@ -87,61 +86,11 @@ Read the rendered page images in batches, transcribe each page into LaTeX-formul
 
 `scripts/docling_cache.py` is a legacy-compatible alternative that writes Docling JSON and Markdown. Keep it for compatibility, but do not present it as the default workflow. Full-cache generation can process gigabytes of local PDFs and should not be used as a routine documentation or pre-commit check.
 
-## Verified Intensive Mathematics Cache
+## Cache Verification Records
 
-The following intensive-stage Mathematics I caches were rebuilt with a
-vision-model transcription pipeline and verified on 2026-08-14:
-
-| Source PDF | Cache JSON | Page coverage |
-| --- | --- | ---: |
-| `27武忠祥《高等数学辅导讲义.严选题》.pdf` | `27武忠祥《高等数学辅导讲义.严选题》.docling.json` | 219 / 219 |
-| `27武忠祥高数辅导讲义-强化.pdf` | `27武忠祥高数辅导讲义-强化.docling.json` | 315 / 315 |
-| `27版李林880题《数一解析册》.pdf` | `27版李林880题《数一解析册》.docling.json` | 416 / 416 |
-| `27线代杨《满分线性代数》强化讲义.pdf` | `27线代杨《满分线性代数》强化讲义.docling.json` | 318 / 318 |
-| `【A4紧凑版】李林880数一线概篇做题本.pdf` | `【A4紧凑版】李林880数一线概篇做题本.docling.json` | 82 / 82 |
-| `【A4紧凑版】李林880数一高数篇做题本.pdf` | `【A4紧凑版】李林880数一高数篇做题本.docling.json` | 98 / 98 |
-| `张宇1000题_数一_试题册.pdf` | `张宇1000题_数一_试题册.docling.json` | 195 / 195 |
-| `张宇100题_数一_解析册.pdf` | `张宇100题_数一_解析册.docling.json` | 568 / 568 |
-
-The source files live under `Math/Intensive/`, and their caches live under
-`Cache/Math/Intensive/`. Nine pages across these books contain no transcribed
-text; visual inspection confirmed that each is a blank page, back cover, or
-text-free transition page, so the caches still cover every PDF page. Formulas
-are transcribed as LaTeX with balanced `$` / `$$` delimiters and no unresolved
-`[?]` markers.
-
-## Partially Verified Basic Mathematics Cache
-
-`27张宇基础30讲高数.docling.json` was partially rebuilt with the
-vision-transcription pipeline on 2026-09-19: PDF pages 1-284 are high-fidelity
-LaTeX transcriptions (handwritten margin notes included; formulas and `$` /
-`$$` delimiters verified), while pages 285-586 still hold the original
-RapidOCR text and may contain broken formulas. When a query hits page 285 or
-later, verify formulas against the source PDF.
-
-The caches for `27张宇基础30讲线代`, `27张宇基础30讲概率`, and the four 王道
-408 books remain unfixed: body prose is mostly usable, but figure regions and
-formulas may still contain OCR errors.
-
-## Verified 408 Recitation Handbook Cache
-
-`27计算机网络背诵手册(公众号：里昂408考研）.docling.json` was rebuilt from its
-scanned source PDF (`408/27计算机网络背诵手册(公众号：里昂408考研）.pdf`, 125
-pages of 192 ppi page bitmaps with no text layer) with the vision pipeline and
-verified on 2026-09-22; it covers 125 / 125 pages.
-
-Printed headings, tables, formulas, footnotes, exam-question boxes, and figure
-captions are transcribed as printed. Figure interiors are recorded as a list of
-the labels visible in the figure followed by a short description of what the
-figure shows. Watermarks, QR codes, and footer page numbers are omitted, and a
-table continued from the previous page is marked as such. Page numbering:
-`书内印刷页码 + 5 = PDF 页码` (印刷 20 = PDF 25); PDF pages 2-5 hold the table
-of contents and PDF page 125 is the 艾宾浩斯遗忘曲线 appendix, and neither
-carries a printed number.
-
-Per-position bit sequences inside the waveform and framing figures 图 2.3, 图
-2.4, 图 3.3, and 图 3.12 fall below the source bitmap's resolution; those figure
-blocks list only the labels that are legible instead of digit-by-digit values.
+Dated per-book coverage and known OCR limitations are kept in the bilingual
+[cache status record](Cache/STATUS.md). Recheck a cache after it changes; these
+records do not replace the source-PDF evidence rules below.
 
 ## Evidence And Page Numbers
 
@@ -176,7 +125,7 @@ If `index.html` changes and a PDF version is requested, regenerate `index.pdf` s
 
 ## Cleanup And Safety
 
-- Do not rename, move, edit, or delete source PDFs unless explicitly requested.
-- Keep source materials separate from notes and mistake books.
-- Delete rendered PDF pages, screenshots, OCR diagnostics, PID files, temporary services, and other one-off artifacts after use.
-- Report missing or unclear source evidence instead of filling the gap.
+Remove rendered PDF pages, screenshots, OCR diagnostics, PID files, and other
+temporary artifacts created by this task after use. Preserve any pre-existing
+temporary files. Follow [AGENTS.md](../../AGENTS.md) for source-material and
+evidence rules.

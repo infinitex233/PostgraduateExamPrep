@@ -69,9 +69,9 @@ PostgraduateExamPrep/
 
 ## Runtime Environment
 
-The `python` in the command examples means the active Python 3 interpreter of the current operating system:
+The `python` in command examples stands for a verified Python 3 interpreter. Use the selected interpreter explicitly when running a command:
 
-- Native Windows (current setup): use the system Python directly, `python` or `py -3`; no virtual environment is required. On Windows the `python3` alias is a non-functional Microsoft Store stub.
+- Native Windows: use system `python`, falling back to `py -3` if needed. This repository does not use a Windows virtual environment. On the current setup, the `python3` alias is a non-functional Microsoft Store stub.
 - WSL/Linux: prefer `./.venv/bin/python` when a repository-root `.venv` exists, otherwise `python3`.
 
 A fresh interpreter installs dependencies on demand: dashboard builds need `pyyaml`, page-level OCR needs `pymupdf` and `rapidocr`, and the legacy Docling builder needs `docling`.
@@ -145,4 +145,4 @@ Read the documentation in this order before changing files:
 3. `StudyProgress/README.md` for logs, reviews, or dashboard work
 4. `StudyMaterials/README.md`, then the relevant `Library/`, `BookNotes/`, or `MistakeBook/` guide for materials work
 
-`AGENTS.md` is authoritative. `CLAUDE.md` is a concise command and architecture reference.
+`AGENTS.md` is authoritative. `CLAUDE.md` is a concise Claude Code entry point.

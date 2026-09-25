@@ -69,9 +69,9 @@ PostgraduateExamPrep/
 
 ## 运行环境
 
-命令示例中的 `python` 指当前操作系统正在使用的 Python 3 解释器：
+命令示例中的 `python` 代表已确认可用的 Python 3 解释器；实际运行命令时应明确使用选定的解释器：
 
-- Windows（当前环境）：直接使用系统 Python，`python` 或 `py -3`，无需虚拟环境；Windows 上 `python3` 是 Microsoft Store 占位程序，不可用。
+- Windows：使用系统 `python`，不可用时改用 `py -3`。本仓库在 Windows 上不使用虚拟环境。当前环境的 `python3` 是 Microsoft Store 占位程序，不可用。
 - WSL/Linux：若仓库根存在 `.venv`，优先用 `./.venv/bin/python`，否则用 `python3`。
 
 全新解释器按需安装依赖：看板构建需要 `pyyaml`，逐页 OCR 需要 `pymupdf` 与 `rapidocr`，旧版 Docling 构建器需要 `docling`。
@@ -145,4 +145,4 @@ python scripts/build_dashboard.py
 3. 处理日志、复盘或看板时阅读 `StudyProgress/README.md`
 4. 处理学习资料时先阅读 `StudyMaterials/README.md`，再阅读对应的 `Library/`、`BookNotes/` 或 `MistakeBook/` 说明
 
-`AGENTS.md` 是权威规则；`CLAUDE.md` 是精简的命令和架构参考。
+`AGENTS.md` 是权威规则；`CLAUDE.md` 是精简的 Claude Code 使用入口。

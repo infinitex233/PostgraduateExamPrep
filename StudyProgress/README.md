@@ -106,7 +106,7 @@ DailyLogs frontmatter + archive summaries
 
 ## Build and Test
 
-Interpreter follows the root README "Runtime Environment" section: on Windows run `python` (or `py -3`) directly; on WSL/Linux prefer `./.venv/bin/python` when present, otherwise `python3`.
+Use the interpreter selected under the root README's [Runtime Environment](../README.md#runtime-environment) rules for the commands below.
 
 Regenerate the dashboard after any daily-log, progress-index, monthly-summary, or dashboard-code change:
 
@@ -127,6 +127,13 @@ cross-checks the monthly overview in `ProgressIndex.md` against the daily-log
 frontmatter, so a forgotten overview update or an inconsistent archive total
 fails the run. Fix the data before pushing.
 
+After every study-report logging run, inspect `git status --short`, stage only
+the files changed by that run (the daily log, `ProgressIndex.md`,
+`dashboard.html`, and any other files it updated), and inspect the staged diff.
+Commit with a concise message such as `log: <date> study report`, then push to
+the remote. Never push after a failing suite. If the push fails, report the
+failure instead of silently leaving the commit local.
+
 Inspect the generated HTML after visual or interaction changes.
 
 ## Generated-File Policy
@@ -136,6 +143,7 @@ Inspect the generated HTML after visual or interaction changes.
 - Do not create or retain parallel variants such as `dashboard_capsule*.html`, `dashboard_signal.html`, or `DashboardTemplatePreviews.html`.
 - Use `subject_colors` for concrete subjects and `group_colors` for aggregate groups. A subject must keep the same color across charts, legends, totals, and progress indicators.
 - Keep the fixed page sequence and interaction behavior unless the user explicitly requests a structural redesign.
+- Do not change dashboard schema keys, colors, layout, or interaction behavior without an explicit request.
 
 ## Record Integrity
 

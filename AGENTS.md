@@ -60,7 +60,11 @@ values required by code.
 
 ## Typora and mathematical notation
 
-These rules apply to CLI-facing Markdown and repository Markdown:
+For Codex desktop chat replies, use `\(...\)` for inline math and `$$`
+display blocks. Put each `$$` delimiter on its own line with blank lines
+around the block; do not use `$...$` for inline math in desktop chat.
+
+The following rules apply to CLI-facing Markdown and repository Markdown:
 
 - Use `$...$` for inline math and `$$` display blocks. Display delimiters must
   be on separate lines with blank lines around the block.
@@ -86,12 +90,13 @@ These rules apply to CLI-facing Markdown and repository Markdown:
 
 Use the interpreter for the current operating system explicitly on every
 agent-run command. On POSIX, prefer `./.venv/bin/python` when it exists,
-otherwise `python3`, then `python`. On native Windows, prefer
-`.\\.venv\\Scripts\\python.exe`, then `py -3`, then `python`. Verify that the
-selected interpreter is Python 3 before use. Do not create, delete, recreate,
-copy, upgrade, or install a virtual environment merely because it is absent;
-perform environment maintenance only when the task requires missing
-dependencies or the user explicitly requests it.
+otherwise `python3`, then `python`. On native Windows, use system Python:
+prefer `python`, then `py -3`. Do not use or create a repository virtual
+environment on Windows. Verify that the selected interpreter is Python 3
+before use. On POSIX, do not create, delete, recreate, copy, upgrade, or
+install a virtual environment merely because it is absent; perform environment
+maintenance only when the task requires missing dependencies or the user
+explicitly requests it.
 
 Before OCR or document processing, verify that the selected interpreter has
 the required third-party packages. Standard-library-only checks may use any
@@ -115,9 +120,11 @@ compatible Python 3 interpreter.
   the Study progress workflow.
 - Do not use destructive Git commands such as `git reset --hard` or
   `git checkout --` unless explicitly requested.
-- At the end of a task, remove `tmp/`, `__pycache__/`, `.pytest_cache/`,
-  rendered PDF pages, OCR diagnostics, PID files, screenshots, and other
-  one-off artifacts, including empty temporary directories.
+- At the end of a task, remove only temporary files and directories created
+  by that task, including rendered PDF pages, OCR diagnostics, PID files,
+  screenshots, and Python caches; stop temporary services started for the
+  task. Preserve pre-existing contents of `tmp/` and other temporary
+  directories.
 
 ## Workflow routing
 
@@ -125,81 +132,34 @@ compatible Python 3 interpreter.
 
 Treat a natural-language daily study report as a logging request unless the
 user clearly asks only to discuss it. Follow `StudyProgress/README.md` and its
-template. Preserve the original report, record only supported facts, use
-integer minutes and canonical subject names, use `null` for unknown structured
-values, update `ProgressIndex.md`, and regenerate `dashboard.html` with
-`python scripts/build_dashboard.py`. Never infer duration, task counts,
-chapter status, completion, mood, or plans from prose.
-
-`dashboard.html` is generated output, not the source of truth. Do not hand-edit
-it as the only source, create parallel dashboard variants, or change dashboard
-schema keys, colors, layout, or interaction behavior without an explicit
-request. Run the regression tests and rebuild after dashboard-code changes.
-
-Before committing any study-report logging run, always run the regression
-suite, even when only `DailyLogs/`, `ProgressIndex.md`, and `dashboard.html`
-changed:
-
-```bash
-python -m unittest scripts.test_build_dashboard scripts.test_build_dashboard_variants
-python scripts/build_dashboard.py
-```
-
-The suite cross-checks `ProgressIndex.md` against the daily logs, so a stale
-monthly overview or an inconsistent archive total fails the run. Fix the data
-before pushing; never push with a failing suite.
-
-After every study-report logging run, commit the resulting changes and push
-them to the remote. Stage only the paths touched by the logging run (log
-records, `ProgressIndex.md`, `dashboard.html`, and any other files updated by
-that run) after inspecting the staged diff. Use a concise commit message
-matching the repo style, such as `log: <date> study report`. If the push fails,
-report the failure instead of silently leaving it.
+template for the data rules, dashboard build, and checks. Every study-report
+logging run must pass the regression suite, then commit its changes and push
+them to the remote as specified in that guide. Never push with failing tests;
+report a push failure.
 
 ### Textbook lookup and library materials
 
-Follow `StudyMaterials/Library/README.md`. Search the local cache with
-`scripts/query.py` before opening a large PDF. Cache matches are candidate
-pages only: inspect the source PDF for exact wording, formulas, diagrams,
-examples, or ambiguous OCR. When reporting a location, distinguish both
-`书内印刷页码` and `PDF 页码`; state when either cannot be confirmed. Never
-fabricate textbook content, locations, examples, formulas, or conclusions.
-
-Use `scripts/page_ocr.py` as the primary offline cache builder and
-`scripts/docling_cache.py` only as the legacy-compatible alternative. For
-scanned math books whose dense formulas need high-fidelity transcription,
-re-render the affected pages and read them directly; see
-`StudyMaterials/Library/README.md`. Both builders must use the source-relative
-layout defined by `scripts/cache_layout.py`.
+Follow `StudyMaterials/Library/README.md` for cache-first lookup, source-PDF
+verification, page citations, and OCR maintenance. Cache matches are candidate
+pages; never fabricate textbook content or locations.
 
 ### Book notes
 
-Follow `StudyMaterials/BookNotes/README.md`. Maintain one rolling Markdown
-note per textbook, update only the chapter under review, read the source pages,
-and preserve the user's additions, deletions, ordering, annotations, and
-wording. Keep verified textbook content separate from supplemental explanation
-and retain page references where possible.
+Follow `StudyMaterials/BookNotes/README.md` for chapter-scoped, source-verified
+updates to each textbook's rolling note.
 
 ### Mistake books
 
-Follow `StudyMaterials/MistakeBook/README.md`. Maintain one Markdown file per
-concrete subject, with the full subject name, a Typora `[TOC]`, and headings
-only for chapters, sections, and knowledge points. Each question stays in
-normal body content and contains only the question, answer, analysis, and a
-final source blockquote beginning with `> 来源：`. Preserve existing entries;
-do not add review schedules, mastery states, YAML metadata, or daily-log links.
+Follow `StudyMaterials/MistakeBook/README.md` for the subject files, question
+format, and source citations.
 
 ### English materials
 
-Keep English sources and derived review artifacts under
-`StudyMaterials/Library/English/` and follow the Library guide. Preserve source
-order when transcribing material and omit watermarks, platform chrome,
-screenshot noise, and OCR diagnostics. If `English/WritingTemplates/index.html`
-changes and the user requests a PDF, regenerate the matching `index.pdf`.
+Follow the English-materials section of `StudyMaterials/Library/README.md`.
 
 ## Verification and handoff
 
 Run checks proportional to the changed surface. Confirm generated files are
 readable and organized, verify README language links and referenced paths,
-and remove Python caches after Python checks. Report checks that could not be
-run and list the exact changed paths in the handoff.
+and remove Python caches created by this task after Python checks. Report
+checks that could not be run and list the exact changed paths in the handoff.

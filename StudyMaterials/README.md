@@ -23,10 +23,6 @@ StudyMaterials/
 
 Read this file first, then follow the guide that owns the target directory. Keep source materials in `Library/`, textbook notes in `BookNotes/`, and mistake questions in `MistakeBook/`.
 
-## Shared Rules
-
-- Keep every PDF below `StudyMaterials/` local and out of Git.
-- Verified OCR cache JSON under `Library/Cache/` may be tracked after checking completeness and contents.
-- Preserve user-authored notes, mistake entries, annotations, ordering, and personal wording.
-- Do not rename, move, edit, or delete source materials unless explicitly requested.
-- Keep source evidence separate from derived notes and report missing evidence instead of inventing details.
+The [repository-wide rules](../AGENTS.md) cover source-material safety, Git,
+and preservation of user-authored content; each guide above supplies its own
+format and procedure.

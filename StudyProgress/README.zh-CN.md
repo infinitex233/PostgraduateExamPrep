@@ -106,7 +106,7 @@ DailyLogs frontmatter + 历史汇总
 
 ## 生成与测试
 
-解释器按根 README「运行环境」执行：Windows 直接用 `python`（或 `py -3`）；WSL/Linux 优先 `./.venv/bin/python`，否则 `python3`。
+以下命令使用根 README [「运行环境」](../README.zh-CN.md#运行环境) 中选定的解释器执行。
 
 修改每日日志、进度索引、月度汇总或看板代码后，重新生成看板：
 
@@ -123,6 +123,8 @@ python scripts/build_dashboard.py
 
 每次提交学习记录前也要运行同一套回归测试，即使只改动了每日日志、`ProgressIndex.md` 和 `dashboard.html`。该测试会将 `ProgressIndex.md` 的月度概览与每日日志 frontmatter 交叉比对，因此漏改月度概览或档案累计不一致都会导致测试失败；请先修正数据再推送。
 
+每次记录学习汇报后，先查看 `git status --short`，只暂存本次记录修改的文件（每日日志、`ProgressIndex.md`、`dashboard.html` 及本次实际更新的其他文件），并检查暂存区差异。使用 `log: <date> study report` 等简洁信息提交，然后推送到远端。测试失败时不得推送；推送失败时应明确报告，不得悄然只留下本地提交。
+
 视觉或交互发生变化时，还需检查生成后的 HTML。
 
 ## 生成文件规则
@@ -132,6 +134,7 @@ python scripts/build_dashboard.py
 - 不创建或保留 `dashboard_capsule*.html`、`dashboard_signal.html`、`DashboardTemplatePreviews.html` 等并行版本。
 - 具体科目使用 `subject_colors`，大类汇总使用 `group_colors`。同一科目在图表、图例、统计和进度指示中必须保持同色。
 - 除非用户明确要求结构调整，否则保持固定分页顺序和交互行为。
+- 未经用户明确要求，不修改看板 schema 键、颜色、版式或交互行为。
 
 ## 记录完整性
 
