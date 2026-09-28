@@ -124,7 +124,8 @@ compatible Python 3 interpreter.
   by that task, including rendered PDF pages, OCR diagnostics, PID files,
   screenshots, and Python caches; stop temporary services started for the
   task. Preserve pre-existing contents of `tmp/` and other temporary
-  directories.
+  directories. If `tmp/` is empty after cleanup, remove the `tmp/` directory
+  itself.
 
 ## Workflow routing
 
