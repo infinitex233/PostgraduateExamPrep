@@ -21,6 +21,13 @@ Update each textbook note in textbook chapter order, covering only chapters that
 - Source textbook: 27线代杨《满分线性代数》强化讲义
 - Source PDF: [27线代杨《满分线性代数》强化讲义.pdf](../Library/Math/Intensive/27线代杨《满分线性代数》强化讲义.pdf)
 
+## Probability and Statistics Intensive Notes
+
+- Note: [概统强化笔记.md](Math/概统强化笔记.md)
+- Source textbook: Fang Hao, Probability and Mathematical Statistics, Intensive Volume (2027 edition)
+- Source PDF: [2027考研数学--概率统计就这点事-强化篇--方浩.pdf](../Library/Math/Intensive/2027考研数学--概率统计就这点事-强化篇--方浩.pdf)
+- Current coverage: Chapters 1-8, organized as concise knowledge and formula references without page annotations.
+
 ## Content Layers
 
 - Read the corresponding source pages before updating a chapter, and merge only verified material into the existing note.
