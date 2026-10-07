@@ -759,9 +759,7 @@ def render_capsule_dashboard(data: dict) -> str:
         return f'<span class="phase-chip {state}">{esc(text)}</span>'
 
     progress_rows = []
-    for item in sorted(
-        archive_exam_subjects, key=lambda it: it.get("minutes", 0), reverse=True
-    ):
+    for item in archive_exam_subjects:
         name = item.get("name", "")
         if name in ("其他", "其它"):
             continue
