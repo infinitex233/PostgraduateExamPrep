@@ -14,12 +14,14 @@ Update each textbook note in textbook chapter order, covering only chapters that
 - Note: [高数强化笔记.md](Math/高数强化笔记.md)
 - Source textbook: `27武忠祥高数辅导讲义-强化`
 - Source PDF: [27武忠祥高数辅导讲义-强化.pdf](../Library/Math/Intensive/27武忠祥高数辅导讲义-强化.pdf)
+- Current coverage: Chapters 1-9, organized as concise knowledge and formula references without page annotations.
 
 ## Linear Algebra Intensive Notes
 
 - Note: [线代强化笔记.md](Math/线代强化笔记.md)
 - Source textbook: 27线代杨《满分线性代数》强化讲义
 - Source PDF: [27线代杨《满分线性代数》强化讲义.pdf](../Library/Math/Intensive/27线代杨《满分线性代数》强化讲义.pdf)
+- Current coverage: Chapters 1-6, organized as concise knowledge and formula references without page annotations.
 
 ## Probability and Statistics Intensive Notes
 

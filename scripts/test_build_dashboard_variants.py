@@ -7,6 +7,39 @@ from scripts import build_dashboard_variants as variants
 
 
 class DashboardVariantTests(unittest.TestCase):
+    def test_whole_math_papers_count_as_exam_time_without_subject_split(self):
+        logs = [{
+            "date": "2026-10-06",
+            "phase": "真题阶段",
+            "total_minutes": 533,
+            "subjects": [
+                {"name": "数学-真题", "time_min": 194},
+                {"name": "数学-线代", "time_min": 123},
+                {"name": "数学-概率", "time_min": 65},
+                {"name": "政治", "time_min": 96},
+                {"name": "专业课-计算机网络", "time_min": 55},
+            ],
+        }]
+        archive = {
+            "months": [{
+                "month": "2026-10", "days": 1, "total_minutes": 533,
+                "exam_minutes": 533, "other_minutes": 0, "subjects": [],
+            }],
+            "all_total": None, "exam_total": None, "other_total": None,
+            "exam_subjects": [], "other_subjects": [], "subject_stages": [],
+        }
+        with patch.object(variants.build_dashboard, "load_logs", return_value=logs), \
+             patch.object(variants, "parse_progress_index", return_value=archive):
+            data = variants.enriched_data()
+
+        self.assertEqual(data["group_totals"]["数学"], 382)
+        self.assertNotIn("数学-高数", data["subject_totals"])
+        self.assertEqual(data["subject_totals"]["数学-线代"], 123)
+        self.assertEqual(data["subject_totals"]["数学-概率"], 65)
+        self.assertEqual(data["archive"]["exam_total"], 533)
+        self.assertEqual(data["archive"]["other_total"], 0)
+        self.assertIn({"name": "数学-真题", "minutes": 194}, data["archive"]["exam_subjects"])
+
     def test_all_renderers_are_self_contained(self):
         data = variants.enriched_data()
         for html in (
@@ -226,7 +259,7 @@ class DashboardVariantTests(unittest.TestCase):
             self.assertIn("function lengthForRoundedRectArea", capsule_dashboard)
             self.assertNotIn(".stack-track i:first-child", capsule_dashboard)
             self.assertNotIn(".month-pill .capsule-track i:last-child", capsule_dashboard)
-            self.assertIn("按基础 / 强化阶段分列", capsule_dashboard)
+            self.assertIn("按科目阶段分列", capsule_dashboard)
             self.assertIn("SUBJECT_COLORS", capsule_dashboard)
             self.assertNotIn("#6F90C9", capsule_dashboard)
             self.assertIn(
@@ -241,14 +274,14 @@ class DashboardVariantTests(unittest.TestCase):
             expected_label_swaps = [
                 '<div class="tag sky">档案月度口径</div><h2 style="margin-top:20px">月度概览</h2>',
                 '<div class="tag peach">来自最新日志</div><h2 style="margin-top:20px">下一步</h2>',
-                '<div class="tag lavender">按基础 / 强化阶段分列</div><h2 style="margin-top:20px">当前推进</h2>',
+                '<div class="tag lavender">按科目阶段分列</div><h2 style="margin-top:20px">当前推进</h2>',
                 '<div class="tag yellow">保留原始节奏</div><h2 style="margin-top:20px">最近记录</h2>',
                 '<div class="tag violet">章节状态与标签</div><h2 style="margin-top:20px">节点</h2>',
             ]
             for snippet in expected_label_swaps:
                 self.assertIn(snippet, capsule_dashboard)
 
-            # 当前推进：基础/强化阶段徽章分列，含档案期完结科目（数据结构），去掉课内/其他。
+            # 当前推进：各科阶段徽章分列，含档案期完结科目（数据结构），去掉课内/其他。
             done_stage = next(
                 item
                 for item in data["subject_stages"]
@@ -260,10 +293,12 @@ class DashboardVariantTests(unittest.TestCase):
                 f'<i>已完结</i></span>',
                 capsule_dashboard,
             )
-            self.assertIn(
-                '<span class="phase-chip doing"><em>强化阶段</em>',
-                capsule_dashboard,
-            )
+            for stage in data["subject_stages"]:
+                if variants.progress_status_class(stage.get("status")) == "doing":
+                    self.assertIn(
+                        f'<span class="phase-chip doing"><em>{variants.esc(stage["phase"])}</em>',
+                        capsule_dashboard,
+                    )
             # 进行中科目必须回显 latest_chapter 的当前章节，而不是历史章节。
             # 注意：不要求一定存在进行中章节（全部完结是合法状态）。
             ongoing_chapters = [

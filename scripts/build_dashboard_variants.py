@@ -34,6 +34,7 @@ CAPSULE_SUBJECT_COLORS = {
     "数学-高数": "#E85D4E",
     "数学-线代": "#C4D94E",
     "数学-概率": "#C5B5E0",
+    "数学-真题": build_dashboard.GROUP_COLORS["数学"],
     "专业课-数据结构": "#8BB4F7",
     "专业课-组成原理": "#A06CE8",
     "专业课-操作系统": "#F2D160",
@@ -1012,7 +1013,7 @@ h3 {{ font-size:38px; line-height:1; }}
 </section>
 <section class="slide" aria-label="当前推进">
   <div class="chrome"><span>CURRENT PROGRESS</span><span>04 / 05</span></div>
-  <div style="padding-top:34px"><div class="tag lavender">按基础 / 强化阶段分列</div><h2 style="margin-top:20px">当前推进</h2><div class="progress-list">{progress_html}</div></div>
+  <div style="padding-top:34px"><div class="tag lavender">按科目阶段分列</div><h2 style="margin-top:20px">当前推进</h2><div class="progress-list">{progress_html}</div></div>
 </section>
 <section class="slide" aria-label="最近记录与节点">
   <div class="chrome"><span>ROUTE LOG</span><span>05 / 05</span></div>

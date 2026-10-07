@@ -67,12 +67,17 @@ Canonical subject keys must remain unchanged because aggregation and dashboard c
 - `数学-高数`
 - `数学-线代`
 - `数学-概率`
+- `数学-真题`
 - `专业课-数据结构`
 - `专业课-组成原理`
 - `专业课-操作系统`
 - `专业课-计算机网络`
 - `英语`
 - `政治`
+
+Use `数学-真题` for whole Mathematics I past-paper sessions whose calculus,
+linear-algebra, and probability durations were not reported separately. Count
+these minutes once as exam-related mathematics; never infer a subject split.
 
 Do not replace an unknown value with zero. Zero means the user explicitly reported no study for that subject; `null` means the value was not provided.
 
